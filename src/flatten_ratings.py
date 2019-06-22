@@ -102,7 +102,7 @@ class ResultFlattener(object):
 
 def main(argv):
   if len(argv) != 3:
-    print('Usage: <input_csv> <output_csv>')
+    print('Usage: %s <input_csv> <output_csv>' % (argv[0]))
     sys.exit(1)
   flatten = ResultFlattener()
   flatten.LoadData(argv[1])

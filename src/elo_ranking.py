@@ -232,7 +232,7 @@ def PrintRatings(season, tag, ratings, counts, whitelist, missed_count):
       if dev != 0:
         ndevs = (rating.rating - avg) / dev
       print('Elo,%s,%s,%s,%.3f,%d' % (tag, season, name, rating.rating, rating.k_factor))
-      print('Cdf,%s,%s,%s,%.3f,%d' % (tag, season, name, norm.cdf(ndevs), rating.k_factor))
+      print('ZScore,%s,%s,%s,%.3f,%d' % (tag, season, name, norm.cdf(ndevs), rating.k_factor))
 
 def PartialRevertDriversToNew(ratings):
   """Revert each driver partially back to the rating of an new driver.
@@ -242,7 +242,7 @@ def PartialRevertDriversToNew(ratings):
 
 def main(argv):
   if len(argv) != 2:
-    print('Invalid usage')
+    print('Usage: %s <input_tsv>' % (argv[0]))
     sys.exit(1)
   drivers = set()
   races = dict()
