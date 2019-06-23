@@ -165,20 +165,20 @@ def ImportData(tsvfile, drivers, outdict):
   """
   with open(tsvfile, 'r') as infile:
     # Year  Race    RaceType    DriverID    Result
-    csvreader = csv.DictReader(infile, delimiter='\t')
+    csvreader = csv.reader(infile, delimiter='\t')
     for row in csvreader:
       year = int(row[0])
       race_id = int(row[1])
       # Race type Q: qualifying; R: race
       # Other types are non-championship races (e.g., the Indy 500 in the 50s)
       race_type = row[2]
-      driver_id = row[3]
-      # Place can be numeric (e.g., "1") or not (e.g., "R" for "Retired").
-      place = row[4].encode('ascii', 'ignore')
       if race_type != 'Q' and race_type != 'R':
         continue
+      driver_id = row[3]
+      # Place can be numeric (e.g., "1") or not (e.g., "R" for "Retired").
+      place = row[4]
       try:
-        place = int(place)
+        place = int(row[4])
       except:
         # A non-numeric place; skip it
         continue
