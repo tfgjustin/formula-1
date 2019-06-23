@@ -50,6 +50,7 @@ def WinProbability(r_a, r_b):
     q_b = 10 ** (r_b / 400)
     return q_a / (q_a + q_b)
 
+
 def InitDrivers(names, ratings, counts):
   """Initialize the full set of drivers with their initial rating, k-factor, and race count.
 
@@ -61,14 +62,17 @@ def InitDrivers(names, ratings, counts):
     ratings[name] = DriverRating(INIT_RANKING, INIT_K_FACTOR)
     counts[name] = 0
 
+
 def SetDriversFromOrdering(ordering, curr_drivers):
   """Given a result ordering, ensure that all drivers are in the whitelist.
   """
-  for a_place,a_name in ordering.iteritems():
+  for a_place,a_name in ordering.items():
     if a_name not in curr_drivers:
       curr_drivers.add(a_name)
 
-def OneRace(tag, ordering, ratings, counts, curr_drivers, missed_count, k_scale):
+
+def OneRace(tag, ordering, ratings, counts, curr_drivers, missed_count, k_scale,
+            csvwriter):
   """Perform the Elo calculations for a single race.
 
   tag: unique string identifier for this race
@@ -78,18 +82,19 @@ def OneRace(tag, ordering, ratings, counts, curr_drivers, missed_count, k_scale)
   curr_drivers: set of current active drivers
   missed_count: map of driver ID to the number of races they've missed
   k_scale: k-factor scaling for this race (1.0 for a race, 0.1 for qualifying)
+  csvwriter: CSV writer object where we log data
   """
   expected_wins = dict()
   actual_wins = dict()
   num_drivers = len(ordering)
   # For each driver go through and figure out how many opponents they should have
   # defeated versus how many they actually did defeat.
-  for a_place,a_name in ordering.iteritems():
+  for a_place,a_name in ordering.items():
     if a_name not in curr_drivers:
       curr_drivers.add(a_name)
     exp_wins = 0
     act_wins = 0
-    for b_place,b_name in ordering.iteritems():
+    for b_place,b_name in ordering.items():
       if a_name == b_name:
         # Driver cannot compete against themselves
         continue
@@ -102,10 +107,10 @@ def OneRace(tag, ordering, ratings, counts, curr_drivers, missed_count, k_scale)
     expected_wins[a_name] = exp_wins
     actual_wins[a_name] = act_wins
     mse = (exp_wins - act_wins) ** 2
-    print('Place,%s,%s,%s,%d,%d' % (tag, tag[1:5], a_name, num_drivers - act_wins, num_drivers))
-    print('#ERR %s %s %4s %6.2f %6.2f %7.2f' % (tag, tag[1:5], a_name, exp_wins,
-                                                act_wins, mse))
-
+    csvwriter.writerow(['Place', tag, tag[1:5], a_name, num_drivers - act_wins,
+                        num_drivers])
+    csvwriter.writerow(['#ERR', tag, tag[1:5], a_name, '%.2f' % exp_wins,
+                        '%.2f' % act_wins, '%.2f' % mse])
   # Mapping of driver ID to new ratings and k-factors
   new_ratings = dict()
   new_factors = dict()
@@ -152,9 +157,17 @@ def OneRace(tag, ordering, ratings, counts, curr_drivers, missed_count, k_scale)
   # Drivers only get new ratings if they finished, so only update ratings of those drivers.
   # Also re-normalize so pointsIn==pointsOut
   ratio = before_points / after_points
-  for name,new_rating in new_ratings.iteritems():
+  for name,new_rating in new_ratings.items():
     ratings[name].rating = new_rating * ratio
     ratings[name].k_factor = new_factors[name]
+
+
+def IsValidRow(row):
+  for header in ['Year', 'RaceID', 'RaceType', 'DriverID', 'Result']:
+    if header not in row:
+      return False
+  return True
+
 
 def ImportData(tsvfile, drivers, outdict):
   """Import races and drivers from a tab-separatef file.
@@ -165,20 +178,22 @@ def ImportData(tsvfile, drivers, outdict):
   """
   with open(tsvfile, 'r') as infile:
     # Year  Race    RaceType    DriverID    Result
-    csvreader = csv.reader(infile, delimiter='\t')
+    csvreader = csv.DictReader(infile, delimiter='\t')
     for row in csvreader:
-      year = int(row[0])
-      race_id = int(row[1])
+      if not IsValidRow(row):
+        continue
+      year = int(row['Year'])
+      race_id = int(row['RaceID'])
       # Race type Q: qualifying; R: race
       # Other types are non-championship races (e.g., the Indy 500 in the 50s)
-      race_type = row[2]
+      race_type = row['RaceType']
       if race_type != 'Q' and race_type != 'R':
         continue
-      driver_id = row[3]
+      driver_id = row['DriverID']
       # Place can be numeric (e.g., "1") or not (e.g., "R" for "Retired").
-      place = row[4]
+      place = row['Result']
       try:
-        place = int(row[4])
+        place = int(place)
       except:
         # A non-numeric place; skip it
         continue
@@ -191,10 +206,13 @@ def ImportData(tsvfile, drivers, outdict):
       else:
         outdict[race_id] = dict({place: driver_id})
 
+
 def SkipDriver(name, missed_count):
   return name in missed_count and missed_count[name] > MISS_COUNT
 
-def PrintRatings(season, tag, ratings, counts, whitelist, missed_count):
+
+def PrintRatings(season, tag, ratings, counts, whitelist, missed_count,
+                 csvwriter):
   """Print the ratings and percentiles of all the active drivers.
 
   season: Year
@@ -208,7 +226,6 @@ def PrintRatings(season, tag, ratings, counts, whitelist, missed_count):
   # we need to get both the mean and the stddev for driver ratings at this moment.
   sum = 0
   num = 0
-  print('### Whitelist: %d' % (len(whitelist)))
   for name in whitelist:
     if SkipDriver(name, missed_count):
       continue
@@ -224,67 +241,83 @@ def PrintRatings(season, tag, ratings, counts, whitelist, missed_count):
     diff = (ratings[name].rating - avg)
     sos += (diff * diff)
   dev = (sos / (num - 1)) ** 0.5
-  for name,rating in ratings.iteritems():
+  for name,rating in ratings.items():
     if name in whitelist:
       if SkipDriver(name, missed_count):
         continue
       ndevs = 0
       if dev != 0:
         ndevs = (rating.rating - avg) / dev
-      print('Elo,%s,%s,%s,%.3f,%d' % (tag, season, name, rating.rating, rating.k_factor))
-      print('ZScore,%s,%s,%s,%.3f,%d' % (tag, season, name, norm.cdf(ndevs), rating.k_factor))
+      csvwriter.writerow(['Elo', tag, season, name, '%.3f' % rating.rating,
+                          int(rating.k_factor)])
+      csvwriter.writerow(['ZScore', tag, season, name, '%.3f' % norm.cdf(ndevs),
+                          int(rating.k_factor)])
+
 
 def PartialRevertDriversToNew(ratings):
   """Revert each driver partially back to the rating of an new driver.
   """
-  for name,rating in ratings.iteritems():
+  for name,rating in ratings.items():
     rating.rating = (rating.rating * (1 - YEAR_ADJ)) + INIT_RANKING * YEAR_ADJ
 
+
+def RunAllRatings(drivers, races, outfile):
+  """Run all the ratings and write the output and logging to a CSV.
+
+  drivers: set of unique driver IDs
+  races: dictionary where the key is the race ID and the value is a dict from
+         place identifier to driver ID
+  """
+  # Initialize all the ratings and race participation counts
+  driver_ratings = dict()
+  driver_counts = dict()
+  InitDrivers(drivers, driver_ratings, driver_counts)
+  # Now actually run the ratings and dump data to an output file
+  with open(outfile, 'w') as outf:
+    csv.register_dialect('simple', delimiter=',', lineterminator='\n')
+    csvwriter = csv.writer(outf, dialect='simple')
+    last_season = 0
+    sorted_races = sorted(races.keys())
+    curr_drivers = set()
+    missed_count = dict()
+    race_count = 0
+    # Go through the races in chronological order
+    for race in sorted_races:
+      # The season of the current race is not the same as the previous one.
+      # Do a between-season reset.
+      if last_season != int(race[1:5]):
+        curr_drivers = set()
+        SetDriversFromOrdering(races[race], curr_drivers)
+        missed_count = dict()
+        race_count = 0
+        PartialRevertDriversToNew(driver_ratings)
+      race_count += 1
+      last_season = int(race[1:5])
+      k_factor_scale = 1
+      # The race ID will have a 'Q' at the end for qualifying, 'R' for race
+      pos = race.rfind('Q')
+      if pos > 0:
+        k_factor_scale = 0.1
+      # Print ratings before and after each session or race.
+      # Append 'A' to the race ID to distinguish before-contest ratings, and 'Z'
+      # to the race ID to signify after-contest rating.
+      # This is done to ensure that sorted order will still work correctly.
+      PrintRatings(last_season, race + 'A', driver_ratings, driver_counts, curr_drivers,
+        missed_count, csvwriter)
+      OneRace(race, races[race], driver_ratings, driver_counts, curr_drivers,
+        missed_count, k_factor_scale, csvwriter)
+      PrintRatings(last_season, race + 'Z', driver_ratings, driver_counts, curr_drivers,
+        missed_count, csvwriter)
+
+
 def main(argv):
-  if len(argv) != 2:
-    print('Usage: %s <input_tsv>' % (argv[0]))
+  if len(argv) != 3:
+    print('Usage: %s <input_tsv> <ranking_tsv>' % (argv[0]))
     sys.exit(1)
   drivers = set()
   races = dict()
   ImportData(argv[1], drivers, races)
-
-  driver_ratings = dict()
-  driver_counts = dict()
-  InitDrivers(drivers, driver_ratings, driver_counts)
-
-  last_season = 0
-  sorted_races = races.keys()
-  sorted_races.sort()
-  curr_drivers = set()
-  missed_count = dict()
-  race_count = 0
-  # Go through the races in chronological order
-  for race in sorted_races:
-    # The season of the current race is not the same as the previous one.
-    # Do a between-season reset.
-    if last_season != int(race[1:5]):
-      curr_drivers = set()
-      SetDriversFromOrdering(races[race], curr_drivers)
-      missed_count = dict()
-      race_count = 0
-      PartialRevertDriversToNew(driver_ratings)
-    race_count += 1
-    last_season = int(race[1:5])
-    k_factor_scale = 1
-    # The race ID will have a 'Q' at the end for qualifying, 'R' for race
-    pos = race.rfind('Q')
-    if pos > 0:
-      k_factor_scale = 0.1
-    # Print ratings before and after each session or race.
-    # Append 'A' to the race ID to distinguish before-contest ratings, and 'Z'
-    # to the race ID to signify after-contest rating.
-    # This is done to ensure that sorted order will still work correctly.
-    PrintRatings(last_season, race + 'A', driver_ratings, driver_counts, curr_drivers,
-      missed_count)
-    OneRace(race, races[race], driver_ratings, driver_counts, curr_drivers,
-      missed_count, k_factor_scale)
-    PrintRatings(last_season, race + 'Z', driver_ratings, driver_counts, curr_drivers,
-      missed_count)
+  RunAllRatings(drivers, races, argv[2])
 
 
 if __name__ == "__main__":
