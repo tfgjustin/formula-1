@@ -17,20 +17,20 @@ class ResultFlattener(object):
 
 
   def LoadData(self, infile):
-    """Load data from a CSV input file.
+    """Load data from a TSV input file.
 
     Lines will be structured as:
-      [ScoreType],RaceID,Year,DriverID,Score,KScore
+      [ScoreType]   RaceID  Year    DriverID    Score   KScore
     or
-      Place,RaceID,Year,DriverID,Placed,OutOf
+      Place RaceID  Year    DriverID    Placed  OutOf
 
     E.g.,
-      Elo,S2019E2654DRZ,2019,1188,968.542,24
-      Place,S2019E2654DR,2019,1181,9,18
+      Elo	S2019E2654DRZ	2019	1188	968.542	24
+      Place	S2019E2654DR	2019	1181	9	18
     """
-    with open(infile, 'r') as incsv:
-      csvreader = csv.reader(incsv, delimiter='\t')
-      for row in csvreader:
+    with open(infile, 'r') as intsv:
+      tsvreader = csv.reader(intsv, delimiter='\t')
+      for row in tsvreader:
         if row[0].startswith('#') or row[0].startswith('Errors'):
           continue
         score_type  = row[0]
@@ -54,7 +54,7 @@ class ResultFlattener(object):
 
 
   def PrintData(self, outfile):
-    """Print the flattened data to a CSV file.
+    """Print the flattened data to a TSV file.
 
     Lines will be structured as:
       RaceID,DriverID,Placed,NumDrivers,EloPre,EloPost,ZScorePre,ZScorePost
@@ -62,9 +62,9 @@ class ResultFlattener(object):
     E.g.,
       S1989E1529DR,1031,1,10,2296.917,2304.593,0.992,0.993
     """
-    with open(outfile, 'w') as outcsv:
-      csvwriter = csv.writer(outcsv)
-      self._WriteHeader(csvwriter)
+    with open(outfile, 'w') as outtsv:
+      tsvwriter = csv.writer(outtsv, delimiter='\t')
+      self._WriteHeader(tsvwriter)
       for race_id in sorted(self._races):
         for driver_id in sorted(self._drivers):
           # These store the before and after for the N metrics we care about
@@ -88,16 +88,16 @@ class ResultFlattener(object):
           if place_key in self._places:
             # If they placed, include that information
             out_of = self._places[place_key]
-          csvwriter.writerow([race_id, driver_id, out_of[0], out_of[1]] + v)
+          tsvwriter.writerow([race_id, driver_id, out_of[0], out_of[1]] + v)
 
 
-  def _WriteHeader(self, csvwriter):
+  def _WriteHeader(self, tsvwriter):
     """Print the header for the metrics and basic information.
     """
     rowdata = ['RaceID', 'DriverID', 'Placed', 'NumDrivers']
     for score in self._SCORE_TYPES:
       rowdata = rowdata + [ score + 'Pre', score + 'Post' ]
-    csvwriter.writerow(rowdata)
+    tsvwriter.writerow(rowdata)
 
 
 def main(argv):
