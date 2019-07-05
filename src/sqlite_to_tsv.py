@@ -138,7 +138,8 @@ def ConvertResults(conn, races, outtsv):
 
 def main(argv):
   if len(argv) != 5:
-    print('Usage: %s <sqlitedb> <drivertsv> <racetsv> <resulttsv>' % (argv[0]))
+    print(('Usage: %s <in:sqlitedb> <out:drivers_tsv> <out:races_tsv> '
+           '<out:results_tsv>') % (argv[0]))
     sys.exit(1)
   conn = sqlite3.connect(argv[1])
   ConvertDrivers(conn, argv[2])
