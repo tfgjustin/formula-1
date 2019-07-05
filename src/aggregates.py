@@ -59,7 +59,14 @@ def LoadFlatData(filename, metrics, dnfs, data):
         data[driver_id][year][race_id][metric] = float(row[metric + 'Post'])
 
 
-def MinPctEvents(year):
+def MinPctRaces(year):
+  """The minimum pct of events a driver has to participate in to get a rating.
+
+  This is actually twice the percent, since the "events" dict includes both
+  qualifying and races, but the "races" includes only races. So 1.2 means "60%
+  of races and qualifying events." E.g., if there were 20 races in a year, then
+  there were 40 events, and 1.2*20 = 24, or 60% of 40.
+  """
   y = int(year)
   if y < 1970:
     return 0.5
@@ -72,13 +79,12 @@ def PrintOneYearPeak(data, metrics, races, drivers, tsvwriter):
   """
   for driver,year_dict in data.items():
     for year,race_dict in year_dict.items():
-      if len(race_dict) < (len(races[year]) * MinPctEvents(year)):
+      if len(race_dict) < (len(races[year]) * MinPctRaces(year)):
         continue
       for metric in metrics:
         max_val = max([x[metric] for x in race_dict.values()])
         tsvwriter.writerow(['Peak', metric, driver, drivers[driver], year, year,
                             '%.4f' % max_val])
-#        print('Peak,%s,%s,%s,%s,%s,%.4f' % (metric, driver, drivers[driver], year, year, max_val))
 
 
 def PrintOneYearOverall(data, metrics, races, drivers, tsvwriter):
@@ -86,7 +92,7 @@ def PrintOneYearOverall(data, metrics, races, drivers, tsvwriter):
   """
   for driver,year_dict in data.items():
     for year,race_dict in year_dict.items():
-      if len(race_dict) < (len(races[year]) * MinPctEvents(year)):
+      if len(race_dict) < (len(races[year]) * MinPctRaces(year)):
         continue
       sorted_races = sorted(race_dict.keys())
       for metric in metrics:
@@ -97,12 +103,12 @@ def PrintOneYearOverall(data, metrics, races, drivers, tsvwriter):
         overall = hmean([max_val, season_mean, season_end])
         tsvwriter.writerow(['Overall', metric, driver, drivers[driver], year,
                             year, '%.4f' % overall])
-#        print('Overall,%s,%s,%s,%s,%s,%.4f' % (metric, driver, drivers[driver],
-#              year, year, overall))
 
 
 def PrintNYearsAverage(data, metrics, dnfs, races, drivers, tag, num_years,
                        tsvwriter):
+  """Calculates the average rating over an N-year window.
+  """
   for driver,year_dict in data.items():
     driver_dnf = set()
     if driver in dnfs:
@@ -118,10 +124,15 @@ def PrintNYearsAverage(data, metrics, dnfs, races, drivers, tag, num_years,
         if year not in year_dict:
           skip = True
           break
-        champ_races = {race_id:rating for race_id,rating in year_dict[year].items()}
-#        print('DNFed:%s:%s %s' % (driver, year, ' '.join([race_id for race_id in champ_races.keys() if race_id in driver_dnf])))
-        champ_races = {race_id:rating for race_id,rating in champ_races.items() if race_id not in driver_dnf}
-        if len(champ_races) < (len(races[year]) * MinPctEvents(year)):
+        # Championship races are initially all the races in the year where the
+        # driver received a rating.
+        champ_races = {race_id:rating
+                       for race_id,rating in year_dict[year].items()}
+        # Now filter down to the ones where the driver finished.
+        champ_races = {race_id:rating
+                       for race_id,rating in champ_races.items()
+                         if race_id not in driver_dnf}
+        if len(champ_races) < (len(races[year]) * MinPctRaces(year)):
           skip = True
           break
         values.extend(champ_races.values())
@@ -132,8 +143,6 @@ def PrintNYearsAverage(data, metrics, dnfs, races, drivers, tag, num_years,
           [tag, metric, driver, drivers[driver], start_year, end_year,
            '%.4f' % mean([v[metric] for v in values])]
         )
-#        print('%s,%s,%s,%s,%s,%s,%.4f' % (tag, metric, driver, drivers[driver],
-#          start_year, end_year, mean([v[metric] for v in values])))
 
 
 def PrintHeaders(tsvwriter):
