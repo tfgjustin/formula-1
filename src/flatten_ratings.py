@@ -29,17 +29,17 @@ class ResultFlattener(object):
       Place,S2019E2654DR,2019,1181,9,18
     """
     with open(infile, 'r') as incsv:
-      csvreader = csv.reader(incsv)
+      csvreader = csv.reader(incsv, delimiter='\t')
       for row in csvreader:
         if row[0].startswith('#') or row[0].startswith('Errors'):
           continue
         score_type  = row[0]
-        race_id     = row[1]
+        event_id    = row[1]
         year        = row[2]
         driver_id   = row[3]
         score_val   = row[4]
         score_extra = row[5]
-        dict_key = '%s:%s:%s' % (score_type, race_id, driver_id)
+        dict_key = '%s:%s:%s' % (score_type, event_id, driver_id)
         if score_type in self._SCORE_TYPES:
           # This is one of the metrics we care about
           self._results[dict_key] = score_val
@@ -47,9 +47,9 @@ class ResultFlattener(object):
           # This is letting us know where this driver placed
           self._places[dict_key] = [ score_val, score_extra ]
         else:
-          print('ERROR: Unknown race type: %s' % (race_id))
+          print('ERROR: Unknown race type: %s' % (event_id))
           continue
-        self._races.add(race_id[:12])
+        self._races.add(event_id[:12])
         self._drivers.add(driver_id)
 
 
@@ -102,7 +102,7 @@ class ResultFlattener(object):
 
 def main(argv):
   if len(argv) != 3:
-    print('Usage: %s <input_csv> <output_csv>' % (argv[0]))
+    print('Usage: %s <in:ratings_tsv> <out:flat_ratings_tsv>' % (argv[0]))
     sys.exit(1)
   flatten = ResultFlattener()
   flatten.LoadData(argv[1])

@@ -72,7 +72,7 @@ def SetDriversFromOrdering(ordering, curr_drivers):
 
 
 def OneRace(tag, ordering, ratings, counts, curr_drivers, missed_count, k_scale,
-            csvwriter):
+            tsvwriter):
   """Perform the Elo calculations for a single race.
 
   tag: unique string identifier for this race
@@ -82,7 +82,7 @@ def OneRace(tag, ordering, ratings, counts, curr_drivers, missed_count, k_scale,
   curr_drivers: set of current active drivers
   missed_count: map of driver ID to the number of races they've missed
   k_scale: k-factor scaling for this race (1.0 for a race, 0.1 for qualifying)
-  csvwriter: CSV writer object where we log data
+  tsvwriter: TSV writer object where we log data
   """
   expected_wins = dict()
   actual_wins = dict()
@@ -107,9 +107,9 @@ def OneRace(tag, ordering, ratings, counts, curr_drivers, missed_count, k_scale,
     expected_wins[a_name] = exp_wins
     actual_wins[a_name] = act_wins
     mse = (exp_wins - act_wins) ** 2
-    csvwriter.writerow(['Place', tag, tag[1:5], a_name, num_drivers - act_wins,
+    tsvwriter.writerow(['Place', tag, tag[1:5], a_name, num_drivers - act_wins,
                         num_drivers])
-    csvwriter.writerow(['#ERR', tag, tag[1:5], a_name, '%.2f' % exp_wins,
+    tsvwriter.writerow(['#ERR', tag, tag[1:5], a_name, '%.2f' % exp_wins,
                         '%.2f' % act_wins, '%.2f' % mse])
   # Mapping of driver ID to new ratings and k-factors
   new_ratings = dict()
@@ -178,8 +178,8 @@ def ImportData(tsvfile, drivers, outdict):
   """
   with open(tsvfile, 'r') as infile:
     # Year  Race    RaceType    DriverID    Result
-    csvreader = csv.DictReader(infile, delimiter='\t')
-    for row in csvreader:
+    tsvreader = csv.DictReader(infile, delimiter='\t')
+    for row in tsvreader:
       if not IsValidRow(row):
         continue
       year = int(row['Year'])
@@ -212,7 +212,7 @@ def SkipDriver(name, missed_count):
 
 
 def PrintRatings(season, tag, ratings, counts, whitelist, missed_count,
-                 csvwriter):
+                 tsvwriter):
   """Print the ratings and percentiles of all the active drivers.
 
   season: Year
@@ -248,10 +248,17 @@ def PrintRatings(season, tag, ratings, counts, whitelist, missed_count,
       ndevs = 0
       if dev != 0:
         ndevs = (rating.rating - avg) / dev
-      csvwriter.writerow(['Elo', tag, season, name, '%.3f' % rating.rating,
+      tsvwriter.writerow(['Elo', tag, season, name, '%.3f' % rating.rating,
                           int(rating.k_factor)])
-      csvwriter.writerow(['ZScore', tag, season, name, '%.3f' % norm.cdf(ndevs),
+      tsvwriter.writerow(['ZScore', tag, season, name, '%.3f' % norm.cdf(ndevs),
                           int(rating.k_factor)])
+
+
+def PrintHeader(tsvwriter):
+  """Print the header row for the output.
+  """
+  tsvwriter.writerow(['Metric', 'EventID', 'Season', 'DriverID', 'Value',
+                      'ValueExtra'])
 
 
 def PartialRevertDriversToNew(ratings):
@@ -262,7 +269,7 @@ def PartialRevertDriversToNew(ratings):
 
 
 def RunAllRatings(drivers, races, outfile):
-  """Run all the ratings and write the output and logging to a CSV.
+  """Run all the ratings and write the output and logging to a TSV.
 
   drivers: set of unique driver IDs
   races: dictionary where the key is the race ID and the value is a dict from
@@ -274,8 +281,8 @@ def RunAllRatings(drivers, races, outfile):
   InitDrivers(drivers, driver_ratings, driver_counts)
   # Now actually run the ratings and dump data to an output file
   with open(outfile, 'w') as outf:
-    csv.register_dialect('simple', delimiter=',', lineterminator='\n')
-    csvwriter = csv.writer(outf, dialect='simple')
+    csv.register_dialect('simple', delimiter='\t', lineterminator='\n')
+    tsvwriter = csv.writer(outf, dialect='simple')
     last_season = 0
     sorted_races = sorted(races.keys())
     curr_drivers = set()
@@ -303,16 +310,16 @@ def RunAllRatings(drivers, races, outfile):
       # to the race ID to signify after-contest rating.
       # This is done to ensure that sorted order will still work correctly.
       PrintRatings(last_season, race + 'A', driver_ratings, driver_counts, curr_drivers,
-        missed_count, csvwriter)
+        missed_count, tsvwriter)
       OneRace(race, races[race], driver_ratings, driver_counts, curr_drivers,
-        missed_count, k_factor_scale, csvwriter)
+        missed_count, k_factor_scale, tsvwriter)
       PrintRatings(last_season, race + 'Z', driver_ratings, driver_counts, curr_drivers,
-        missed_count, csvwriter)
+        missed_count, tsvwriter)
 
 
 def main(argv):
   if len(argv) != 3:
-    print('Usage: %s <input_tsv> <ranking_tsv>' % (argv[0]))
+    print('Usage: %s <in:results_tsv> <out:ratings_tsv>' % (argv[0]))
     sys.exit(1)
   drivers = set()
   races = dict()
