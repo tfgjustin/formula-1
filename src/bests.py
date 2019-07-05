@@ -18,6 +18,10 @@ def LoadMetrics(infile, aggregation, metric_id, values):
         values.append(row)
 
 
+def PrintHeader(tsvwriter):
+  tsvwriter.writerow(['Rank', '%-30s' % 'Driver', 'Start', 'End', 'Value'])
+
+
 def PrintResults(values, outfile, params):
   num_to_print = _DEFAULT_NUM_TO_PRINT
   allow_dupes = _DEFAULT_ALLOW_DUPES
@@ -30,6 +34,7 @@ def PrintResults(values, outfile, params):
   num_printed = 1
   with open(outfile, 'w') as outtsv:
     tsvwriter = csv.writer(outtsv, delimiter='\t')
+    PrintHeader(tsvwriter)
     for row in sorted(values, key=lambda x: float(x[-1]), reverse=True):
       if not allow_dupes:
         if row[2] in seen_drivers:
