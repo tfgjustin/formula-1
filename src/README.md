@@ -8,6 +8,12 @@
   the file generated in the previous step.
 6. Run `calculate_aggregates.py <drivers.tsv> <races.tsv> <flat_ratings.tsv> <metrics.tsv>`
 
+Alternately you can just run
+```
+sh ./run_all <elo.db>
+```
+and it will run all the sub-scripts.
+
 From there you can use the `bests.py` script to print out various metrics of
 interest. E.g.,
 ```
