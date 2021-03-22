@@ -13,7 +13,7 @@ def create_path(args):
         path = '-'.join([
             args.logfile, str(args.driver_elo_initial), str(args.driver_elo_regress), str(args.driver_kfactor_regress),
             str(args.elo_compare_window), str(args.elo_exponent_denominator_race),
-            str(args.elo_exponent_denominator_qualifying), str(args.include_dnfs),
+            str(args.elo_exponent_denominator_qualifying),
             str(args.qualifying_kfactor_multiplier), args.position_base_spec, str(args.position_base_factor),
             str(args.team_elo_initial), str(args.team_elo_regress), str(args.team_kfactor_regress), args.team_share_spec
         ])

@@ -34,9 +34,6 @@ def create_argparser():
     parser.add_argument('--elo_exponent_denominator_race',
                         help='The denominator in the Elo probability exponent for races.',
                         type=int, default=300)
-    parser.add_argument('--include_dnfs',
-                        help='Include DNFs when calculating rankings and starting position advantage.',
-                        type=int, default=0)
     parser.add_argument('--logfile_uses_parameters',
                         help='Append encoded parameters to the logfile output name.',
                         default=False, action='store_true')
