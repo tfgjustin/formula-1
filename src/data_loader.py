@@ -51,7 +51,7 @@ class DataLoader(object):
         return self._team_factory
 
     def load_events(self, contents):
-        _HEADERS = ['season', 'stage', 'date', 'name', 'type', 'event_id']
+        _HEADERS = ['season', 'stage', 'date', 'name', 'type', 'event_id', 'laps', 'lap_distance']
         handle = io.StringIO(contents)
         reader = csv.DictReader(handle, delimiter='\t')
         for row in reader:
@@ -59,10 +59,12 @@ class DataLoader(object):
                 continue
             if row['type'] == 'Q':
                 event = Qualifying(
-                    row['event_id'], row['name'], row['season'], row['stage'], row['date'])
+                    row['event_id'], row['name'], row['season'], row['stage'], row['date'], row['laps'],
+                    row['lap_distance'])
             elif row['type'] == 'R':
                 event = Race(
-                    row['event_id'], row['name'], row['season'], row['stage'], row['date'])
+                    row['event_id'], row['name'], row['season'], row['stage'], row['date'], row['laps'],
+                    row['lap_distance'])
             else:
                 continue
             self._events[event.id()] = event

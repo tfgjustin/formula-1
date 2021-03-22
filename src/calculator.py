@@ -15,7 +15,7 @@ def validate_factors(argument):
         raise argparse.ArgumentTypeError('Invalid factor: %s' % argument)
     try:
         initial = int(parts[0])
-    except ValueError as ve:
+    except ValueError:
         raise argparse.ArgumentTypeError(
             'Factor %s has non-numeric initial value %s' % (argument, parts[0]))
     else:
@@ -25,7 +25,7 @@ def validate_factors(argument):
 
     try:
         year_step = int(parts[1])
-    except ValueError as ve:
+    except ValueError:
         raise argparse.ArgumentTypeError(
             'Factor %s has non-numeric year-step value %s' % (argument, parts[1]))
     else:
@@ -34,7 +34,7 @@ def validate_factors(argument):
                 'Factor %s has invalid year-step value %s' % (argument, parts[1]))
     try:
         step_value = int(parts[2])
-    except ValueError as ve:
+    except ValueError:
         raise argparse.ArgumentTypeError(
             'Factor %s has non-numeric step value %s' % (argument, parts[2]))
     else:
@@ -203,9 +203,11 @@ class Calculator(object):
         Run the ratings for each year and print the output to the relevant files.
         """
         np.set_printoptions(precision=5, linewidth=300)
-        print('RaceID\tDriverID\tPlaced\tNumDrivers\tDnfReason\tEloPre\tEloPost\tEloDiff\tEffectPre\tEffectPost',
+        print(('RaceID\tDriverID\tPlaced\tNumDrivers\tDnfReason\tEloPre\tEloPost\tEloDiff\tEffectPre\tEffectPost'
+               + '\tProbFinish'),
               file=self._driver_rating_file)
-        print('RaceID\tTeamUUID\tTeamID\tNumTeams\tEloPre\tEloPost\tEffectPre\tEffectPost', file=self._team_rating_file)
+        print('RaceID\tTeamUUID\tTeamID\tNumTeams\tEloPre\tEloPost\tEffectPre\tEffectPost\tProbFinish',
+              file=self._team_rating_file)
         for year in sorted(loader.seasons().keys()):
             self.run_one_year(year, loader.seasons()[year])
         self.print_errors()
@@ -326,21 +328,10 @@ class Calculator(object):
                 if driver_id_a == driver_id_b:
                     continue
                 prob_a_then_b = win_prob_a * (win_prob_b / (1 - win_prob_a))
-                if self._debug_file is not None:
-                    print('Part2nd\t%s\t%7.5f\t%7.5f\t%7.5f\t%7.5f\t%7.5f\t%s\t%s' % (
-                        event.id(), win_prob_a, win_prob_b, prob_a_then_b, 1 - win_prob_b,
-                        win_prob_a / (1 - win_prob_b), driver_id_a, driver_id_b),
-                          file=self._debug_file)
                 for driver_id_c, win_prob_c in win_probs.items():
                     if driver_id_c == driver_id_a or driver_id_c == driver_id_b:
                         continue
                     prob_a_then_b_then_c = prob_a_then_b * (win_prob_c / (1 - (win_prob_a + win_prob_b)))
-                    if self._debug_file is not None:
-                        print('Part3rd\t%s\t%8.6f\t%8.6f\t%8.6f\t%8.6f\t%8.6f\t%8.6f\t%s\t%s\t%s' % (
-                            event.id(), win_prob_a, prob_a_then_b, win_prob_c,
-                            1 - (win_prob_a + win_prob_b), win_prob_c / (1 - (win_prob_a + win_prob_b)),
-                            prob_a_then_b_then_c, driver_id_a, driver_id_b, driver_id_c),
-                              file=self._debug_file)
                     third[driver_id_c] += prob_a_then_b_then_c
                 second[driver_id_b] += prob_a_then_b
         for driver_id, win_prob in win_probs.items():
@@ -354,18 +345,25 @@ class Calculator(object):
     def update_all_reliability(self, event):
         if event.type() == 'Q':
             return
-        max_laps = max([result.laps() for result in event.results()])
-        km_per_lap = Reliability.KM_PER_RACE / max_laps
         for result in event.results():
             if result.laps() <= 1:
                 continue
-            km_success = km_per_lap * result.laps()
+            km_success = event.lap_distance_km() * result.laps()
             km_car_failure = 0
             km_driver_failure = 0
             if result.dnf_category() == 'car':
                 km_car_failure = 1.0
             elif result.dnf_category() == 'driver':
                 km_driver_failure = 1.0
+            if self._debug_file is not None:
+                print(('Event %s Laps: %3d KmPerLap: %5.2f Driver: %s ThisKmSuccess: %5.1f ThisKmFailure: %5.1f '
+                       + 'TotalKmSuccess: %8.1f TotalKmFailure: %8.3f ProbFinish: %.4f') % (
+                    event.id(), event.num_laps(), event.lap_distance_km(), result.driver().id(), km_success,
+                    km_driver_failure, result.driver().rating().reliability().km_success(),
+                    result.driver().rating().reliability().km_failure(),
+                    result.driver().rating().reliability().probability_finishing()
+                ),
+                      file=self._debug_file)
             self._base_car_reliability.update(km_success, km_car_failure)
             self._base_driver_reliability.update(km_success, km_driver_failure)
             result.team().rating().update_reliability(km_success, km_car_failure)
@@ -383,7 +381,7 @@ class Calculator(object):
         k_factor *= (1 - car_factor)
         k_factor += (car_factor * result.team().rating().k_factor().factor())
         if self._debug_file is not None:
-            print('        R: %4d KF: %2d NR: %2d SP: %2d EP: %2d PFB: %2d DNFR: %6s D: %s T: %s' % (
+            print('        R: %4d KF: %2d NR: %2d SP: %2d EP: %2d PFB: %2d DNF: %6s D: %s T: %s' % (
                 rating, k_factor, result.num_racers(), result.start_position(), result.end_position(),
                 result.position_from_back(), result.dnf_category(), result.driver().id(), result.team().uuid()),
                   file=self._debug_file)
@@ -530,7 +528,8 @@ class Calculator(object):
         count = self._total_error_count
         print('Error\tAllTotal\tTotal\t%.6f\t%7.1f\t%5d' % (sse / count, sse, count), file=self._summary_file)
 
-    def print_legacy_info(self, event, drivers_before, drivers_after, teams_before, teams_after, win_probs, podium_probs):
+    def print_legacy_info(self, event, drivers_before, drivers_after, teams_before, teams_after, win_probs,
+                          podium_probs):
         places = {result.driver(): result.end_position() for result in event.results()}
         dnfs = {result.driver(): result.dnf_category() for result in event.results()}
         num_drivers = len(drivers_after)
@@ -541,11 +540,12 @@ class Calculator(object):
             after = drivers_after[driver]
             placed = places[driver]
             dnf = dnfs[driver]
-            before_effect = (before - self._args.driver_elo_initial) * (1- self._team_share_dict[event.season()])
-            after_effect = (after - self._args.driver_elo_initial) * (1- self._team_share_dict[event.season()])
-            print('S%s\t%s\t%d\t%d\t%s\t%.1f\t%.1f\t%6.1f\t%6.1f\t%6.1f' % (
+            before_effect = (before - self._args.driver_elo_initial) * (1 - self._team_share_dict[event.season()])
+            after_effect = (after - self._args.driver_elo_initial) * (1 - self._team_share_dict[event.season()])
+            prob_finish = driver.rating().reliability().probability_finishing()
+            print('S%s\t%s\t%d\t%d\t%s\t%.1f\t%.1f\t%6.1f\t%6.1f\t%6.1f\t%.5f' % (
                 event.id(), driver.id(), placed, num_drivers, dnf, before, after, after - before,
-                before_effect, after_effect),
+                before_effect, after_effect, prob_finish),
                   file=self._driver_rating_file)
             if driver.id() in win_probs:
                 win_odds = win_probs[driver.id()]
@@ -582,8 +582,8 @@ class Calculator(object):
             after = teams_after[team]
             before_effect = (before - self._args.team_elo_initial) * self._team_share_dict[event.season()]
             after_effect = (after - self._args.team_elo_initial) * self._team_share_dict[event.season()]
-            print('S%s\t%s\t%s\t%d\t%.1f\t%.1f\t%6.1f\t%6.1f\t%6.1f' % (
+            prob_finish = team.rating().reliability().probability_finishing()
+            print('S%s\t%s\t%s\t%d\t%.1f\t%.1f\t%6.1f\t%6.1f\t%6.1f\t%.5f' % (
                 event.id(), team.uuid(), team.id(), len(teams_after), before, after, after - before,
-                before_effect, after_effect
+                before_effect, after_effect, prob_finish
             ), file=self._team_rating_file)
-

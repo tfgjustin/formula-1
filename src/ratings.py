@@ -43,7 +43,8 @@ class KFactor(object):
 
 
 class Reliability(object):
-    KM_PER_RACE = 300.0
+    _DEFAULT_PROBABILITY = 0.7
+    DEFAULT_KM_PER_RACE = 305.0
 
     def __init__(self, decay_rate=0.97):
         self._km_success = 0
@@ -65,9 +66,18 @@ class Reliability(object):
         self._km_failure *= self._decay_rate
         self._km_success *= self._decay_rate
 
-    def probability_finishing(self):
-        per_km_failure_rate = self._km_failure / (self._km_failure + self._km_success)
-        return math.pow(per_km_failure_rate, self.KM_PER_RACE)
+    def probability_finishing(self, race_distance_km=DEFAULT_KM_PER_RACE):
+        denominator = self._km_failure + self._km_success
+        if not denominator:
+            return self._DEFAULT_PROBABILITY
+        per_km_success_rate = self._km_success / denominator
+        return math.pow(per_km_success_rate, race_distance_km)
+
+    def km_success(self):
+        return self._km_success
+
+    def km_failure(self):
+        return self._km_failure
 
 
 class EloRating(object):
