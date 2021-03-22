@@ -1,0 +1,795 @@
+type	event_id	team_id	team_name	other_event_id	other_team_id
+new	1950-01-Q	Automobiles_Talbot-Darracq_SA	Automobiles Talbot-Darracq SA		
+new	1950-01-Q	Bob_Gerard	Bob Gerard		
+new	1950-01-Q	Cuth_Harrison	Cuth Harrison		
+new	1950-01-Q	Ecurie_Belge	Ecurie Belge		
+new	1950-01-Q	Ecurie_Rosier	Ecurie Rosier		
+new	1950-01-Q	Enrico_Plate	Enrico Plate		
+new	1950-01-Q	Geoff_Crossley	Geoff Crossley		
+new	1950-01-Q	Joe_Fry	Joe Fry		
+new	1950-01-Q	Joe_Kelly	Joe Kelly		
+new	1950-01-Q	Officine_Alfieri_Maserati	Officine Alfieri Maserati		
+new	1950-01-Q	Peter_Walker	Peter Walker		
+new	1950-01-Q	Philippe_Etancelin	Philippe Etancelin		
+new	1950-01-Q	SA_Alfa_Romeo	SA Alfa Romeo		
+new	1950-01-Q	Scuderia_Ambrosiana	Scuderia Ambrosiana		
+new	1950-01-Q	Taso_Mathieson	Taso Mathieson		
+new	1950-02-Q	Equipe_Gordini	Equipe Gordini		
+new	1950-02-Q	Horschell_Racing_Corporation	Horschell Racing Corporation		
+new	1950-02-Q	Peter_Whitehead	Peter Whitehead		
+new	1950-02-Q	Scuderia_Achille_Varzi	Scuderia Achille Varzi		
+new	1950-02-Q	Scuderia_Ferrari	Scuderia Ferrari		
+new	1950-03-Q	Automobile_Shippers	Automobile Shippers		
+new	1950-03-Q	Bardahl	Bardahl		
+new	1950-03-Q	Belanger_Motors	Belanger Motors		
+new	1950-03-Q	Blue_Crown_Spark_Plug	Blue Crown Spark Plug		
+new	1950-03-Q	Bowes_Seal_Fast	Bowes Seal Fast		
+new	1950-03-Q	Brown_Motor_Co.	Brown Motor Co.		
+new	1950-03-Q	City_of_Glendale	City of Glendale		
+new	1950-03-Q	Cummins_Diesel	Cummins Diesel		
+new	1950-03-Q	Fadely-Anderson	Fadely-Anderson		
+new	1950-03-Q	Granatelli-Sabourin	Granatelli-Sabourin		
+new	1950-03-Q	Grant_Piston_Ring	Grant Piston Ring		
+new	1950-03-Q	Hinkle	Hinkle		
+new	1950-03-Q	Howard_Keck	Howard Keck		
+new	1950-03-Q	I.R.C.	I.R.C.		
+new	1950-03-Q	John_Zink	John Zink		
+new	1950-03-Q	Merz_Engineering	Merz Engineering		
+new	1950-03-Q	Morris	Morris		
+new	1950-03-Q	Norm_Olson	Norm Olson		
+new	1950-03-Q	Palmer	Palmer		
+new	1950-03-Q	Pat_Clancy	Pat Clancy		
+new	1950-03-Q	Pete_Wales	Pete Wales		
+new	1950-03-Q	Pioneer_Auto_Repair	Pioneer Auto Repair		
+new	1950-03-Q	Russo-Nichels	Russo-Nichels		
+new	1950-03-Q	Sampson	Sampson		
+new	1950-03-Q	Troy_Oil	Troy Oil		
+new	1950-03-Q	Tuffy's_Offy	Tuffy's Offy		
+new	1950-03-Q	Wolfe	Wolfe		
+new	1950-03-Q	Wynn's_Friction_Proofing	Wynn's Friction Proofing		
+new	1950-04-Q	Ecurie_Bleue	Ecurie Bleue		
+new	1950-04-Q	Scuderia_Milano	Scuderia Milano		
+new	1950-04-Q	Toni_Branca	Toni Branca		
+new	1950-05-Q	Ecurie_Leutitia	Ecurie Leutitia		
+new	1950-05-Q	Pierre_Levegh	Pierre Levegh		
+new	1950-05-Q	Raymond_Sommer	Raymond Sommer		
+new	1950-06-Q	Charles_Pozzi	Charles Pozzi		
+change	1950-06-Q	Ecurie_Lutetia	Ecurie Lutetia	1950-05-Q	Ecurie_Leutitia
+new	1950-07-Q	Clemente_Biondetti	Clemente Biondetti		
+new	1950-07-Q	Guy_Mairesse	Guy Mairesse		
+new	1950-07-Q	Paul_Pietsch	Paul Pietsch		
+new	1950-07-Q	Toulo_de_Graffenried	Toulo de Graffenried		
+change	1951-01-Q	Ecurie_Belgique	Ecurie Belgique	1950-07-Q	Guy_Mairesse
+new	1951-01-Q	Ecurie_Espadon	Ecurie Espadon		
+new	1951-01-Q	HW_Motors	HW Motors		
+new	1951-01-Q	Jose_Froilan_Gonzalez	Jose Froilan Gonzalez		
+new	1951-01-Q	Peter_Hirt	Peter Hirt		
+new	1951-01-Q	Yves_Giraud-Cabantous	Yves Giraud-Cabantous		
+new	1951-02-Q	Agajanian_Featherweight	Agajanian Featherweight		
+new	1951-02-Q	Agajanian_Grant_Piston_Ring	Agajanian Grant Piston Ring		
+new	1951-02-Q	Blakely_Oil	Blakely Oil		
+new	1951-02-Q	Bob_Estes_Lincoln-Mercury	Bob Estes Lincoln-Mercury		
+new	1951-02-Q	Central_Excavating	Central Excavating		
+new	1951-02-Q	Chapman	Chapman		
+new	1951-02-Q	Deck_Manufacturing_Co.	Deck Manufacturing Co.		
+new	1951-02-Q	Federal_Engineering	Federal Engineering		
+new	1951-02-Q	Granatelli-Bardahl	Granatelli-Bardahl		
+new	1951-02-Q	Jim_Robbins	Jim Robbins		
+new	1951-02-Q	Karl_Hall	Karl Hall		
+new	1951-02-Q	Leitenberger	Leitenberger		
+new	1951-02-Q	McNamara	McNamara		
+new	1951-02-Q	Mobilgas	Mobilgas		
+new	1951-02-Q	Mobiloil	Mobiloil		
+new	1951-02-Q	Novi_Purelube	Novi Purelube		
+new	1951-02-Q	Parks	Parks		
+new	1951-02-Q	Pennzoil	Pennzoil		
+new	1951-02-Q	Schmidt	Schmidt		
+new	1951-02-Q	Tuffanelli-Derrico	Tuffanelli-Derrico		
+new	1951-02-Q	W_&_J	W & J		
+new	1951-04-Q	Eugene_Chaboud	Eugene Chaboud		
+new	1951-04-Q	G.A._Vandervell	G.A. Vandervell		
+new	1951-04-Q	Graham_Whitehead	Graham Whitehead		
+new	1951-05-Q	Brian_Shawe-Taylor	Brian Shawe-Taylor		
+new	1951-05-Q	British_Racing_Motors_Ltd.	British Racing Motors Ltd.		
+new	1951-05-Q	Duncan_Hamilton	Duncan Hamilton		
+new	1951-05-Q	John_James	John James		
+new	1951-05-Q	Philip_Fotheringham-Parker	Philip Fotheringham-Parker		
+new	1951-07-Q	Chico_Landi	Chico Landi		
+new	1951-07-Q	OSCA_Automobili	OSCA Automobili		
+new	1951-08-Q	Ecurie_Siam	Ecurie Siam		
+new	1951-08-Q	Georges_Grignard	Georges Grignard		
+new	1952-01-Q	Alex_Falkenhausen_Motorenen	Alex Falkenhausen Motorenen		
+new	1952-01-Q	Alfred_Dattner	Alfred Dattner		
+new	1952-01-Q	Ecurie_Richmond	Ecurie Richmond		
+new	1952-01-Q	Scuderia_Franera	Scuderia Franera		
+new	1952-01-Q	Toni_Ulmen	Toni Ulmen		
+new	1952-02-Q	Agajanian	Agajanian		
+new	1952-02-Q	Ansted_Rotary	Ansted Rotary		
+new	1952-02-Q	Bob_Estes	Bob Estes		
+new	1952-02-Q	Coast_Grain_Co.	Coast Grain Co.		
+alias	1952-02-Q	Ferrari	Ferrari	1950-02-Q	Scuderia_Ferrari
+new	1952-02-Q	Fuel_Injection	Fuel Injection		
+new	1952-02-Q	Granatelli_Racing_Enterprises	Granatelli Racing Enterprises		
+new	1952-02-Q	Grancor-Wynn's_Oil	Grancor-Wynn's Oil		
+new	1952-02-Q	McDowell	McDowell		
+new	1952-02-Q	Mel-Rae	Mel-Rae		
+new	1952-02-Q	Miracle_Power	Miracle Power		
+new	1952-02-Q	Novi_Pure_Oil	Novi Pure Oil		
+new	1952-02-Q	Springfield_Welding_/_Clay_Smith	Springfield Welding / Clay Smith		
+new	1952-02-Q	Tom_Sarafoff	Tom Sarafoff		
+new	1952-03-Q	Arthur_Legat	Arthur Legat		
+new	1952-03-Q	Ecurie_Francorchamps	Ecurie Francorchamps		
+new	1952-03-Q	ERA_Ltd.	ERA Ltd.		
+new	1952-03-Q	Leslie_Hawthorn	Leslie Hawthorn		
+new	1952-03-Q	Robert_O'Brien	Robert O'Brien		
+new	1952-03-Q	Tony_Gaze	Tony Gaze		
+new	1952-03-Q	WS_Aston	WS Aston		
+new	1952-04-Q	AHM_Bryde	AHM Bryde		
+new	1952-04-Q	Escuderia_Bandeirantes	Escuderia Bandeirantes		
+alias	1952-04-Q	Escurie_Espadon	Escurie Espadon	1951-01-Q	Ecurie_Espadon
+new	1952-04-Q	Scuderia_Marzotto	Scuderia Marzotto		
+new	1952-05-Q	Connaught_Engineering	Connaught Engineering		
+new	1952-05-Q	Ecurie_Ecosse	Ecurie Ecosse		
+new	1952-05-Q	G_Caprara	G Caprara		
+new	1952-05-Q	Tony_Crook	Tony Crook		
+new	1952-06-Q	Adolf_Brudes	Adolf Brudes		
+new	1952-06-Q	BMW	BMW		
+new	1952-06-Q	Ernst_Klodwig	Ernst Klodwig		
+new	1952-06-Q	Fritz_Riess	Fritz Riess		
+new	1952-06-Q	Hans_Klenk	Hans Klenk		
+new	1952-06-Q	Harry_Merkel	Harry Merkel		
+new	1952-06-Q	Helmut_Niedermayr	Helmut Niedermayr		
+new	1952-06-Q	Josef_Peters	Josef Peters		
+new	1952-06-Q	Marcel_Balsa	Marcel Balsa		
+new	1952-06-Q	Motor-Presse-Verlag	Motor-Presse-Verlag		
+new	1952-06-Q	Rudolf_Krause	Rudolf Krause		
+new	1952-06-Q	Theo_Helfrich	Theo Helfrich		
+new	1952-06-Q	Willi_Heeks	Willi Heeks		
+new	1952-06-Q	Willi_Krakau	Willi Krakau		
+new	1952-07-Q	Ken_Downing	Ken Downing		
+new	1952-08-Q	Elie_Bayol	Elie Bayol		
+new	1953-01-Q	Cooper_Car_Company	Cooper Car Company		
+new	1953-01-Q	R.J._Chase	R.J. Chase		
+new	1953-02-Q	Belond_Equa-Flow_Exhaust	Belond Equa-Flow Exhaust		
+new	1953-02-Q	Cop-Sil-Loy	Cop-Sil-Loy		
+new	1953-02-Q	Crawford	Crawford		
+new	1953-02-Q	Dean_Van_Lines	Dean Van Lines		
+new	1953-02-Q	Dr._Sabourin	Dr. Sabourin		
+new	1953-02-Q	Grancor-Elgin_Piston_Pin	Grancor-Elgin Piston Pin		
+new	1953-02-Q	Hart_Fullerton	Hart Fullerton		
+new	1953-02-Q	Kalamazoo	Kalamazoo		
+new	1953-02-Q	Lubri-Loy	Lubri-Loy		
+new	1953-02-Q	M.A._Walker_Electric	M.A. Walker Electric		
+new	1953-02-Q	Novi_Governor	Novi Governor		
+new	1953-02-Q	Sumar	Sumar		
+new	1953-02-Q	Travelon_Trailer	Travelon Trailer		
+new	1953-03-Q	Ken_Wharton	Ken Wharton		
+new	1953-04-Q	Georges_Berger	Georges Berger		
+new	1953-05-Q	Louis_Chiron	Louis Chiron		
+new	1953-06-Q	Atlantic_Stable	Atlantic Stable		
+new	1953-06-Q	John_Heath	John Heath		
+new	1953-06-Q	Rob_Walker_Racing_Team	Rob Walker Racing Team		
+new	1953-07-Q	Dora_Greifzu	Dora Greifzu		
+new	1953-07-Q	EMW_Rennkollektiv	EMW Rennkollektiv		
+new	1953-07-Q	Equipe_Anglaise	Equipe Anglaise		
+new	1953-07-Q	Ernst_Loof	Ernst Loof		
+new	1953-07-Q	Erwin_Bauer	Erwin Bauer		
+new	1953-07-Q	Gunther_Bechem	Gunther Bechem		
+new	1953-07-Q	Oswald_Karch	Oswald Karch		
+new	1953-07-Q	Rodney_Nuckey	Rodney Nuckey		
+new	1953-07-Q	Theo_Fitzau	Theo Fitzau		
+new	1953-07-Q	Wolfgang_Seidel	Wolfgang Seidel		
+change	1954-01-Q	Baron_de_Graffenried	Baron de Graffenried	1950-07-Q	Toulo_de_Graffenried
+new	1954-01-Q	Harry_Schell	Harry Schell		
+new	1954-01-Q	Jorge_Daponte	Jorge Daponte		
+new	1954-01-Q	Onofre_Marimon	Onofre Marimon		
+new	1954-02-Q	Advance_Muffler	Advance Muffler		
+new	1954-02-Q	Brady	Brady		
+new	1954-02-Q	Hopkins	Hopkins		
+new	1954-02-Q	Jones_&_Maley	Jones & Maley		
+new	1954-02-Q	Lutes	Lutes		
+new	1954-02-Q	Malloy	Malloy		
+new	1954-02-Q	Martin_Brothers	Martin Brothers		
+new	1954-02-Q	Mel_Wiggers	Mel Wiggers		
+new	1954-03-Q	Equipe_Moss	Equipe Moss		
+new	1954-03-Q	Prince_Bira	Prince Bira		
+new	1954-03-Q	Roberto_Mieres	Roberto Mieres		
+new	1954-04-Q	Daimler_Benz_AG	Daimler Benz AG		
+new	1954-04-Q	Gilby_Engineering_Ltd.	Gilby Engineering Ltd.		
+change	1954-04-Q	Owen_Racing_Organisation	Owen Racing Organisation	1951-05-Q	British_Racing_Motors_Ltd.
+change	1954-05-Q	Alfred_Moss	Alfred Moss	1954-03-Q	Equipe_Moss
+new	1954-05-Q	Bill_Whitehouse	Bill Whitehouse		
+new	1954-05-Q	Gould's_Garage_(Bristol)	Gould's Garage (Bristol)		
+new	1954-05-Q	Leslie_Marr	Leslie Marr		
+new	1954-05-Q	Sir_Jeremy_Boles	Sir Jeremy Boles		
+change	1954-06-Q	Hans_Klenk-Meteor	Hans Klenk-Meteor	1952-06-Q	Hans_Klenk
+new	1954-09-Q	Scuderia_Lancia	Scuderia Lancia		
+new	1955-01-Q	Alberto_Uria	Alberto Uria		
+change	1955-02-Q	Vandervell_Products_Ltd.	Vandervell Products Ltd.	1951-04-Q	G.A._Vandervell
+new	1955-03-Q	Aristo_Blue	Aristo Blue		
+new	1955-03-Q	Belond_Miracle_Power	Belond Miracle Power		
+new	1955-03-Q	D-A_Lubricant	D-A Lubricant		
+new	1955-03-Q	Dunn_Engineering	Dunn Engineering		
+new	1955-03-Q	Massaglia	Massaglia		
+new	1955-03-Q	McDaniel	McDaniel		
+new	1955-03-Q	Sam_Traylor	Sam Traylor		
+new	1955-03-Q	Trio_Brass_Foundry	Trio Brass Foundry		
+new	1955-03-Q	Westwood_Gauge_&_Tool	Westwood Gauge & Tool		
+new	1955-04-Q	Stirling_Moss_Ltd.	Stirling Moss Ltd.		
+change	1955-05-Q	Equipe_Nationale_Belge	Equipe Nationale Belge	1950-01-Q	Ecurie_Belge
+new	1955-07-Q	Scuderia_Volpini	Scuderia Volpini		
+change	1956-01-Q	Luigi_Piotti	Luigi Piotti	1955-07-Q	Scuderia_Volpini
+new	1956-02-Q	Scuderia_Centro_Sud	Scuderia Centro Sud		
+new	1956-03-Q	D-A_Lubicrant	D-A Lubicrant		
+new	1956-03-Q	Filter_Queen	Filter Queen		
+new	1956-03-Q	Greenman-Casale	Greenman-Casale		
+new	1956-03-Q	Helse	Helse		
+new	1956-03-Q	Hoyt_Machine	Hoyt Machine		
+new	1956-03-Q	Massaglia_Hotels	Massaglia Hotels		
+new	1956-03-Q	Novi_Vespa	Novi Vespa		
+new	1956-03-Q	Shannon's	Shannon's		
+new	1956-04-Q	Piero_Scotti	Piero Scotti		
+new	1956-05-Q	Andre_Simon	Andre Simon		
+new	1956-05-Q	Automobiles_Bugatti	Automobiles Bugatti		
+new	1956-06-Q	Bruce_Halford	Bruce Halford		
+new	1956-06-Q	Emeryson_Cars	Emeryson Cars		
+new	1956-06-Q	Jack_Brabham	Jack Brabham		
+new	1956-06-Q	Scuderia_Guastalla	Scuderia Guastalla		
+new	1956-07-Q	Ottorino_Volonterio	Ottorino Volonterio		
+new	1957-02-Q	Horace_Gould	Horace Gould		
+new	1957-03-Q	Belond_Exhaust	Belond Exhaust		
+new	1957-03-Q	Chiropractic	Chiropractic		
+new	1957-03-Q	Dayton_Steel_Foundry	Dayton Steel Foundry		
+new	1957-03-Q	McKay	McKay		
+new	1957-03-Q	McNamara_/_Veedol	McNamara / Veedol		
+new	1957-03-Q	Novi_Auto_Air_Conditioner	Novi Auto Air Conditioner		
+new	1957-03-Q	Schildmeier_Seal_Line	Schildmeier Seal Line		
+new	1957-03-Q	Sclavi_&_Amos	Sclavi & Amos		
+new	1957-03-Q	Wolcott_Fuel_Injection	Wolcott Fuel Injection		
+new	1957-05-Q	Joakim_Bonnier_Racing_Team	Joakim Bonnier Racing Team		
+new	1957-06-Q	Brian_Naylor	Brian Naylor		
+new	1957-06-Q	Dick_Gibson	Dick Gibson		
+new	1957-06-Q	Dr._Ing_F._Porsche_KG	Dr. Ing F. Porsche KG		
+new	1957-06-Q	Ecurie_Maarsbergen	Ecurie Maarsbergen		
+new	1957-06-Q	Paco_Godia	Paco Godia		
+new	1957-06-Q	Ridgeway_Managements	Ridgeway Managements		
+new	1958-01-Q	Ken_Kavanagh	Ken Kavanagh		
+new	1958-01-Q	Scuderia_Sud_Americana	Scuderia Sud Americana		
+new	1958-02-Q	Giorgio_Scarlatti	Giorgio Scarlatti		
+change	1958-02-Q	Team_Lotus	Team Lotus	1951-02-Q	Chapman
+new	1958-04-Q	Belond_A.P._Muffler	Belond A.P. Muffler		
+new	1958-04-Q	Bryant_Heating_&_Cooling	Bryant Heating & Cooling		
+new	1958-04-Q	City_of_Daytona_Beach	City of Daytona Beach		
+new	1958-04-Q	Demler	Demler		
+new	1958-04-Q	Gerhardt	Gerhardt		
+new	1958-04-Q	Leader_Card_500_Roadster	Leader Card 500 Roadster		
+new	1958-04-Q	Sorenson	Sorenson		
+new	1958-05-Q	Maria_Teresa_de_Filippis	Maria Teresa de Filippis		
+new	1958-06-Q	Juan_Manuel_Fangio	Juan Manuel Fangio		
+new	1958-07-Q	Bernie_Ecclestone	Bernie Ecclestone		
+new	1958-08-Q	Ecurie_Demi_Litre	Ecurie Demi Litre		
+new	1958-08-Q	Ecurie_Eperon_d'Or	Ecurie Eperon d'Or		
+new	1958-08-Q	High_Efficiency_Motors	High Efficiency Motors		
+new	1958-08-Q	Tony_Marsh	Tony Marsh		
+new	1958-09-Q	Temple_Buell	Temple Buell		
+new	1958-11-Q	British_Racing_Partnership	British Racing Partnership		
+new	1958-11-Q	Ken_Tyrrell	Ken Tyrrell		
+new	1958-11-Q	Robert_LaCaze	Robert LaCaze		
+new	1959-01-Q	John_Fisher	John Fisher		
+new	1959-02-Q	Drewry's	Drewry's		
+new	1959-02-Q	Hall-Mar	Hall-Mar		
+new	1959-02-Q	Hoover_Motor_Express	Hoover Motor Express		
+new	1959-02-Q	John_Zink_Heater	John Zink Heater		
+new	1959-02-Q	McNamara_Chiropractic	McNamara Chiropractic		
+new	1959-02-Q	Meguiar's_Mirror_Glaze	Meguiar's Mirror Glaze		
+new	1959-02-Q	Racing_Associates	Racing Associates		
+new	1959-02-Q	Ray_Brady	Ray Brady		
+new	1959-02-Q	Simoniz	Simoniz		
+new	1959-02-Q	Smokey's_Reverse_Torque	Smokey's Reverse Torque		
+new	1959-02-Q	Wheeler-Foutch	Wheeler-Foutch		
+new	1959-02-Q	Wolcott_Memorial	Wolcott Memorial		
+new	1959-03-Q	David_Brown_Corporation	David Brown Corporation		
+new	1959-04-Q	Scuderia_Ugolini	Scuderia Ugolini		
+new	1959-05-Q	Alan_Brown_Equipe	Alan Brown Equipe		
+new	1959-05-Q	Dorchester_Service_Station	Dorchester Service Station		
+change	1959-05-Q	JB_Naylor	JB Naylor	1957-06-Q	Brian_Naylor
+new	1959-06-Q	Jean_Behra	Jean Behra		
+new	1959-08-Q	Giulio_Cabianca	Giulio Cabianca		
+change	1959-09-Q	Automobili_OSCA	Automobili OSCA	1951-07-Q	OSCA_Automobili
+new	1959-09-Q	Blanchard_Automobiles	Blanchard Automobiles		
+new	1959-09-Q	Camoradi_International	Camoradi International		
+change	1959-09-Q	Connaught_Cars_/_Paul_Emery	Connaught Cars / Paul Emery	1952-05-Q	Connaught_Engineering
+new	1959-09-Q	Leader_Cards_Inc.	Leader Cards Inc.		
+new	1959-09-Q	Mike_Taylor	Mike Taylor		
+new	1959-09-Q	Phil_Cade	Phil Cade		
+new	1960-01-Q	Antonio_Creus	Antonio Creus		
+new	1960-01-Q	Ettore_Chimeri	Ettore Chimeri		
+new	1960-01-Q	Gino_Munaron	Gino Munaron		
+new	1960-01-Q	Nasif_Estefano	Nasif Estefano		
+change	1960-02-Q	Yeoman_Credit_Racing_Team	Yeoman Credit Racing Team	1958-11-Q	British_Racing_Partnership
+new	1960-03-Q	Adams_Quarter_Horse_Farm	Adams Quarter Horse Farm		
+new	1960-03-Q	Bill_Forbes	Bill Forbes		
+new	1960-03-Q	Dowgard	Dowgard		
+new	1960-03-Q	Go-Kart	Go-Kart		
+new	1960-03-Q	Joe_Hunt_Magneto	Joe Hunt Magneto		
+new	1960-03-Q	Ken-Paul	Ken-Paul		
+new	1960-03-Q	King_O'Lawn	King O'Lawn		
+new	1960-03-Q	Metal-Cal	Metal-Cal		
+new	1960-03-Q	Ridgewood_Builders	Ridgewood Builders		
+new	1960-03-Q	Ross-Babcock_Traveler	Ross-Babcock Traveler		
+new	1960-03-Q	S-R_Racing_Enterprises	S-R Racing Enterprises		
+new	1960-03-Q	Thompson_Industries	Thompson Industries		
+new	1960-04-Q	Reventlow_Automobiles_Inc.	Reventlow Automobiles Inc.		
+new	1960-05-Q	Taylor-Crawley_Racing_Team	Taylor-Crawley Racing Team		
+new	1960-06-Q	Fred_Tuck_Cars	Fred Tuck Cars		
+new	1960-06-Q	Robert_Bodle_Ltd.	Robert Bodle Ltd.		
+new	1960-06-Q	Scuderia_Castellotti	Scuderia Castellotti		
+change	1960-07-Q	CT_Atkins	CT Atkins	1958-08-Q	High_Efficiency_Motors
+change	1960-07-Q	Gilby_Engineering_Co._Ltd.	Gilby Engineering Co. Ltd.	1954-04-Q	Gilby_Engineering_Ltd.
+change	1960-09-Q	Arthur_Owen	Arthur Owen	1954-04-Q	Owen_Racing_Organisation
+change	1960-09-Q	Equipe_Prideaux_/_Dick_Gibson	Equipe Prideaux / Dick Gibson	1957-06-Q	Dick_Gibson
+alias	1960-09-Q	Porsche_System_Engineering	Porsche System Engineering	1957-06-Q	Dr._Ing_F._Porsche_KG
+new	1960-09-Q	Scuderia_Colonia	Scuderia Colonia		
+new	1960-10-Q	Fred_Armbruster	Fred Armbruster		
+new	1960-10-Q	Jim_Hall	Jim Hall		
+new	1960-10-Q	Joe_Lubin	Joe Lubin		
+change	1960-10-Q	Owen_Racing_Organisation	Owen Racing Organisation	1960-09-Q	Arthur_Owen
+change	1961-01-Q	Porsche_System_Engineering	Porsche System Engineering	1957-06-Q	Dr._Ing_F._Porsche_KG
+change	1961-01-Q	Scuderia_Ferrari_SpA_SEFAC	Scuderia Ferrari SpA SEFAC	1950-02-Q	Scuderia_Ferrari
+new	1961-01-Q	Scuderia_Serenissima	Scuderia Serenissima		
+change	1961-01-Q	UDT-Laystall_Racing_Team	UDT-Laystall Racing Team	1960-02-Q	Yeoman_Credit_Racing_Team
+new	1961-01-Q	Yeoman_Credit_Racing_Team	Yeoman Credit Racing Team		
+new	1961-03-Q	H&L_Motors	H&L Motors		
+new	1961-04-Q	Bernard_Collomb	Bernard Collomb		
+new	1961-04-Q	FISA	FISA		
+new	1961-05-Q	Gerry_Ashmore	Gerry Ashmore		
+new	1961-05-Q	Louise_Bryden-Brown	Louise Bryden-Brown		
+change	1961-05-Q	Scuderia_Sant_Ambroeus	Scuderia Sant Ambroeus	1961-04-Q	FISA
+alias	1961-05-Q	Tim_Parnell	Tim Parnell	1961-01-Q	Yeoman_Credit_Racing_Team
+new	1961-07-Q	Irsobele_de_Tomaso	Irsobele de Tomaso		
+change	1961-07-Q	JBW_Cars	JBW Cars	1959-05-Q	JB_Naylor
+new	1961-07-Q	Pescara_Racing_Club	Pescara Racing Club		
+new	1961-07-Q	Prince_Gaetano_Starrabba	Prince Gaetano Starrabba		
+new	1961-07-Q	Scuderia_Settecolli	Scuderia Settecolli		
+new	1961-08-Q	Hap_Sharp	Hap Sharp		
+new	1961-08-Q	J._Frank_Harrison	J. Frank Harrison		
+new	1961-08-Q	John_M._Wyatt_III	John M. Wyatt III		
+new	1961-08-Q	J._Wheeler_Autosport	J. Wheeler Autosport		
+new	1961-08-Q	Momo_Corporation	Momo Corporation		
+change	1962-01-Q	Bowmaker-Yeoman_Racing_Team	Bowmaker-Yeoman Racing Team	1961-01-Q	Yeoman_Credit_Racing_Team
+new	1962-01-Q	Brabham_Racing_Organisation	Brabham Racing Organisation		
+new	1962-01-Q	Ecurie_Galloise	Ecurie Galloise		
+change	1962-03-Q	Autosport_Team_Wolfgang_Seidel	Autosport Team Wolfgang Seidel	1953-07-Q	Wolfgang_Seidel
+new	1962-03-Q	Ecurie_Filipinetti	Ecurie Filipinetti		
+new	1962-05-Q	Anglo-American_Equipe	Anglo-American Equipe		
+new	1962-05-Q	Ecurie_Excelsior	Ecurie Excelsior		
+new	1962-05-Q	John_Dalton	John Dalton		
+change	1962-06-Q	Scuderia_SSS_Republica_di_Venezia	Scuderia SSS Republica di Venezia	1961-01-Q	Scuderia_Serenissima
+new	1962-08-Q	Dupont_Team_Zerex	Dupont Team Zerex		
+new	1962-08-Q	John_Mecom	John Mecom		
+new	1962-09-Q	Ernie_Pieterse	Ernie Pieterse		
+new	1962-09-Q	John_Love	John Love		
+new	1962-09-Q	Mike_Harris	Mike Harris		
+new	1962-09-Q	Neville_Lederle	Neville Lederle		
+new	1962-09-Q	Otelle_Nucci	Otelle Nucci		
+change	1963-01-Q	British_Racing_Partnership	British Racing Partnership	1961-01-Q	UDT-Laystall_Racing_Team
+change	1963-01-Q	Reg_Parnell_Racing	Reg Parnell Racing	1962-01-Q	Bowmaker-Yeoman_Racing_Team
+new	1963-01-Q	Siffert_Racing_Team	Siffert Racing Team		
+new	1963-02-Q	Automobili_Tourismo_e_Sport	Automobili Tourismo e Sport		
+new	1963-02-Q	Scirocco_Powell	Scirocco Powell		
+new	1963-05-Q	DW_Racing_Enterprises	DW Racing Enterprises		
+new	1963-05-Q	Ian_Raby_Racing	Ian Raby Racing		
+new	1963-08-Q	Canadian_Stebro_Racing	Canadian Stebro Racing		
+new	1963-09-Q	Frank_Dochnal	Frank Dochnal		
+new	1963-10-Q	David_Prophet	David Prophet		
+new	1963-10-Q	Lawson_Organisation	Lawson Organisation		
+new	1963-10-Q	Sam_Tingle	Sam Tingle		
+new	1963-10-Q	Scuderia_Lupino	Scuderia Lupino		
+new	1963-10-Q	Selby_Auto_Spares	Selby Auto Spares		
+new	1963-10-Q	Ted_Lanfear	Ted Lanfear		
+new	1964-01-Q	Maurice_Trintignant	Maurice Trintignant		
+change	1964-03-Q	Equipe_Scirocco_Belge	Equipe Scirocco Belge	1963-02-Q	Scirocco_Powell
+new	1964-05-Q	Bob_Gerard_Racing	Bob Gerard Racing		
+new	1964-05-Q	John_Willment_Automobiles	John Willment Automobiles		
+new	1964-06-Q	Honda_R&D_Co.	Honda R&D Co.		
+new	1964-06-Q	Revson_Racing	Revson Racing		
+new	1964-08-Q	Derrington-Francis	Derrington-Francis		
+new	1964-08-Q	Fabre_Urbain	Fabre Urbain		
+alias	1964-09-Q	North_American_Racing_Team	North American Racing Team	1961-01-Q	Scuderia_Ferrari_SpA_SEFAC
+change	1966-01-Q	Anglo-Suisse_Racing	Anglo-Suisse Racing	1957-05-Q	Joakim_Bonnier_Racing_Team
+new	1966-01-Q	Bruce_McLaren_Motor_Racing	Bruce McLaren Motor Racing		
+new	1966-01-Q	Guy_Ligier	Guy Ligier		
+change	1966-01-Q	Reg_Parnell_Racing_Ltd.	Reg Parnell Racing Ltd.	1963-01-Q	Reg_Parnell_Racing
+new	1966-01-Q	Team_Chamaco_Collect	Team Chamaco Collect		
+new	1966-02-Q	Anglo_American_Racers	Anglo American Racers		
+new	1966-03-Q	David_Bridges	David Bridges		
+alias	1966-03-Q	Ron_Harris-Team_Lotus	Ron Harris-Team Lotus	1958-02-Q	Team_Lotus
+new	1966-04-Q	J.A._Pearce_Engineering_Ltd.	J.A. Pearce Engineering Ltd.		
+new	1966-04-Q	Shannon_Racing_Cars	Shannon Racing Cars		
+change	1966-08-Q	Bernard_White_Racing	Bernard White Racing	1966-01-Q	Team_Chamaco_Collect
+change	1967-01-Q	Joakim_Bonnier_Racing_Team	Joakim Bonnier Racing Team	1966-01-Q	Anglo-Suisse_Racing
+change	1967-01-Q	Honda_Racing	Honda Racing	1964-06-Q	Honda_R&D_Co.
+new	1967-01-Q	LDS	LDS		
+new	1967-01-Q	Luki_Botha	Luki Botha		
+change	1967-01-Q	Rob_Walker-Jack_Durlacher_Racing_Team	Rob Walker-Jack Durlacher Racing Team	1953-06-Q	Rob_Walker_Racing_Team
+new	1967-01-Q	Scuderia_Scribante	Scuderia Scribante		
+new	1967-02-Q	Matra_Sports	Matra Sports		
+new	1967-06-Q	Charles_Vogele_Racing	Charles Vogele Racing		
+new	1967-07-Q	Lola_Cars_Ltd.	Lola Cars Ltd.		
+new	1967-08-Q	Castrol_Oils_Ltd.	Castrol Oils Ltd.		
+new	1967-08-Q	Mike_Fisher	Mike Fisher		
+alias	1968-01-Q	Matra_International	Matra International	1967-02-Q	Matra_Sports
+new	1968-01-Q	Team_Gunston	Team Gunston		
+new	1968-01-Q	Team_Pretoria	Team Pretoria		
+change	1968-02-Q	Gold_Leaf_Team_Lotus	Gold Leaf Team Lotus	1958-02-Q	Team_Lotus
+new	1968-08-Q	BMW	BMW		
+new	1969-01-Q	Jack_Holme	Jack Holme		
+change	1969-01-Q	Matra_International	Matra International	1967-02-Q	Matra_Sports
+change	1969-01-Q	Motor_Racing_Developments	Motor Racing Developments	1962-01-Q	Brabham_Racing_Organisation
+new	1969-01-Q	Team_Lawson	Team Lawson		
+new	1969-02-Q	Frank_Williams_Racing_Cars	Frank Williams Racing Cars		
+change	1969-03-Q	Cooper	Cooper	1953-01-Q	Cooper_Car_Company
+change	1969-05-Q	Antique_Automobiles	Antique Automobiles	1969-03-Q	Cooper
+new	1969-05-Q	Silvio_Moser_Racing_Team	Silvio Moser Racing Team		
+new	1969-09-Q	John_Maryon	John Maryon		
+new	1969-10-Q	Pete_Lovely_Volkswagen_Inc.	Pete Lovely Volkswagen Inc.		
+alias	1970-01-Q	Auto_Motor_Und_Sport	Auto Motor Und Sport	1969-01-Q	Motor_Racing_Developments
+change	1970-01-Q	Equip_Matra_Elf	Equip Matra Elf	1969-01-Q	Matra_International
+new	1970-01-Q	March_Engineering	March Engineering		
+new	1970-01-Q	STP_Corporation	STP Corporation		
+new	1970-01-Q	Team_Surtees	Team Surtees		
+new	1970-01-Q	Tyrrell_Racing_Organisation	Tyrrell Racing Organisation		
+change	1970-02-Q	Yardley_Team_BRM	Yardley Team BRM	1960-10-Q	Owen_Racing_Organisation
+change	1970-03-Q	Antique_Automobiles_Racing_Team	Antique Automobiles Racing Team	1969-05-Q	Antique_Automobiles
+change	1970-03-Q	Rob_Walker_Racing_Team	Rob Walker Racing Team	1967-01-Q	Rob_Walker-Jack_Durlacher_Racing_Team
+alias	1970-03-Q	Brooke_Bond_Oxo_Racing-Rob_Walker	Brooke Bond Oxo Racing-Rob Walker	1970-03-Q	Rob_Walker_Racing_Team
+new	1970-04-Q	Tom_Wheatcroft_Racing	Tom Wheatcroft Racing		
+alias	1970-04-Q	World_Wide_Racing	World Wide Racing	1968-02-Q	Gold_Leaf_Team_Lotus
+change	1970-05-Q	Colin_Crabbe_Racing	Colin Crabbe Racing	1970-03-Q	Antique_Automobiles_Racing_Team
+alias	1970-07-Q	Pete_Lovely_Volkswagen_Inc	Pete Lovely Volkswagen Inc	1969-10-Q	Pete_Lovely_Volkswagen_Inc.
+alias	1970-08-Q	Rob_Walker_Team_Surtees	Rob Walker Team Surtees	1970-01-Q	Team_Surtees
+new	1970-09-Q	Silvio_Moser_Racing_Team	Silvio Moser Racing Team		
+change	1970-12-Q	Ecurie_Bonnier	Ecurie Bonnier	1967-01-Q	Joakim_Bonnier_Racing_Team
+new	1970-12-Q	Gus_Hutchison	Gus Hutchison		
+alias	1971-01-Q	Eifelland_Team_Surtees	Eifelland Team Surtees	1970-01-Q	Team_Surtees
+change	1971-01-Q	Elf_Team_Tyrrell	Elf Team Tyrrell	1970-01-Q	Tyrrell_Racing_Organisation
+change	1971-01-Q	Equip_Matra_Sports	Equip Matra Sports	1970-01-Q	Equip_Matra_Elf
+change	1971-01-Q	STP_March_Racing_Team	STP March Racing Team	1970-01-Q	March_Engineering
+new	1971-04-Q	Gene_Mason_Racing	Gene Mason Racing		
+new	1971-04-Q	Stichting_Autoraces_Nederland	Stichting Autoraces Nederland		
+new	1971-05-Q	Jo_Siffert_Automobiles	Jo Siffert Automobiles		
+new	1971-06-Q	Clarke-Mordaunt-Guthrie_Racing	Clarke-Mordaunt-Guthrie Racing		
+new	1971-09-Q	Jolly_Club_of_Switzerland	Jolly Club of Switzerland		
+new	1971-10-Q	Ecurie_Evergreen	Ecurie Evergreen		
+new	1971-10-Q	Penske-White_Racing	Penske-White Racing		
+alias	1972-01-Q	Ceramica_Pagnossin_Team_Surtees	Ceramica Pagnossin Team Surtees	1970-01-Q	Team_Surtees
+change	1972-01-Q	Equipe_Matra	Equipe Matra	1971-01-Q	Equip_Matra_Sports
+change	1972-01-Q	John_Player_Team_Lotus	John Player Team Lotus	1968-02-Q	Gold_Leaf_Team_Lotus
+change	1972-01-Q	Marlboro-BRM	Marlboro-BRM	1970-02-Q	Yardley_Team_BRM
+alias	1972-01-Q	Rob_Walker-Team_Surtees	Rob Walker-Team Surtees	1970-01-Q	Team_Surtees
+change	1972-01-Q	Team_Williams-Motul	Team Williams-Motul	1969-02-Q	Frank_Williams_Racing_Cars
+change	1972-01-Q	Yardley_Team_McLaren	Yardley Team McLaren	1966-01-Q	Bruce_McLaren_Motor_Racing
+alias	1972-02-Q	Brooke_Bond_Oxo_Team_Surtees	Brooke Bond Oxo Team Surtees	1970-01-Q	Team_Surtees
+new	1972-02-Q	Team_Eifelland_Caravans	Team Eifelland Caravans		
+new	1972-05-Q	Martini_Racing_Team	Martini Racing Team		
+alias	1972-06-Q	Flame_Out_Team_Surtees	Flame Out Team Surtees	1970-01-Q	Team_Surtees
+new	1972-07-Q	Darnvall_Connew_Racing_Team	Darnvall Connew Racing Team		
+new	1972-12-Q	Champcarr_Inc	Champcarr Inc		
+change	1973-01-Q	Clarke-Mordaunt-Guthrie-Durlacher	Clarke-Mordaunt-Guthrie-Durlacher	1971-06-Q	Clarke-Mordaunt-Guthrie_Racing
+new	1973-03-Q	Blignaut-Lucky_Strike_Racing	Blignaut-Lucky Strike Racing		
+change	1973-03-Q	Scuderia_Scribante-Lucky_Strike	Scuderia Scribante-Lucky Strike	1967-01-Q	Scuderia_Scribante
+new	1973-03-Q	UOP_Shadow_Racing_Team	UOP Shadow Racing Team		
+alias	1973-04-Q	Ceramica_Pagnossin_Team_MRD	Ceramica Pagnossin Team MRD	1969-01-Q	Motor_Racing_Developments
+new	1973-04-Q	Embassy_Racing	Embassy Racing		
+new	1973-06-Q	Hesketh_Racing	Hesketh Racing		
+new	1973-06-Q	LEC_Refrigeration_Racing	LEC Refrigeration Racing		
+alias	1973-07-Q	Team_Pierre_Robert	Team Pierre Robert	1973-01-Q	Clarke-Mordaunt-Guthrie-Durlacher
+new	1973-08-Q	Team_Ensign	Team Ensign		
+alias	1974-01-Q	Bang_and_Olufsen_Team_Surtees	Bang and Olufsen Team Surtees	1970-01-Q	Team_Surtees
+new	1974-01-Q	Goldie_Hexagon_Racing	Goldie Hexagon Racing		
+change	1974-01-Q	March_Engineering	March Engineering	1971-01-Q	STP_March_Racing_Team
+alias	1974-01-Q	Marlboro_Team_Texaco	Marlboro Team Texaco	1972-01-Q	Yardley_Team_McLaren
+change	1974-01-Q	Team_Motul_BRM	Team Motul BRM	1972-01-Q	Marlboro-BRM
+alias	1974-03-Q	Blignaut-Embassy_Racing	Blignaut-Embassy Racing	1973-04-Q	Embassy_Racing
+new	1974-04-Q	Chris_Amon_Racing	Chris Amon Racing		
+new	1974-04-Q	Trojan-Tauranac_Racing	Trojan-Tauranac Racing		
+new	1974-05-Q	Scuderia_Finotto	Scuderia Finotto		
+new	1974-05-Q	Token_Racing	Token Racing		
+new	1974-07-Q	AAW_Racing_Team	AAW Racing Team		
+alias	1974-12-Q	Memphis_International_Team_Surtees	Memphis International Team Surtees	1970-01-Q	Team_Surtees
+change	1974-14-Q	Penske_Cars	Penske Cars	1971-10-Q	Penske-White_Racing
+new	1974-14-Q	Team_Canada_F1_Racing	Team Canada F1 Racing		
+new	1974-14-Q	Vel's_Parnelli_Jones_Racing	Vel's Parnelli Jones Racing		
+alias	1975-01-Q	Beta_Team_March	Beta Team March	1974-01-Q	March_Engineering
+new	1975-01-Q	Copersucar-Fittipaldi	Copersucar-Fittipaldi		
+change	1975-01-Q	Marlboro_Team_McLaren	Marlboro Team McLaren	1972-01-Q	Yardley_Team_McLaren
+change	1975-01-Q	Martini_Racing	Martini Racing	1969-01-Q	Motor_Racing_Developments
+change	1975-01-Q	Stanley_BRM	Stanley BRM	1974-01-Q	Team_Motul_BRM
+new	1975-03-Q	Lexington_Racing	Lexington Racing		
+change	1975-03-Q	Lucky_Strike_Scribante_Racing	Lucky Strike Scribante Racing	1973-03-Q	Scuderia_Scribante-Lucky_Strike
+new	1975-04-Q	Custom_Made_Harry_Stiller_Racing	Custom Made Harry Stiller Racing		
+change	1975-04-Q	HB_Bewaking_Team_Ensign	HB Bewaking Team Ensign	1973-08-Q	Team_Ensign
+alias	1975-04-Q	Lavazza_March	Lavazza March	1974-01-Q	March_Engineering
+alias	1975-07-Q	Polar_Caravans	Polar Caravans	1973-06-Q	Hesketh_Racing
+new	1975-08-Q	Maki_Engineering	Maki Engineering		
+alias	1975-10-Q	National_Organs_Team_Surtees	National Organs Team Surtees	1970-01-Q	Team_Surtees
+new	1975-10-Q	Pinch_(Plant)_Ltd.	Pinch (Plant) Ltd.		
+alias	1975-11-Q	Warsteiner_Brewery	Warsteiner Brewery	1973-06-Q	Hesketh_Racing
+change	1976-01-Q	Citibank_Team_Penske	Citibank Team Penske	1974-14-Q	Penske_Cars
+new	1976-01-Q	Ligier_Gitanes	Ligier Gitanes		
+change	1976-01-Q	Shadow_Racing_Team	Shadow Racing Team	1973-03-Q	UOP_Shadow_Racing_Team
+change	1976-02-Q	Team_Ensign	Team Ensign	1975-04-Q	HB_Bewaking_Team_Ensign
+alias	1976-03-Q	Durex_Team_Surtees	Durex Team Surtees	1970-01-Q	Team_Surtees
+new	1976-04-Q	HB_Bewaking_Alarm_Systems	HB Bewaking Alarm Systems		
+alias	1976-04-Q	Ovoro_Team_March	Ovoro Team March	1974-01-Q	March_Engineering
+new	1976-05-Q	RAM_Racing	RAM Racing		
+alias	1976-05-Q	Tissot_RAM_Racing	Tissot RAM Racing	1976-05-Q	RAM_Racing
+new	1976-08-Q	Team_Norev_Racing	Team Norev Racing		
+new	1976-10-Q	Scuderia_Gulf_Rodini	Scuderia Gulf Rodini		
+alias	1976-11-Q	RAM_Racing_with_Lavazza	RAM Racing with Lavazza	1976-05-Q	RAM_Racing
+new	1976-12-Q	F&S_Properties	F&S Properties		
+new	1976-13-Q	OASC_Racing_Team	OASC Racing Team		
+alias	1976-14-Q	Walter_Wolf_Racing	Walter Wolf Racing	1972-01-Q	Team_Williams-Motul
+new	1976-16-Q	Heros_Racing	Heros Racing		
+new	1976-16-Q	Kojima_Engineering	Kojima Engineering		
+alias	1977-01-Q	Beta_Team_Surtees	Beta Team Surtees	1970-01-Q	Team_Surtees
+alias	1977-01-Q	Hollywood_March_Racing	Hollywood March Racing	1974-01-Q	March_Engineering
+alias	1977-01-Q	Team_Rothmans_International	Team Rothmans International	1974-01-Q	March_Engineering
+change	1977-01-Q	Team_Tissot_Ensign	Team Tissot Ensign	1976-02-Q	Team_Ensign
+alias	1977-02-Q	Rotary_Watches_/_Stanley_BRM	Rotary Watches / Stanley BRM	1975-01-Q	Stanley_BRM
+change	1977-03-Q	Chesterfield_Racing	Chesterfield Racing	1976-08-Q	Team_Norev_Racing
+change	1977-03-Q	RAM_Racing_/_F&S_Properties	RAM Racing / F&S Properties	1976-05-Q	RAM_Racing
+new	1977-04-Q	ATS_Racing_Team	ATS Racing Team		
+new	1977-05-Q	Iberia_Airlines	Iberia Airlines		
+alias	1977-05-Q	Penthouse_Rizla_Racing	Penthouse Rizla Racing	1973-06-Q	Hesketh_Racing
+new	1977-05-Q	Team_Merzario	Team Merzario		
+new	1977-05-Q	Williams_Grand_Prix_Engineering	Williams Grand Prix Engineering		
+new	1977-10-Q	Equipe_Renault_Elf	Equipe Renault Elf		
+new	1977-10-Q	Theodore_Racing_Hong_Kong	Theodore Racing Hong Kong		
+new	1977-15-Q	Interscope_Racing	Interscope Racing		
+new	1977-17-Q	Heros_Racing_Corporation	Heros Racing Corporation		
+new	1977-17-Q	Meiritsu_Racing_Team	Meiritsu Racing Team		
+change	1978-01-Q	Fittipaldi_Automotive	Fittipaldi Automotive	1975-01-Q	Copersucar-Fittipaldi
+change	1978-01-Q	Liggett_Group_/_BS_Fabrications	Liggett Group / BS Fabrications	1977-03-Q	Chesterfield_Racing
+change	1978-01-Q	Parmalat_Racing_Team	Parmalat Racing Team	1975-01-Q	Martini_Racing
+new	1978-02-Q	Arrows_Racing_Team	Arrows Racing Team		
+new	1978-02-Q	Team_Rebaque	Team Rebaque		
+change	1978-03-Q	Olympus_Cameras_Hesketh_Racing	Olympus Cameras Hesketh Racing	1973-06-Q	Hesketh_Racing
+new	1978-06-Q	Automobiles_Martini	Automobiles Martini		
+new	1978-11-Q	Sachs_Racing	Sachs Racing		
+alias	1978-12-Q	BS_Fabrications	BS Fabrications	1978-01-Q	Liggett_Group_/_BS_Fabrications
+change	1979-01-Q	Albilad-Saudia_Racing_Team	Albilad-Saudia Racing Team	1977-05-Q	Williams_Grand_Prix_Engineering
+change	1979-01-Q	ATS_Wheels	ATS Wheels	1977-04-Q	ATS_Racing_Team
+change	1979-01-Q	Candy_Tyrrell_Team	Candy Tyrrell Team	1971-01-Q	Elf_Team_Tyrrell
+alias	1979-01-Q	Interscope_Shadow_Racing_Team	Interscope Shadow Racing Team	1976-01-Q	Shadow_Racing_Team
+change	1979-01-Q	Martini_Racing_Team_Lotus	Martini Racing Team Lotus	1972-01-Q	John_Player_Team_Lotus
+change	1979-01-Q	Olympus_Cameras_Wolf_Racing	Olympus Cameras Wolf Racing	1972-01-Q	Team_Williams-Motul
+alias	1979-01-Q	Samson_Shadow_Racing_Team	Samson Shadow Racing Team	1976-01-Q	Shadow_Racing_Team
+change	1979-01-Q	Team_Ensign	Team Ensign	1977-01-Q	Team_Tissot_Ensign
+change	1979-01-Q	Warsteiner_Arrows_Racing_Team	Warsteiner Arrows Racing Team	1978-02-Q	Arrows_Racing_Team
+new	1979-06-Q	Autodelta	Autodelta		
+change	1980-01-Q	Albilad-Williams_Racing_Team	Albilad-Williams Racing Team	1979-01-Q	Albilad-Saudia_Racing_Team
+change	1980-01-Q	Equipe_Ligier_Gitanes	Equipe Ligier Gitanes	1976-01-Q	Ligier_Gitanes
+change	1980-01-Q	Marlboro_Team_Alfa_Romeo	Marlboro Team Alfa Romeo	1979-06-Q	Autodelta
+change	1980-01-Q	Skol_Fittipaldi_Team	Skol Fittipaldi Team	1978-01-Q	Fittipaldi_Automotive
+change	1980-01-Q	Team_ATS	Team ATS	1979-01-Q	ATS_Wheels
+change	1980-01-Q	Team_Essex_Lotus	Team Essex Lotus	1979-01-Q	Martini_Racing_Team_Lotus
+change	1980-01-Q	Unipart_Racing_Team	Unipart Racing Team	1979-01-Q	Team_Ensign
+new	1980-03-Q	Osella_Squadra_Corse	Osella Squadra Corse		
+change	1980-03-Q	Shadow_Cars	Shadow Cars	1976-01-Q	Shadow_Racing_Team
+change	1980-08-Q	RAM_/_Williams_GP_Engineering	RAM / Williams GP Engineering	1977-03-Q	RAM_Racing_/_F&S_Properties
+change	1981-01-Q	Arrows_Racing_Team	Arrows Racing Team	1979-01-Q	Warsteiner_Arrows_Racing_Team
+change	1981-01-Q	Ensign_Racing	Ensign Racing	1980-01-Q	Unipart_Racing_Team
+change	1981-01-Q	Equipe_Talbot_Gitanes	Equipe Talbot Gitanes	1980-01-Q	Equipe_Ligier_Gitanes
+change	1981-01-Q	Fittipaldi_Automotive	Fittipaldi Automotive	1980-01-Q	Skol_Fittipaldi_Team
+change	1981-01-Q	Marlboro_McLaren_International	Marlboro McLaren International	1975-01-Q	Marlboro_Team_McLaren
+change	1981-01-Q	TAG_Williams_Racing_Team	TAG Williams Racing Team	1980-01-Q	Albilad-Williams_Racing_Team
+change	1981-01-Q	Team_Tyrrell	Team Tyrrell	1979-01-Q	Candy_Tyrrell_Team
+change	1981-01-Q	Theodore_Racing_Team	Theodore Racing Team	1977-10-Q	Theodore_Racing_Hong_Kong
+change	1981-04-Q	March_Grand_Prix_Team	March Grand Prix Team	1974-01-Q	March_Engineering
+new	1981-07-Q	Equipe_Banco_Occidental	Equipe Banco Occidental		
+change	1981-07-Q	John_Player_Team_Lotus	John Player Team Lotus	1980-01-Q	Team_Essex_Lotus
+new	1981-13-Q	Candy_Toleman_Motorsport	Candy Toleman Motorsport		
+change	1982-01-Q	March_Grand_Prix	March Grand Prix	1981-04-Q	March_Grand_Prix_Team
+change	1982-01-Q	TAG_Williams_Team	TAG Williams Team	1981-01-Q	TAG_Williams_Racing_Team
+change	1983-01-Q	Benetton_Tyrrell_Team	Benetton Tyrrell Team	1981-01-Q	Team_Tyrrell
+change	1983-01-Q	Equipe_Ligier_Gitanes	Equipe Ligier Gitanes	1981-01-Q	Equipe_Talbot_Gitanes
+change	1983-01-Q	Fila_Sport	Fila Sport	1978-01-Q	Parmalat_Racing_Team
+change	1983-01-Q	RAM_Automotive_Team_March	RAM Automotive Team March	1982-01-Q	March_Grand_Prix
+change	1983-01-Q	TAG_Williams	TAG Williams	1982-01-Q	TAG_Williams_Team
+new	1983-09-Q	Spirit_Racing	Spirit Racing		
+change	1984-01-Q	Barclays_Nordica_Arrows_BMW	Barclays Nordica Arrows BMW	1981-01-Q	Arrows_Racing_Team
+change	1984-01-Q	Benetton_Team_Alfa_Romeo	Benetton Team Alfa Romeo	1980-01-Q	Marlboro_Team_Alfa_Romeo
+change	1984-01-Q	Ligier_Loto	Ligier Loto	1983-01-Q	Equipe_Ligier_Gitanes
+change	1984-01-Q	MRD_International	MRD International	1983-01-Q	Fila_Sport
+change	1984-01-Q	Saudia_Williams_Honda	Saudia Williams Honda	1983-01-Q	TAG_Williams
+change	1984-01-Q	Skoal_Bandit_Formula_1_Team	Skoal Bandit Formula 1 Team	1983-01-Q	RAM_Automotive_Team_March
+change	1984-01-Q	Toleman_Group_Motorsport	Toleman Group Motorsport	1981-13-Q	Candy_Toleman_Motorsport
+change	1984-01-Q	Tyrrell_Racing_Organisation	Tyrrell Racing Organisation	1983-01-Q	Benetton_Tyrrell_Team
+change	1985-01-Q	Barclays_Arrows_BMW	Barclays Arrows BMW	1984-01-Q	Barclays_Nordica_Arrows_BMW
+change	1985-01-Q	Canon_Williams_Honda	Canon Williams Honda	1984-01-Q	Saudia_Williams_Honda
+change	1985-01-Q	Equipe_Ligier	Equipe Ligier	1984-01-Q	Ligier_Loto
+change	1985-01-Q	John_Player_Special_Team_Lotus	John Player Special Team Lotus	1981-07-Q	John_Player_Team_Lotus
+new	1985-01-Q	Minardi_Team	Minardi Team		
+change	1985-01-Q	Motor_Racing_Developments	Motor Racing Developments	1984-01-Q	MRD_International
+change	1985-01-Q	Spirit_Enterprises_Ltd.	Spirit Enterprises Ltd.	1983-09-Q	Spirit_Racing
+new	1985-02-Q	West_Zakspeed_Racing	West Zakspeed Racing		
+new	1985-12-Q	Team_Haas_Ltd.	Team Haas Ltd.		
+change	1986-01-Q	Benetton_Formula	Benetton Formula	1984-01-Q	Benetton_Team_Alfa_Romeo
+change	1986-01-Q	Data_General_Team_Tyrrell	Data General Team Tyrrell	1984-01-Q	Tyrrell_Racing_Organisation
+change	1986-01-Q	Team_Haas	Team Haas	1985-12-Q	Team_Haas_Ltd.
+new	1986-13-Q	Jolly_Club_SpA	Jolly Club SpA		
+change	1987-01-Q	Camel_Team_Lotus_Honda	Camel Team Lotus Honda	1985-01-Q	John_Player_Special_Team_Lotus
+new	1987-01-Q	Leyton_House_March_Racing_Team	Leyton House March Racing Team		
+change	1987-01-Q	Ligier_Loto	Ligier Loto	1985-01-Q	Equipe_Ligier
+change	1987-01-Q	Team_El_Charro_AGS	Team El Charro AGS	1986-13-Q	Jolly_Club_SpA
+change	1987-01-Q	US_F&G_Arrows_Megatron	US F&G Arrows Megatron	1985-01-Q	Barclays_Arrows_BMW
+new	1987-02-Q	Larrousse_&_Calmels_F1	Larrousse & Calmels F1		
+new	1987-13-Q	Coloni_Racing	Coloni Racing		
+change	1988-01-Q	Canon_Williams	Canon Williams	1985-01-Q	Canon_Williams_Honda
+new	1988-01-Q	Eurobrun_Racing	Eurobrun Racing		
+change	1988-01-Q	Honda_Marlboro_McLaren	Honda Marlboro McLaren	1981-01-Q	Marlboro_McLaren_International
+new	1988-01-Q	Rial_Racing	Rial Racing		
+change	1988-01-Q	Team_AGS	Team AGS	1987-01-Q	Team_El_Charro_AGS
+change	1988-01-Q	Tyrrell_Racing_Organisation	Tyrrell Racing Organisation	1986-01-Q	Data_General_Team_Tyrrell
+new	1988-02-Q	Scuderia_Italia	Scuderia Italia		
+change	1988-02-Q	Zakspeed_Racing	Zakspeed Racing	1985-02-Q	West_Zakspeed_Racing
+change	1989-01-Q	Camel_Team_Lotus	Camel Team Lotus	1987-01-Q	Camel_Team_Lotus_Honda
+change	1989-01-Q	Canon_Williams_Renault	Canon Williams Renault	1988-01-Q	Canon_Williams
+change	1989-01-Q	Equipe_Larrousse_F1	Equipe Larrousse F1	1987-02-Q	Larrousse_&_Calmels_F1
+change	1989-01-Q	Leyton_House_Racing	Leyton House Racing	1987-01-Q	Leyton_House_March_Racing_Team
+change	1989-01-Q	Lois_Minardi_Team	Lois Minardi Team	1985-01-Q	Minardi_Team
+change	1989-01-Q	Motor_Racing_Developments_Ltd.	Motor Racing Developments Ltd.	1985-01-Q	Motor_Racing_Developments
+change	1989-01-Q	US_F&G_Arrows	US F&G Arrows	1987-01-Q	US_F&G_Arrows_Megatron
+change	1989-01-Q	West_Zakspeed_Racing	West Zakspeed Racing	1988-02-Q	Zakspeed_Racing
+change	1989-02-Q	Automobiles_Gonfaronnaises_Sportives	Automobiles Gonfaronnaises Sportives	1988-01-Q	Team_AGS
+change	1989-03-Q	Coloni_SpA	Coloni SpA	1987-13-Q	Coloni_Racing
+new	1989-04-Q	Moneytron_Onyx	Moneytron Onyx		
+change	1990-01-Q	Espo_Larrousse_F1	Espo Larrousse F1	1989-01-Q	Equipe_Larrousse_F1
+change	1990-01-Q	Fondmetal_Osella	Fondmetal Osella	1980-03-Q	Osella_Squadra_Corse
+change	1990-01-Q	Footwork_Arrows_Racing	Footwork Arrows Racing	1989-01-Q	US_F&G_Arrows
+change	1990-01-Q	Ligier_Gitanes	Ligier Gitanes	1987-01-Q	Ligier_Loto
+change	1990-01-Q	SCM_Minardi_Team	SCM Minardi Team	1989-01-Q	Lois_Minardi_Team
+change	1990-01-Q	Scuderia_Ferrari_SpA	Scuderia Ferrari SpA	1961-01-Q	Scuderia_Ferrari_SpA_SEFAC
+change	1990-01-Q	Scuderia_Italia_SpA	Scuderia Italia SpA	1988-02-Q	Scuderia_Italia
+change	1990-02-Q	Automobiles_Gonfaronaise_Sportives	Automobiles Gonfaronaise Sportives	1989-02-Q	Automobiles_Gonfaronnaises_Sportives
+change	1990-03-Q	Monteverdi_Onyx_Formula	Monteverdi Onyx Formula	1989-04-Q	Moneytron_Onyx
+change	1990-09-Q	Monteverdi_Onyx_F1	Monteverdi Onyx F1	1990-03-Q	Monteverdi_Onyx_Formula
+change	1991-01-Q	Automobiles_Gonfaronnaises_Sportives	Automobiles Gonfaronnaises Sportives	1990-02-Q	Automobiles_Gonfaronaise_Sportives
+change	1991-01-Q	Braun_Tyrrell_Honda	Braun Tyrrell Honda	1988-01-Q	Tyrrell_Racing_Organisation
+change	1991-01-Q	Camel_Benetton_Ford	Camel Benetton Ford	1986-01-Q	Benetton_Formula
+change	1991-01-Q	Footwork_Grand_Prix_International	Footwork Grand Prix International	1990-01-Q	Footwork_Arrows_Racing
+change	1991-01-Q	Larrousse_F1	Larrousse F1	1990-01-Q	Espo_Larrousse_F1
+new	1991-01-Q	Modena_Team_SpA	Modena Team SpA		
+new	1991-01-Q	Team_7-Up_Jordan	Team 7-Up Jordan		
+change	1991-01-Q	Team_Lotus	Team Lotus	1989-01-Q	Camel_Team_Lotus
+change	1991-06-Q	Fondmetal_F1_SpA	Fondmetal F1 SpA	1990-01-Q	Fondmetal_Osella
+change	1992-01-Q	Central_Park_Venturi_Larrousse	Central Park Venturi Larrousse	1991-01-Q	Larrousse_F1
+change	1992-01-Q	Footwork_Mugen_Honda	Footwork Mugen Honda	1991-01-Q	Footwork_Grand_Prix_International
+change	1992-01-Q	Ligier_Gitanes_Blondes	Ligier Gitanes Blondes	1990-01-Q	Ligier_Gitanes
+change	1992-01-Q	March_F1	March F1	1989-01-Q	Leyton_House_Racing
+change	1992-01-Q	Minardi_Team	Minardi Team	1990-01-Q	SCM_Minardi_Team
+change	1992-01-Q	Sasol_Jordan_Yamaha	Sasol Jordan Yamaha	1991-01-Q	Team_7-Up_Jordan
+change	1992-01-Q	Tyrrell_Racing_Organisation	Tyrrell Racing Organisation	1991-01-Q	Braun_Tyrrell_Honda
+change	1992-06-Q	Andrea_Moda_Formula	Andrea Moda Formula	1989-03-Q	Coloni_SpA
+change	1993-01-Q	Larrousse_F1	Larrousse F1	1992-01-Q	Central_Park_Venturi_Larrousse
+change	1993-01-Q	Lola_BMS_Scuderia_Italia	Lola BMS Scuderia Italia	1990-01-Q	Scuderia_Italia_SpA
+change	1993-01-Q	Marlboro_McLaren	Marlboro McLaren	1988-01-Q	Honda_Marlboro_McLaren
+change	1993-01-Q	Sasol_Jordan	Sasol Jordan	1992-01-Q	Sasol_Jordan_Yamaha
+new	1993-01-Q	Sauber_AG	Sauber AG		
+change	1994-01-Q	Broker_Sauber_Mercedes	Broker Sauber Mercedes	1993-01-Q	Sauber_AG
+change	1994-01-Q	Footwork_Ford	Footwork Ford	1992-01-Q	Footwork_Mugen_Honda
+change	1994-01-Q	Marlboro_McLaren_Peugeot	Marlboro McLaren Peugeot	1993-01-Q	Marlboro_McLaren
+change	1994-01-Q	Mild_Seven_Benetton_Ford	Mild Seven Benetton Ford	1991-01-Q	Camel_Benetton_Ford
+change	1994-01-Q	Minardi_Scuderia_Italia	Minardi Scuderia Italia	1992-01-Q	Minardi_Team
+new	1994-01-Q	MTV_Simtek_Ford	MTV Simtek Ford		
+new	1994-01-Q	Pacific_Grand_Prix	Pacific Grand Prix		
+change	1994-01-Q	Rothmans_Williams_Renault	Rothmans Williams Renault	1989-01-Q	Canon_Williams_Renault
+change	1994-01-Q	Tourtel_Larrousse_F1	Tourtel Larrousse F1	1993-01-Q	Larrousse_F1
+change	1994-01-Q	Tyrrell_Racing_Organization	Tyrrell Racing Organization	1992-01-Q	Tyrrell_Racing_Organisation
+change	1995-01-Q	Footwork_Hart	Footwork Hart	1994-01-Q	Footwork_Ford
+change	1995-01-Q	Marlboro_McLaren_Mercedes	Marlboro McLaren Mercedes	1994-01-Q	Marlboro_McLaren_Peugeot
+change	1995-01-Q	Mild_Seven_Benetton_Renault	Mild Seven Benetton Renault	1994-01-Q	Mild_Seven_Benetton_Ford
+change	1995-01-Q	Nokia_Tyrrell_Yamaha	Nokia Tyrrell Yamaha	1994-01-Q	Tyrrell_Racing_Organization
+change	1995-01-Q	Pacific_Grand_Prix_Ltd.	Pacific Grand Prix Ltd.	1994-01-Q	Pacific_Grand_Prix
+new	1995-01-Q	Parmalat_Forti_Ford	Parmalat Forti Ford		
+change	1995-01-Q	Red_Bull_Sauber_Ford	Red Bull Sauber Ford	1994-01-Q	Broker_Sauber_Mercedes
+change	1995-01-Q	Total_Jordan_Peugeot	Total Jordan Peugeot	1993-01-Q	Sasol_Jordan
+change	1996-01-Q	B&H_Total_Jordan_Peugeot	B&H Total Jordan Peugeot	1995-01-Q	Total_Jordan_Peugeot
+change	1996-01-Q	Equipe_Ligier_Gauloises_Blondes	Equipe Ligier Gauloises Blondes	1992-01-Q	Ligier_Gitanes_Blondes
+change	1996-01-Q	Minardi_Team_SpA	Minardi Team SpA	1994-01-Q	Minardi_Scuderia_Italia
+change	1996-01-Q	Tyrrell-Yamaha	Tyrrell-Yamaha	1995-01-Q	Nokia_Tyrrell_Yamaha
+change	1996-02-Q	Forti_Grand_Prix	Forti Grand Prix	1995-01-Q	Parmalat_Forti_Ford
+change	1997-01-Q	Danka_Arrows_Yamaha	Danka Arrows Yamaha	1995-01-Q	Footwork_Hart
+change	1997-01-Q	Equipe_Prost_Gauloises_Blondes	Equipe Prost Gauloises Blondes	1996-01-Q	Equipe_Ligier_Gauloises_Blondes
+change	1997-01-Q	Red_Bull_Sauber_Petronas	Red Bull Sauber Petronas	1995-01-Q	Red_Bull_Sauber_Ford
+change	1997-01-Q	Scuderia_Ferrari_Marlboro	Scuderia Ferrari Marlboro	1990-01-Q	Scuderia_Ferrari_SpA
+new	1997-01-Q	Stewart_Ford	Stewart Ford		
+change	1997-01-Q	Tyrrell-Ford	Tyrrell-Ford	1996-01-Q	Tyrrell-Yamaha
+change	1997-01-Q	West_McLaren_Mercedes	West McLaren Mercedes	1995-01-Q	Marlboro_McLaren_Mercedes
+change	1998-01-Q	Benson_and_Hedges_Total_Jordan	Benson and Hedges Total Jordan	1996-01-Q	B&H_Total_Jordan_Peugeot
+change	1998-01-Q	Danka_Zepter_Arrows	Danka Zepter Arrows	1997-01-Q	Danka_Arrows_Yamaha
+change	1998-01-Q	Mild_Seven_Benetton_Playlife	Mild Seven Benetton Playlife	1995-01-Q	Mild_Seven_Benetton_Renault
+change	1998-01-Q	Winfield_Williams_F1_Mecachrome	Winfield Williams F1 Mecachrome	1994-01-Q	Rothmans_Williams_Renault
+change	1999-01-Q	Arrows_Grand_Prix	Arrows Grand Prix	1998-01-Q	Danka_Zepter_Arrows
+change	1999-01-Q	British_American_Racing	British American Racing	1997-01-Q	Tyrrell-Ford
+change	1999-01-Q	Winfield_Williams_F1	Winfield Williams F1	1998-01-Q	Winfield_Williams_F1_Mecachrome
+change	2000-01-Q	Arrows_Supertec	Arrows Supertec	1999-01-Q	Arrows_Grand_Prix
+change	2000-01-Q	Benson_and_Hedges_Jordan	Benson and Hedges Jordan	1998-01-Q	Benson_and_Hedges_Total_Jordan
+change	2000-01-Q	BMW_Williams_F1	BMW Williams F1	1999-01-Q	Winfield_Williams_F1
+change	2000-01-Q	Gauloises_Prost_Peugeot	Gauloises Prost Peugeot	1997-01-Q	Equipe_Prost_Gauloises_Blondes
+change	2000-01-Q	Jaguar_Racing_Ltd.	Jaguar Racing Ltd.	1997-01-Q	Stewart_Ford
+change	2000-01-Q	Lucky_Strike_BAR_Honda	Lucky Strike BAR Honda	1999-01-Q	British_American_Racing
+change	2000-01-Q	Telefonica_Minardi_Fondmetal	Telefonica Minardi Fondmetal	1996-01-Q	Minardi_Team_SpA
+change	2001-01-Q	Mild_Seven_Benetton	Mild Seven Benetton	1998-01-Q	Mild_Seven_Benetton_Playlife
+change	2001-01-Q	Minardi_European_F1	Minardi European F1	2000-01-Q	Telefonica_Minardi_Fondmetal
+change	2001-01-Q	Orange_Arrows_Asiatech	Orange Arrows Asiatech	2000-01-Q	Arrows_Supertec
+change	2001-01-Q	Prost_Acer_GP	Prost Acer GP	2000-01-Q	Gauloises_Prost_Peugeot
+change	2002-01-Q	DHL_Jordan_Honda	DHL Jordan Honda	2000-01-Q	Benson_and_Hedges_Jordan
+change	2002-01-Q	KL_Minardi_Asiatech	KL Minardi Asiatech	2001-01-Q	Minardi_European_F1
+change	2002-01-Q	Mild_Seven_Renault_F1_Team	Mild Seven Renault F1 Team	2001-01-Q	Mild_Seven_Benetton
+change	2002-01-Q	Orange_Arrows	Orange Arrows	2001-01-Q	Orange_Arrows_Asiatech
+new	2002-01-Q	Panasonic_Toyota_Racing	Panasonic Toyota Racing		
+change	2002-01-Q	Sauber_Petronas	Sauber Petronas	1997-01-Q	Red_Bull_Sauber_Petronas
+change	2003-01-Q	European_Minardi_Cosworth	European Minardi Cosworth	2002-01-Q	KL_Minardi_Asiatech
+change	2003-01-Q	Jordan_Ford	Jordan Ford	2002-01-Q	DHL_Jordan_Honda
+change	2004-01-Q	Minardi_Cosworth	Minardi Cosworth	2003-01-Q	European_Minardi_Cosworth
+change	2005-01-Q	Jordan_Grand_Prix	Jordan Grand Prix	2003-01-Q	Jordan_Ford
+change	2005-01-Q	Minardi_F1_Team	Minardi F1 Team	2004-01-Q	Minardi_Cosworth
+change	2005-01-Q	Red_Bull_Racing	Red Bull Racing	2000-01-Q	Jaguar_Racing_Ltd.
+change	2006-01-Q	BMW_Sauber_F1_Team	BMW Sauber F1 Team	2002-01-Q	Sauber_Petronas
+change	2006-01-Q	Lucky_Strike_Honda_Racing_F1_Team	Lucky Strike Honda Racing F1 Team	2000-01-Q	Lucky_Strike_BAR_Honda
+change	2006-01-Q	Midland_F1_Racing	Midland F1 Racing	2005-01-Q	Jordan_Grand_Prix
+change	2006-01-Q	Scuderia_Toro_Rosso	Scuderia Toro Rosso	2005-01-Q	Minardi_F1_Team
+new	2006-01-Q	Super_Aguri_F1_Team	Super Aguri F1 Team		
+change	2006-01-Q	Team_McLaren_Mercedes	Team McLaren Mercedes	1997-01-Q	West_McLaren_Mercedes
+change	2006-01-Q	Williams_F1_Team	Williams F1 Team	2000-01-Q	BMW_Williams_F1
+change	2006-15-Q	Spyker_MF1_Team	Spyker MF1 Team	2006-01-Q	Midland_F1_Racing
+change	2007-01-Q	AT&T_Williams	AT&T Williams	2006-01-Q	Williams_F1_Team
+change	2007-01-Q	Etihad_Aldar_Spyker_F1_Team	Etihad Aldar Spyker F1 Team	2006-15-Q	Spyker_MF1_Team
+change	2007-01-Q	Honda_Racing_F1_Team	Honda Racing F1 Team	2006-01-Q	Lucky_Strike_Honda_Racing_F1_Team
+change	2007-01-Q	ING_Renault_F1_Team	ING Renault F1 Team	2002-01-Q	Mild_Seven_Renault_F1_Team
+change	2007-01-Q	Super_Aguri_F1	Super Aguri F1	2006-01-Q	Super_Aguri_F1_Team
+change	2007-01-Q	Vodafone_McLaren_Mercedes	Vodafone McLaren Mercedes	2006-01-Q	Team_McLaren_Mercedes
+change	2008-01-Q	Force_India_F1_Team	Force India F1 Team	2007-01-Q	Etihad_Aldar_Spyker_F1_Team
+change	2009-01-Q	Brawn_GP_F1_Team	Brawn GP F1 Team	2007-01-Q	Honda_Racing_F1_Team
+new	2010-01-Q	HRT_F1_Team	HRT F1 Team		
+new	2010-01-Q	Lotus_F1_Racing	Lotus F1 Racing		
+change	2010-01-Q	Mercedes_GP_Petronas_F1_Team	Mercedes GP Petronas F1 Team	2009-01-Q	Brawn_GP_F1_Team
+change	2010-01-Q	Renault_F1_Team	Renault F1 Team	2007-01-Q	ING_Renault_F1_Team
+new	2010-01-Q	Virgin_Racing	Virgin Racing		
+change	2011-01-Q	Lotus_Renault_GP	Lotus Renault GP	2010-01-Q	Renault_F1_Team
+change	2011-01-Q	Marussia_Virgin_Racing	Marussia Virgin Racing	2010-01-Q	Virgin_Racing
+change	2011-01-Q	Sauber_F1_Team	Sauber F1 Team	2006-01-Q	BMW_Sauber_F1_Team
+change	2011-01-Q	Team_Lotus	Team Lotus	2010-01-Q	Lotus_F1_Racing
+change	2012-01-Q	Caterham_F1_Team	Caterham F1 Team	2011-01-Q	Team_Lotus
+change	2012-01-Q	Lotus_F1_Team	Lotus F1 Team	2011-01-Q	Lotus_Renault_GP
+change	2012-01-Q	Marussia_F1_Team	Marussia F1 Team	2011-01-Q	Marussia_Virgin_Racing
+change	2012-01-Q	Mercedes_AMG_Petronas_F1_Team	Mercedes AMG Petronas F1 Team	2010-01-Q	Mercedes_GP_Petronas_F1_Team
+change	2012-01-Q	Sahara_Force_India_F1_Team	Sahara Force India F1 Team	2008-01-Q	Force_India_F1_Team
+change	2012-01-Q	Scuderia_Ferrari	Scuderia Ferrari	1997-01-Q	Scuderia_Ferrari_Marlboro
+change	2013-01-Q	Infiniti_Red_Bull_Racing	Infiniti Red Bull Racing	2005-01-Q	Red_Bull_Racing
+change	2014-01-Q	McLaren_Mercedes	McLaren Mercedes	2007-01-Q	Vodafone_McLaren_Mercedes
+change	2014-01-Q	Williams_Martini_Racing	Williams Martini Racing	2007-01-Q	AT&T_Williams
+change	2015-01-Q	McLaren_Honda	McLaren Honda	2014-01-Q	McLaren_Mercedes
+change	2015-02-Q	Manor_Marussia_F1_Team	Manor Marussia F1 Team	2012-01-Q	Marussia_F1_Team
+new	2016-01-Q	Haas_F1_Team	Haas F1 Team		
+change	2016-01-Q	Manor_Racing	Manor Racing	2015-02-Q	Manor_Marussia_F1_Team
+change	2016-01-Q	McLaren-Honda_F1_Team	McLaren-Honda F1 Team	2015-01-Q	McLaren_Honda
+change	2016-01-Q	Renault_Sport_F1_Team	Renault Sport F1 Team	2012-01-Q	Lotus_F1_Team
+change	2017-01-Q	Mercedes_AMG_Petronas_Motorsport	Mercedes AMG Petronas Motorsport	2012-01-Q	Mercedes_AMG_Petronas_F1_Team
+change	2018-01-Q	Alfa_Romeo_Sauber_F1_Team	Alfa Romeo Sauber F1 Team	2011-01-Q	Sauber_F1_Team
+change	2018-01-Q	Aston_Martin_Red_Bull_Racing	Aston Martin Red Bull Racing	2013-01-Q	Infiniti_Red_Bull_Racing
+change	2018-01-Q	McLaren_F1_Team	McLaren F1 Team	2016-01-Q	McLaren-Honda_F1_Team
+change	2018-01-Q	Red_Bull_Toro_Rosso_Honda	Red Bull Toro Rosso Honda	2006-01-Q	Scuderia_Toro_Rosso
+change	2018-13-Q	Racing_Point_Force_India_F1_Team	Racing Point Force India F1 Team	2012-01-Q	Sahara_Force_India_F1_Team
+change	2019-01-Q	Alfa_Romeo_Racing	Alfa Romeo Racing	2018-01-Q	Alfa_Romeo_Sauber_F1_Team
+change	2019-01-Q	Renault_F1_Team	Renault F1 Team	2016-01-Q	Renault_Sport_F1_Team
+change	2019-01-Q	Rich_Energy_Haas_F1_Team	Rich Energy Haas F1 Team	2016-01-Q	Haas_F1_Team
+change	2019-01-Q	ROKiT_Williams_Racing	ROKiT Williams Racing	2014-01-Q	Williams_Martini_Racing
+change	2019-01-Q	SportPesa_Racing_Point_F1_Team	SportPesa Racing Point F1 Team	2018-13-Q	Racing_Point_Force_India_F1_Team
+change	2020-01-Q	BWT_Racing_Point_F1_Team	BWT Racing Point F1 Team	2019-01-Q	SportPesa_Racing_Point_F1_Team
+change	2020-01-Q	Mercedes_AMG_Petronas_F1_Team	Mercedes AMG Petronas F1 Team	2017-01-Q	Mercedes_AMG_Petronas_Motorsport
+change	2020-01-Q	Scuderia_AlphaTauri_Honda	Scuderia AlphaTauri Honda	2018-01-Q	Red_Bull_Toro_Rosso_Honda
+change	2020-01-Q	Scuderia_Ferrari_Mission_Winnow	Scuderia Ferrari Mission Winnow	2012-01-Q	Scuderia_Ferrari
+change	2020-01-Q	Williams_Racing	Williams Racing	2019-01-Q	ROKiT_Williams_Racing
