@@ -80,7 +80,7 @@ class EloRating(object):
         self._current_event_id = None
         self._commit_complete = False
 
-    def start_update(self, event_id, caller_id, is_alias=False, base_reliability=base_reliability):
+    def start_update(self, event_id, caller_id, is_alias=False, base_reliability=None):
         self._commit_complete = False
         if is_alias:
             self._alias_callers.append(caller_id)
