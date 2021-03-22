@@ -14,9 +14,11 @@ _RESULTS_HEADERS = [
 ]
 _TEAMS_HEADERS = ['team_id', 'team_name']
 
+_DRIVER_DNF_REASONS = set(['crash', 'spin', 'damage', 'driver ill', 'spun off', 'crash damage', 'pit crash'])
+
 
 def dnf_status(status):
-    if 'crash' in status:
+    if status in _DRIVER_DNF_REASONS:
         return 'driver'
     if any(chr.isdigit() for chr in status):
         return '-'
