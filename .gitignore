@@ -1,11 +1,6 @@
 # Profile output
 profile.*
 
-# Output files
-*.[ct]sv
-*.[ct]sv.*
-*.txt
-
 # Output runs
 logs/
 
