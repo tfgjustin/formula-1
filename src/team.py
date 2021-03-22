@@ -21,8 +21,8 @@ class Team(object):
     def is_alias(self):
         return self._is_alias
 
-    def start_update(self, event_id):
-        self._rating.start_update(event_id, self._id, is_alias=self._is_alias)
+    def start_update(self, event_id, base_car_reliability):
+        self._rating.start_update(event_id, self._id, is_alias=self._is_alias, base_reliability=base_car_reliability)
 
     def commit_update(self):
         self._rating.commit_update()
@@ -107,17 +107,17 @@ class TeamFactory(object):
                 self._changes[other_key] = changelog
                 self._all_team_ids.add(team_id)
             else:
-                print('ERROR: change for %s is missing a valid other team' % (this_key))
+                print('ERROR: change for %s is missing a valid other team' % this_key)
                 self._success = False
         elif team_type == 'alias':
             if other_key is not None:
                 self._is_alias[this_key] = other_key
                 self._all_team_ids.add(team_id)
             else:
-                print('ERROR: alias for %s is missing a valid other team' % (this_key))
+                print('ERROR: alias for %s is missing a valid other team' % this_key)
                 self._success = False
         else:
-            print('ERROR: Invalid team_type: %s' % (team_type))
+            print('ERROR: Invalid team_type: %s' % team_type)
             self._success = False
 
     def finalize_create(self):

@@ -1,6 +1,3 @@
-from ratings import EloRating
-
-
 class Driver(object):
     def __init__(self, driver_id, driver_name, elo_rating):
         self._id = driver_id
@@ -13,14 +10,13 @@ class Driver(object):
     def name(self):
         return self._name
 
-    def start_update(self, event_id):
+    def start_update(self, event_id, base_driver_reliability):
         if self._rating is None:
             return
-        self._rating.start_update(event_id, self._id)
+        self._rating.start_update(event_id, self._id, base_reliability=base_driver_reliability)
 
     def commit_update(self):
         self._rating.commit_update()
 
     def rating(self):
         return self._rating
-

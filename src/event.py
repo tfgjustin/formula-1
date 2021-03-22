@@ -11,11 +11,15 @@ class Event(object):
         self._drivers = set()
         self._teams = set()
 
-    def start_updates(self):
+    def start_updates(self, base_car_reliability, base_driver_reliability):
         for driver in sorted(self._drivers, key=lambda d: d.id()):
-            driver.start_update(self._id)
+            driver.start_update(self._id, base_driver_reliability)
         for team in sorted(self._teams, key=lambda t: t.id()):
-            team.start_update(self._id)
+            team.start_update(self._id, base_car_reliability)
+        # It's safe to call this here since we can guarantee it will only be called once.
+        # IOW we won't accidentally decay the rate unnecessarily.
+        base_car_reliability.start_update()
+        base_driver_reliability.start_update()
 
     def add_result(self, result):
         if result.event().id() == self._id:

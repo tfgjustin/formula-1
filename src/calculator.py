@@ -2,9 +2,10 @@ import argparse
 import datetime
 import math
 import numpy as np
-import scipy.special as sc
+import sys
 
 from collections import defaultdict
+from ratings import Reliability
 from sklearn.metrics import auc, precision_recall_curve
 
 
@@ -52,12 +53,12 @@ def validate_factors(argument):
     return argument
 
 
-def select_reference_result(event, ratings, from_back):
+def select_reference_result(event, driver_ratings, from_back):
     max_pfb = max(from_back.values())
     max_rating = max(
-        [rating for driver_id, rating in ratings.items() if from_back[driver_id] == max_pfb]
+        [rating for driver_id, rating in driver_ratings.items() if from_back[driver_id] == max_pfb]
     )
-    reference_driver_ids = list([driver_id for driver_id, rating in ratings.items()
+    reference_driver_ids = list([driver_id for driver_id, rating in driver_ratings.items()
                                  if from_back[driver_id] == max_pfb and abs(rating - max_rating) < 1e-2])
     if not len(reference_driver_ids):
         print('ERROR: Found no reference driver IDs for %s' % event.id(), file=sys.stderr)
@@ -159,8 +160,8 @@ class Calculator(object):
             {'Q': dict({'195': 3, '196': 2}),
              'R': dict({'195': 7, '196': 6, '197': 3, '198': 3, '199': 3, '200': 2})
              })
-        self._km_car_success = 0
-        self._km_car_failure = 0
+        self._base_car_reliability = Reliability()
+        self._base_driver_reliability = Reliability()
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         """
@@ -215,7 +216,7 @@ class Calculator(object):
         """
         events_dict = season.events()
         if self._logfile is not None:
-            print('Running %d' % (year), file=self._logfile)
+            print('Running %d' % year, file=self._logfile)
         for event_id in sorted(events_dict.keys()):
             event = events_dict[event_id]
             # Skip all the Indianapolis races since they were largely disjoint
@@ -248,7 +249,7 @@ class Calculator(object):
         win_probs = dict()
         podium_probs = dict()
         self.predict_winner(event, win_probs, podium_probs, k_factor_adjust, elo_denominator)
-        event.start_updates()
+        event.start_updates(self._base_car_reliability, self._base_driver_reliability)
         # Do the full pairwise comparison of each driver. In order to not calculate A vs B and B vs A (or A vs A) only
         # compare when the ID of A<B.
         for result_a in event.results():
@@ -256,6 +257,7 @@ class Calculator(object):
                 if result_a.driver().id() >= result_b.driver().id():
                     continue
                 self.compare_results(event, result_a, result_b, k_factor_adjust, elo_denominator)
+        self.update_all_reliability(event)
         event.commit_updates()
         drivers_after = dict()
         teams_after = dict()
@@ -283,15 +285,15 @@ class Calculator(object):
         Predict the probability of each entrant winning. Use the odds ratio.
         https://en.wikipedia.org/wiki/Odds_ratio
         """
-        ratings = dict()
+        driver_ratings = dict()
         from_back = dict()
-        self.create_ratings(event, ratings, from_back)
+        self.create_ratings(event, driver_ratings, from_back)
         # Identify a reference entrant and compare each entrant to that person.
-        reference_result = select_reference_result(event, ratings, from_back)
+        reference_result = select_reference_result(event, driver_ratings, from_back)
         if reference_result is None:
             return
         drivers = list()
-        probabilities = np.ones([len(ratings)], dtype='float')
+        probabilities = np.ones([len(driver_ratings)], dtype='float')
         idx = 0
         for result in event.results():
             drivers.append(result.driver().id())
@@ -302,47 +304,16 @@ class Calculator(object):
             probabilities[idx] = win_probability / (1 - win_probability)
             idx += 1
         probabilities /= np.sum(probabilities)
-        for idx in range(0, len(ratings)):
+        for idx in range(0, len(driver_ratings)):
             win_probs[drivers[idx]] = probabilities[idx]
         # Now that we have the odds of each one winning, predict the odds each one finishes in the top 3.
         self.predict_podium(event, win_probs, podium_probs)
 
-    def create_ratings(self, event, ratings, from_back):
-        max_laps = 0
+    def create_ratings(self, event, driver_ratings, from_back):
         for result in event.results():
             rating, k_factor, pfb = self.create_merged_rating(event.season(), result)
-            ratings[result.driver().id()] = rating
+            driver_ratings[result.driver().id()] = rating
             from_back[result.driver().id()] = result.position_from_back()
-            if result.laps() > max_laps:
-                max_laps = result.laps()
-        if event.type() == 'Q':
-            return
-        # Move this to its own function
-        km_per_lap = 300. / max_laps
-        km_car_success = 0
-        km_car_failure = 0
-        for result in event.results():
-            if result.dnf_category() == 'driver':
-                continue
-            if result.laps() <= 1:
-                continue
-            km_car_success += km_per_lap * result.laps()
-            if result.dnf_category() != '-':
-                km_car_failure += 1
-        self._km_car_failure *= 0.97
-        self._km_car_success *= 0.97
-        self._km_car_failure += km_car_failure
-        self._km_car_success += km_car_success
-        if self._summary_file is not None:
-            num = self._km_car_success
-            den = self._km_car_success + self._km_car_failure
-            prob_success = num / den
-            prob_failure = 1 - prob_success
-            print('Reliable\t%s\t%.7f\t%.1f\t%.6f' % (
-                event.id(), prob_success, 1 / prob_failure, math.pow(prob_success, 300)
-            ),
-                  file=self._summary_file)
-            return
 
     def predict_podium(self, event, win_probs, podium_probs):
         """
@@ -379,6 +350,26 @@ class Calculator(object):
                     event.id(), podium_probs[driver_id], win_prob, second.get(driver_id, 0), third.get(driver_id, 0),
                     driver_id),
                       file=self._debug_file)
+
+    def update_all_reliability(self, event):
+        if event.type() == 'Q':
+            return
+        max_laps = max([result.laps() for result in event.results()])
+        km_per_lap = Reliability.KM_PER_RACE / max_laps
+        for result in event.results():
+            if result.laps() <= 1:
+                continue
+            km_success = km_per_lap * result.laps()
+            km_car_failure = 0
+            km_driver_failure = 0
+            if result.dnf_category() == 'car':
+                km_car_failure = 1.0
+            elif result.dnf_category() == 'driver':
+                km_driver_failure = 1.0
+            self._base_car_reliability.update(km_success, km_car_failure)
+            self._base_driver_reliability.update(km_success, km_driver_failure)
+            result.team().rating().update_reliability(km_success, km_car_failure)
+            result.driver().rating().update_reliability(km_success, km_driver_failure)
 
     def should_compare(self, rating_a, rating_b):
         return abs(rating_a - rating_b) <= self._args.elo_compare_window
@@ -502,10 +493,10 @@ class Calculator(object):
                 event_type, podium_sum / podium_count, podium_sum, podium_count),
                   file=self._summary_file)
             precision, recall, thresholds = precision_recall_curve(self._podium_pred_true[event_type],
-                    self._podium_pred_prob[event_type])
+                                                                   self._podium_pred_prob[event_type])
             area_under_curve = auc(recall, precision)
             print('Error\tPodAUC-%s\tTotal\t%.6f\t--\t%5d' % (event_type, area_under_curve, podium_count),
-                    file=self._summary_file)
+                  file=self._summary_file)
         for bucket, total in sorted(self._calibrate_num_total.items()):
             if bucket not in self._calibrate_num_correct:
                 continue

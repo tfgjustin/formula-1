@@ -43,17 +43,23 @@ class KFactor(object):
 
 
 class Reliability(object):
-    _KM_PER_RACE = 300.0
+    KM_PER_RACE = 300.0
 
-    def __init__(self, decay_rate=0.95):
+    def __init__(self, decay_rate=0.97):
         self._km_success = 0
         self._km_failure = 0
         self._decay_rate = decay_rate
 
-    def update(self, km_success, km_failure):
+    def start_update(self):
         self.decay()
+
+    def update(self, km_success, km_failure):
         self._km_failure += km_failure
         self._km_success += km_success
+
+    def commit_update(self):
+        # This is a no-op for right now.
+        return
 
     def decay(self):
         self._km_failure *= self._decay_rate
@@ -61,7 +67,7 @@ class Reliability(object):
 
     def probability_finishing(self):
         per_km_failure_rate = self._km_failure / (self._km_failure + self._km_success)
-        return math.pow(per_km_failure_rate, self._KM_PER_RACE)
+        return math.pow(per_km_failure_rate, self.KM_PER_RACE)
 
 
 class EloRating(object):
@@ -102,6 +108,8 @@ class EloRating(object):
             ))
         if self._temp_rating is not None:
             print('ERROR: start_update was called on this rating multiple times')
+        if self._reliability is not None:
+            self._reliability.start_update()
         self.regress(self._current_event_id)
         self._last_event_id = self._current_event_id
         self._temp_rating = self._rating
@@ -110,6 +118,10 @@ class EloRating(object):
     def update(self, delta):
         self.deferred_start_update()
         self._temp_rating += delta
+
+    def update_reliability(self, km_success, km_failure):
+        self.deferred_start_update()
+        self._reliability.update(km_success, km_failure)
 
     def commit_update(self):
         if self._commit_complete:
@@ -125,12 +137,17 @@ class EloRating(object):
         self._current_event_id = None
         self.reset_lists()
         self._commit_complete = True
+        if self._reliability is not None:
+            self._reliability.commit_update()
 
     def rating(self):
         return self._rating
 
     def k_factor(self):
         return self._k_factor
+
+    def reliability(self):
+        return self._reliability
 
     def reset_lists(self):
         self._alias_callers.clear()
