@@ -1,5 +1,16 @@
+# Profile output
+profile.*
+
 # Output files
 *.[ct]sv
+*.[ct]sv.*
+*.txt
+
+# Output runs
+logs/
+
+# Scraped files
+html/
 
 # Swap
 [._]*.s[a-v][a-z]
