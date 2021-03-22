@@ -8,19 +8,19 @@ import re
 import sys
 
 _DRIVERS_HEADERS = ['driver_id', 'driver_name']
-_EVENTS_HEADERS = ['event_id', 'season', 'stage', 'type', 'date', 'name', 'site', 'num_drivers']
+_EVENTS_HEADERS = ['event_id', 'season', 'stage', 'type', 'date', 'name', 'site', 'num_drivers', 'laps', 'lap_distance']
 _RESULTS_HEADERS = [
     'event_id', 'driver_id', 'team_id', 'start_position', 'end_position', 'laps', 'status', 'dnf_category', 'num_racers'
 ]
 _TEAMS_HEADERS = ['team_id', 'team_name']
 
-_DRIVER_DNF_REASONS = set(['crash', 'spin', 'damage', 'driver ill', 'spun off', 'crash damage', 'pit crash'])
+_DRIVER_DNF_REASONS = (['crash', 'spin', 'damage', 'driver ill', 'spun off', 'crash damage', 'pit crash'])
 
 
 def dnf_status(status):
     if status in _DRIVER_DNF_REASONS:
         return 'driver'
-    if any(chr.isdigit() for chr in status):
+    if any(char.isdigit() for char in status):
         return '-'
     else:
         return 'car'
@@ -58,15 +58,19 @@ class RaceParser(HTMLParser):
         self._results_tsv = results_tsv
         self._drivers = drivers
         self._teams = teams
+        # Per-event placeholders
         self._year = None
         self._stage = None
         self._date = None
         self._race_id = None
+        self._lap_distance = -1
+        self._num_laps = 0
         self._site = 'TODO'
         self._in_title = False
         self._in_driver_table = False
         self._in_driver_header = False
         self._in_driver_row = False
+        self._maybe_in_laps = False
         self._column_number = None
         self._current_idx = None
         self._start_idx = None
@@ -112,6 +116,8 @@ class RaceParser(HTMLParser):
                 self.maybe_get_track_id(attrs)
             elif self._in_driver_row:
                 self.maybe_get_driver_id(attrs)
+        elif tag == 'br':
+            self._maybe_in_laps = True
 
     def handle_endtag(self, tag):
         if tag == 'title':
@@ -131,6 +137,8 @@ class RaceParser(HTMLParser):
         elif tag == 'td':
             if self._in_driver_row:
                 self._column_number += 1
+        elif tag == 'br':
+            self._maybe_in_laps = False
 
     def handle_data(self, data):
         if self._in_title:
@@ -139,6 +147,8 @@ class RaceParser(HTMLParser):
             self.maybe_get_column_header(data)
         elif self._in_driver_row:
             self.maybe_get_driver_fact(data)
+        elif self._maybe_in_laps:
+            self.maybe_get_lap_distance(data)
 
     def reset_driver_data(self):
         self._start = None
@@ -228,6 +238,11 @@ class RaceParser(HTMLParser):
             self._chassis = data
         elif self._column_number == self._laps_idx:
             self._laps = data
+            try:
+                if int(data) > self._num_laps:
+                    self._num_laps = int(data)
+            finally:
+                return
         elif self._column_number == self._status_idx:
             self._status = data
 
@@ -267,17 +282,27 @@ class RaceParser(HTMLParser):
             if extract:
                 self._site = extract.group(1).replace('_', ' ')
 
+    def maybe_get_lap_distance(self, data):
+        extract = re.match('.* laps.*on a (.*) kilometer \\w+ (?:course|track).*', data)
+        if not extract:
+            return
+        self._lap_distance = float(extract.group(1))
+
     def print_data(self):
         for row in self._data:
             row.append(self._driver_count)
             self._results_tsv.writerow(row)
         # Qualifying
         event_id = '%d-%02d-Q' % (self._year, self._stage)
-        data = [event_id, self._year, self._stage, 'Q', self._date, self._race_id, self._site, self._driver_count]
+        data = [event_id, self._year, self._stage, 'Q', self._date, self._race_id, self._site, self._driver_count,
+                1, self._lap_distance
+                ]
         self._events_tsv.writerow(data)
         # Race
         event_id = '%d-%02d-R' % (self._year, self._stage)
-        data = [event_id, self._year, self._stage, 'R', self._date, self._race_id, self._site, self._driver_count]
+        data = [event_id, self._year, self._stage, 'R', self._date, self._race_id, self._site, self._driver_count,
+                self._num_laps, self._lap_distance
+                ]
         self._events_tsv.writerow(data)
 
     def add_row(self):
