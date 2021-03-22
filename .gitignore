@@ -1,6 +1,9 @@
 # Profile output
 profile.*
 
+# Project configuration files
+.idea/
+
 # Output runs
 logs/
 
