@@ -37,21 +37,28 @@ class Worker(multiprocessing.Process):
             if args is None:
                 self._task_queue.task_done()
                 break
-            base_path = create_path(args)
-            precision = math.ceil(math.log10(args.run_max))
-            print_str = '[ %%%dd / %%%dd ] %%s' % (precision, precision)
-            print(print_str % (args.run_index, args.run_max, base_path))
-            with data_loader.DataLoader(args, base_path) as loader:
-                loader.load_events(args.events_tsv)
-                loader.load_drivers(args.drivers_tsv)
-                if not loader.load_teams(args.teams_tsv):
-                    print('ERROR %s' % base_path)
+            task_done = False
+            try:
+                base_path = create_path(args)
+                precision = math.ceil(math.log10(args.run_max))
+                print_str = '[ %%%dd / %%%dd ] %%s' % (precision, precision)
+                print(print_str % (args.run_index, args.run_max, base_path))
+                with data_loader.DataLoader(args, base_path) as loader:
+                    loader.load_events(args.events_tsv)
+                    loader.load_drivers(args.drivers_tsv)
+                    if not loader.load_teams(args.teams_tsv):
+                        print('ERROR %s' % base_path)
+                        self._task_queue.task_done()
+                        task_done = True
+                        break
+                    loader.load_results(args.results_tsv)
+                    rating_calculator = calculator.Calculator(args, base_path)
+                    rating_calculator.run_all_ratings(loader)
+                self._task_queue.task_done()
+                task_done = True
+            finally:
+                if not task_done:
                     self._task_queue.task_done()
-                    break
-                loader.load_results(args.results_tsv)
-                rating_calculator = calculator.Calculator(args, base_path)
-                rating_calculator.run_all_ratings(loader)
-            self._task_queue.task_done()
 
 
 def main():
