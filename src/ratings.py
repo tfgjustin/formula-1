@@ -43,13 +43,27 @@ class KFactor(object):
 
 
 class Reliability(object):
-    _DEFAULT_PROBABILITY = 0.7
+    DEFAULT_PROBABILITY = 0.7
     DEFAULT_KM_PER_RACE = 305.0
 
-    def __init__(self, decay_rate=0.97):
-        self._km_success = 0
-        self._km_failure = 0
-        self._decay_rate = decay_rate
+    def __init__(self, decay_rate=0.97, other=None):
+        if other is None:
+            self._km_success = 0
+            self._km_failure = 0
+            self._decay_rate = decay_rate
+        else:
+            self._decay_rate = other.decay_rate()
+            self._km_success = other.km_success()
+            self._km_failure = other.km_failure()
+            # Since the template we're going to use is taken using 20-30 other drivers, the number of KM of success and
+            # failure will be much larger than for one driver. Normalize the number of success KM down to the maximum
+            # number of KM one driver can generate. Since the limit of the sum of a geometric sequence with a ratio of
+            # $R is 1/(1-$R) we can figure out the maximum value for success.
+            max_success_km = self.DEFAULT_KM_PER_RACE / (1 - self._decay_rate)
+            ratio = self._km_success / max_success_km
+            if ratio < 1.0:
+                self._km_success *= ratio
+                self._km_failure *= ratio
 
     def start_update(self):
         self.decay()
@@ -69,7 +83,7 @@ class Reliability(object):
     def probability_finishing(self, race_distance_km=DEFAULT_KM_PER_RACE):
         denominator = self._km_failure + self._km_success
         if not denominator:
-            return self._DEFAULT_PROBABILITY
+            return self.DEFAULT_PROBABILITY
         per_km_success_rate = self._km_success / denominator
         return math.pow(per_km_success_rate, race_distance_km)
 
@@ -78,6 +92,9 @@ class Reliability(object):
 
     def km_failure(self):
         return self._km_failure
+
+    def decay_rate(self):
+        return self._decay_rate
 
 
 class EloRating(object):
@@ -107,7 +124,7 @@ class EloRating(object):
         elif self._current_event_id != event_id:
             print('ERROR: conflicting event IDs')
         if self._reliability is None and base_reliability is not None:
-            self._reliability = copy.copy(base_reliability)
+            self._reliability = Reliability(other=base_reliability)
 
     def deferred_start_update(self):
         if self._deferred_complete:
@@ -132,6 +149,11 @@ class EloRating(object):
     def update_reliability(self, km_success, km_failure):
         self.deferred_start_update()
         self._reliability.update(km_success, km_failure)
+
+    def probability_finishing(self, race_distance_km=Reliability.DEFAULT_KM_PER_RACE):
+        if self._reliability is None:
+            return Reliability.DEFAULT_PROBABILITY
+        return self._reliability.probability_finishing(race_distance_km=race_distance_km)
 
     def commit_update(self):
         if self._commit_complete:
