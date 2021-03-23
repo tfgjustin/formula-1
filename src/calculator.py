@@ -402,9 +402,6 @@ class Calculator(object):
             result.team().rating().update_reliability(km_success, km_car_failure)
             result.driver().rating().update_reliability(km_success, km_driver_failure)
 
-    def should_compare(self, rating_a, rating_b):
-        return abs(rating_a - rating_b) <= self._args.elo_compare_window
-
     def create_merged_rating(self, season, result):
         car_factor = self._team_share_dict[season]
         rating = result.driver().rating().rating()
@@ -420,7 +417,39 @@ class Calculator(object):
                   file=self._debug_file)
         return rating, k_factor, 1.0
 
-    def start_position_advantage(self, season, from_back_a, from_back_b):
+    def compare_results(self, event, result_a, result_b, k_factor_adjust, elo_denominator,
+                        update_ratings=True, update_errors=True):
+        rating_a, k_factor_a, pfb_a = self.create_merged_rating(event.season(), result_a)
+        rating_b, k_factor_b, pfb_b = self.create_merged_rating(event.season(), result_b)
+        if not k_factor_b or not k_factor_b:
+            if self._debug_file is not None:
+                print('      Skip: K', file=self._debug_file)
+            return None
+        k_factor = ((k_factor_a + k_factor_b) / 2) * k_factor_adjust
+        rating_a += self.start_position_advantage(event, pfb_a, pfb_b)
+        win_prob_a = self.win_probability(rating_a, rating_b, elo_denominator)
+        win_actual_a = 1 if result_a.end_position() < result_b.end_position() else 0
+        use_drivers, use_team = allocate_results(result_a, result_b, self._debug_file)
+        if use_drivers is None or use_team is None:
+            if self._debug_file is not None:
+                print('      Skip: Use', file=self._debug_file)
+            return win_prob_a
+        if update_errors:
+            self.add_h2h_error(event, rating_a, rating_b, win_actual_a, win_prob_a)
+            self.add_h2h_error(event, rating_b, rating_a, 1 - win_actual_a, 1 - win_prob_a)
+        if not self.should_compare(rating_a, rating_b):
+            if self._debug_file is not None:
+                print('      Skip: SC', file=self._debug_file)
+            return win_prob_a
+        if not update_ratings:
+            return win_prob_a
+        delta_a = k_factor * (win_actual_a - win_prob_a)
+        self.update_ratings(event.season(), result_a, use_drivers, use_team, delta_a)
+        self.update_ratings(event.season(), result_b, use_drivers, use_team, -delta_a)
+        return win_prob_a
+
+    def start_position_advantage(self, event, from_back_a, from_back_b):
+        season = event.season()
         position_base = self._position_base_dict[season]
         position_diffs = abs(from_back_a - from_back_b)
         factor = position_diffs
@@ -442,54 +471,8 @@ class Calculator(object):
         q_b = 10 ** (r_b / denominator)
         return q_a / (q_a + q_b)
 
-    def update_ratings(self, season, result, use_drivers, use_teams, delta):
-        if use_teams:
-            car_factor = self._team_share_dict[season]
-            car_delta = car_factor * delta
-            result.driver().rating().update(delta - car_delta)
-            result.team().rating().update(car_delta)
-            if self._debug_file is not None:
-                print('        DD: %5.2f CD: %5.2f D: %s T: %s' % (
-                    delta - car_delta, car_delta, result.driver().id(), result.team().uuid()),
-                      file=self._debug_file)
-        else:
-            # Only drivers
-            if self._debug_file is not None:
-                print('        DD: %5.2f CD: ----- D: %s T: %s' % (
-                    delta, result.driver().id(), result.team().uuid()),
-                      file=self._debug_file)
-            result.driver().rating().update(delta)
-
-    def compare_results(self, event, result_a, result_b, k_factor_adjust, elo_denominator,
-                        update_ratings=True, update_errors=True):
-        rating_a, k_factor_a, pfb_a = self.create_merged_rating(event.season(), result_a)
-        rating_b, k_factor_b, pfb_b = self.create_merged_rating(event.season(), result_b)
-        if not k_factor_b or not k_factor_b:
-            if self._debug_file is not None:
-                print('      Skip: K', file=self._debug_file)
-            return None
-        k_factor = ((k_factor_a + k_factor_b) / 2) * k_factor_adjust
-        rating_a += self.start_position_advantage(event.season(), pfb_a, pfb_b)
-        win_prob_a = self.win_probability(rating_a, rating_b, elo_denominator)
-        win_actual_a = 1 if result_a.end_position() < result_b.end_position() else 0
-        use_drivers, use_team = allocate_results(result_a, result_b, self._debug_file)
-        if use_drivers is None or use_team is None:
-            if self._debug_file is not None:
-                print('      Skip: Use', file=self._debug_file)
-            return win_prob_a
-        if update_errors:
-            self.add_h2h_error(event, rating_a, rating_b, win_actual_a, win_prob_a)
-            self.add_h2h_error(event, rating_b, rating_a, 1 - win_actual_a, 1 - win_prob_a)
-        if not self.should_compare(rating_a, rating_b):
-            if self._debug_file is not None:
-                print('      Skip: SC', file=self._debug_file)
-            return win_prob_a
-        if not update_ratings:
-            return win_prob_a
-        delta_a = k_factor * (win_actual_a - win_prob_a)
-        self.update_ratings(event.season(), result_a, use_drivers, use_team, delta_a)
-        self.update_ratings(event.season(), result_b, use_drivers, use_team, -delta_a)
-        return win_prob_a
+    def should_compare(self, rating_a, rating_b):
+        return abs(rating_a - rating_b) <= self._args.elo_compare_window
 
     def add_h2h_error(self, event, rating_a, rating_b, actual, prob):
         event_id = event.id()
@@ -512,26 +495,34 @@ class Calculator(object):
                 print('H2H\t%s\t%.1f\t%.1f\t%.4f\t%d' % (event.id(), rating_a, rating_b, prob, actual),
                       file=self._predict_file)
 
+    def update_ratings(self, season, result, use_drivers, use_teams, delta):
+        if use_teams:
+            car_factor = self._team_share_dict[season]
+            car_delta = car_factor * delta
+            result.driver().rating().update(delta - car_delta)
+            result.team().rating().update(car_delta)
+            if self._debug_file is not None:
+                print('        DD: %5.2f CD: %5.2f D: %s T: %s' % (
+                    delta - car_delta, car_delta, result.driver().id(), result.team().uuid()),
+                      file=self._debug_file)
+        else:
+            # Only drivers
+            if self._debug_file is not None:
+                print('        DD: %5.2f CD: ----- D: %s T: %s' % (
+                    delta, result.driver().id(), result.team().uuid()),
+                      file=self._debug_file)
+            result.driver().rating().update(delta)
+
     def log_results(self, event, predictions):
-        results = {result.driver().id(): result for result in event.results()}
-        num_drivers = len(results)
-        for driver_id, result in sorted(results.items()):
+        driver_results = {result.driver().id(): result for result in event.results()}
+        num_drivers = len(driver_results)
+        for driver_id, result in sorted(driver_results.items()):
             self.log_driver_results(event, predictions, num_drivers, result)
             self.log_finish_probabilities(event, predictions, driver_id, result)
             self.log_win_probabilities(event, predictions, driver_id, result)
             self.log_podium_probabilities(event, predictions, driver_id, result)
         for team in sorted(predictions.teams_after().keys(), key=lambda t: t.id()):
-            if team not in predictions.teams_before():
-                continue
-            before = predictions.teams_before().get(team)
-            after = predictions.teams_after().get(team)
-            before_effect = (before - self._args.team_elo_initial) * self._team_share_dict[event.season()]
-            after_effect = (after - self._args.team_elo_initial) * self._team_share_dict[event.season()]
-            prob_finish = team.rating().reliability().probability_finishing()
-            print('S%s\t%s\t%s\t%d\t%.1f\t%.1f\t%6.1f\t%6.1f\t%6.1f\t%.5f' % (
-                event.id(), team.uuid(), team.id(), len(predictions.teams_after()), before, after, after - before,
-                before_effect, after_effect, prob_finish
-            ), file=self._team_rating_file)
+            self.log_team_results(event, predictions, team)
 
     def log_driver_results(self, event, predictions, num_drivers, result):
         driver = result.driver()
@@ -547,6 +538,17 @@ class Calculator(object):
             before_effect, after_effect, finish_probabilities[0], finish_probabilities[1], finish_probabilities[2]),
               file=self._driver_rating_file)
         return
+
+    def log_team_results(self, event, predictions, team):
+        before = predictions.teams_before().get(team)
+        after = predictions.teams_after().get(team)
+        before_effect = (before - self._args.team_elo_initial) * self._team_share_dict[event.season()]
+        after_effect = (after - self._args.team_elo_initial) * self._team_share_dict[event.season()]
+        prob_finish = team.rating().reliability().probability_finishing()
+        print('S%s\t%s\t%s\t%d\t%.1f\t%.1f\t%6.1f\t%6.1f\t%6.1f\t%.5f' % (
+            event.id(), team.uuid(), team.id(), len(predictions.teams_after()), before, after, after - before,
+            before_effect, after_effect, prob_finish
+        ), file=self._team_rating_file)
 
     def log_finish_probabilities(self, event, predictions, driver_id, result):
         if event.type() != 'R':
