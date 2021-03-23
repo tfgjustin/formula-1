@@ -327,7 +327,9 @@ class Calculator(object):
             driver_finish = result.driver().rating().probability_finishing(race_distance_km=distance_km)
             car_finish = result.team().rating().probability_finishing(race_distance_km=distance_km)
             finish_probability = driver_finish * car_finish
-            predictions.finish_probabilities()[result.driver().id()] = [finish_probability, car_finish, driver_finish]
+            predictions.finish_probabilities()[result.driver().id()] = {
+                'All': finish_probability, 'Car': car_finish, 'Driver': driver_finish
+            }
             drivers.append(result.driver().id())
             win_probability = self.compare_results(event, result, reference_result, k_factor_adjust, elo_denominator,
                                                    update_ratings=False, update_errors=False)
@@ -535,7 +537,8 @@ class Calculator(object):
         finish_probabilities = predictions.finish_probabilities().get(driver.id())
         print('S%s\t%s\t%d\t%d\t%s\t%.1f\t%.1f\t%6.1f\t%6.1f\t%6.1f\t%.5f\t%.5f\t%.5f' % (
             event.id(), driver.id(), placed, num_drivers, dnf, before, after, after - before,
-            before_effect, after_effect, finish_probabilities[0], finish_probabilities[1], finish_probabilities[2]),
+            before_effect, after_effect, finish_probabilities.get('All'), finish_probabilities.get('Car'),
+            finish_probabilities.get('Driver')),
               file=self._driver_rating_file)
         return
 
@@ -562,30 +565,33 @@ class Calculator(object):
         distance_success_km = result.laps() * event.lap_distance_km()
         car_probability = result.team().rating().probability_finishing(race_distance_km=distance_success_km)
         driver_probability = result.driver().rating().probability_finishing(race_distance_km=distance_success_km)
-        all_probability = car_probability * driver_probability
+        completed_probabilities = {
+            'All': car_probability * driver_probability, 'Car': car_probability, 'Driver': driver_probability
+        }
         for _ in range(self.get_oversample_rate(event.type(), event.id())):
-            self._finish_pred_prob.get('All').append(all_probability)
-            self._finish_pred_prob.get('Driver').append(driver_probability)
-            self._finish_pred_prob.get('Car').append(car_probability)
             for mode in ['All', 'Car', 'Driver']:
+                self._finish_pred_prob.get(mode).append(completed_probabilities.get(mode))
                 self._finish_pred_true.get(mode).append(1)
-            if result.dnf_category() == '-':
-                # It made it to the end. We're good.
-                continue
+                self.log_one_finish_probability(event, mode, completed_probabilities.get(mode), 1)
             # If they didn't finish the race, then either the car succeeded up until it crapped out and the driver
             # succeeded until they didn't, or vice versa.
-            elif result.dnf_category() == 'car':
+            if result.dnf_category() == 'car':
                 # The car didn't make it to the end.
-                self._finish_pred_prob.get('All').append(full_probabilities[0])
-                self._finish_pred_prob.get('Car').append(full_probabilities[1])
                 for mode in ['All', 'Car']:
+                    self._finish_pred_prob.get(mode).append(full_probabilities.get(mode))
                     self._finish_pred_true.get(mode).append(0)
+                    self.log_one_finish_probability(event, mode, full_probabilities.get(mode), 0)
             elif result.dnf_category() == 'driver':
                 # Blame the driver are the entire package for not making it to the end.
-                self._finish_pred_prob.get('All').append(full_probabilities[0])
-                self._finish_pred_prob.get('Driver').append(full_probabilities[2])
                 for mode in ['All', 'Driver']:
+                    self._finish_pred_prob.get(mode).append(full_probabilities.get(mode))
                     self._finish_pred_true.get(mode).append(0)
+                    self.log_one_finish_probability(event, mode, full_probabilities.get(mode), 0)
+
+    def log_one_finish_probability(self, event, mode, probability, correct):
+        if self._predict_file is None:
+            return
+        print('Finish\t%s\t%s\t%.4f\t%d' % (event.id(), mode, probability, correct), file=self._predict_file)
 
     def log_win_probabilities(self, event, predictions, driver_id, result):
         elo_before = predictions.drivers_before().get(result.driver())
