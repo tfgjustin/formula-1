@@ -183,7 +183,7 @@ class Calculator(object):
         self._decade_error_count = dict({'Q': defaultdict(int), 'R': defaultdict(int)})
         self._total_error_sum = 0
         self._total_error_count = 0
-        self._finish_pred_true = list()
+        self._finish_pred_true = dict({'All': list(), 'Car': list(), 'Driver': list()})
         self._finish_pred_prob = dict({'All': list(), 'Car': list(), 'Driver': list()})
         self._win_error_sum = dict({'Q': 0.0, 'R': 0.0})
         self._win_error_count = dict({'Q': 0, 'R': 0})
@@ -199,8 +199,8 @@ class Calculator(object):
             {'Q': dict({'195': 3, '196': 2}),
              'R': dict({'195': 7, '196': 6, '197': 3, '198': 3, '199': 3, '200': 2})
              })
-        self._base_car_reliability = Reliability(self._args.driver_reliability_decay)
-        self._base_driver_reliability = Reliability(self._args.team_reliability_decay)
+        self._base_car_reliability = Reliability(self._args.team_reliability_decay)
+        self._base_driver_reliability = Reliability(self._args.driver_reliability_decay)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         """
@@ -327,7 +327,7 @@ class Calculator(object):
             driver_finish = result.driver().rating().probability_finishing(race_distance_km=distance_km)
             car_finish = result.team().rating().probability_finishing(race_distance_km=distance_km)
             finish_probability = driver_finish * car_finish
-            predictions.finish_probabilities()[result.driver().id()] = [finish_probability, driver_finish, car_finish]
+            predictions.finish_probabilities()[result.driver().id()] = [finish_probability, car_finish, driver_finish]
             drivers.append(result.driver().id())
             win_probability = self.compare_results(event, result, reference_result, k_factor_adjust, elo_denominator,
                                                    update_ratings=False, update_errors=False)
@@ -551,13 +551,39 @@ class Calculator(object):
     def log_finish_probabilities(self, event, predictions, driver_id, result):
         if event.type() != 'R':
             return
-        finish_probabilities = predictions.finish_probabilities().get(driver_id)
-        finished = 1 if result.dnf_category() == '-' else 0
+        if result.laps() <= 1:
+            # Ignore opening-lap scraps for right now.
+            return
+        full_probabilities = predictions.finish_probabilities().get(driver_id)
+        # Regardless of whether they finished the race or not this is the probability that they got as far as they
+        # did in the race.
+        distance_success_km = result.laps() * event.lap_distance_km()
+        car_probability = result.team().rating().probability_finishing(race_distance_km=distance_success_km)
+        driver_probability = result.driver().rating().probability_finishing(race_distance_km=distance_success_km)
+        all_probability = car_probability * driver_probability
         for _ in range(self.get_oversample_rate(event.type(), event.id())):
-            self._finish_pred_prob.get('All').append(finish_probabilities[0])
-            self._finish_pred_prob.get('Driver').append(finish_probabilities[1])
-            self._finish_pred_prob.get('Car').append(finish_probabilities[2])
-            self._finish_pred_true.append(finished)
+            self._finish_pred_prob.get('All').append(all_probability)
+            self._finish_pred_prob.get('Driver').append(driver_probability)
+            self._finish_pred_prob.get('Car').append(car_probability)
+            for mode in ['All', 'Car', 'Driver']:
+                self._finish_pred_true.get(mode).append(1)
+            if result.dnf_category() == '-':
+                # It made it to the end. We're good.
+                continue
+            # If they didn't finish the race, then either the car succeeded up until it crapped out and the driver
+            # succeeded until they didn't, or vice versa.
+            elif result.dnf_category() == 'car':
+                # The car didn't make it to the end.
+                self._finish_pred_prob.get('All').append(full_probabilities[0])
+                self._finish_pred_prob.get('Car').append(full_probabilities[1])
+                for mode in ['All', 'Car']:
+                    self._finish_pred_true.get(mode).append(0)
+            elif result.dnf_category() == 'driver':
+                # Blame the driver are the entire package for not making it to the end.
+                self._finish_pred_prob.get('All').append(full_probabilities[0])
+                self._finish_pred_prob.get('Driver').append(full_probabilities[2])
+                for mode in ['All', 'Driver']:
+                    self._finish_pred_true.get(mode).append(0)
 
     def log_win_probabilities(self, event, predictions, driver_id, result):
         elo_before = predictions.drivers_before().get(result.driver())
@@ -608,9 +634,11 @@ class Calculator(object):
             print('Error\tPodAUC-%s\tTotal\t%.6f\t--\t%5d' % (event_type, area_under_curve, podium_count),
                   file=self._summary_file)
         for mode in ['All', 'Car', 'Driver']:
-            precision, recall, thresholds = precision_recall_curve(self._finish_pred_true, self._finish_pred_prob[mode])
+            precision, recall, thresholds = precision_recall_curve(self._finish_pred_true[mode],
+                                                                   self._finish_pred_prob[mode])
             area_under_curve = auc(recall, precision)
-            print('Error\tFin%sAUC\tTotal\t%.6f\t--\t%5d' % (mode, area_under_curve, podium_count),
+            count = len(self._finish_pred_prob[mode])
+            print('Error\tFin%sAUC\tTotal\t%.6f\t--\t%5d' % (mode, area_under_curve, count),
                   file=self._summary_file)
         for bucket, total in sorted(self._calibrate_num_total.items()):
             if bucket not in self._calibrate_num_correct:
