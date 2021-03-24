@@ -14,9 +14,9 @@ def ImportDrivers(intsv, drivers):
     with open(intsv, 'r') as infile:
         tsvreader = csv.DictReader(infile, delimiter='\t')
         for row in tsvreader:
-            if 'DriverID' not in row or 'DriverName' not in row:
+            if 'driver_id' not in row or 'driver_name' not in row:
                 continue
-            drivers[row['DriverID']] = row['DriverName']
+            drivers[row['driver_id']] = row['driver_name']
 
 
 def ImportRaces(intsv, races):
@@ -30,7 +30,7 @@ def ImportRaces(intsv, races):
     with open(intsv, 'r') as infile:
         tsvreader = csv.DictReader(infile, delimiter='\t')
         for row in tsvreader:
-            races[row['Season']][row['Round']] = row['RaceID']
+            races[row['season']][row['stage']] = row['event_id']
 
 
 
@@ -92,6 +92,9 @@ def PrintOneYearOverall(data, metrics, races, drivers, tsvwriter):
             sorted_races = sorted(race_dict.keys())
             for metric in metrics:
                 ratings = [x[metric] for x in race_dict.values()]
+                min_val = min(ratings)
+                if min_val < 0:
+                    continue
                 max_val = max(ratings)
                 season_mean = mean(ratings)
                 season_end = race_dict[sorted_races[-1]][metric]
@@ -150,7 +153,7 @@ def main(argv):
     nested_dict = lambda: defaultdict(nested_dict)
     if len(argv) != 5:
         print(('Usage: %s <in:drivers_tsv> <in:races_tsv> <in:flat_ratings_tsv> '
-                     '<out:metrics_tsv>') % (argv[0]))
+               '<out:metrics_tsv>') % (argv[0]))
         sys.exit(1)
     drivers = dict()
     ImportDrivers(argv[1], drivers)
@@ -166,11 +169,10 @@ def main(argv):
         tsvwriter = csv.writer(outfile, delimiter='\t')
         PrintHeaders(tsvwriter)
         PrintOneYearPeak(data, metrics, races, drivers, tsvwriter)
-        # PrintOneYearOverall(data, metrics, races, drivers, tsvwriter)
+        PrintOneYearOverall(data, metrics, races, drivers, tsvwriter)
         for num_years in [1, 3, 5, 7]:
             tag = 'Range%dy' % num_years
-            PrintNYearsAverage(data, metrics, dnfs, races, drivers, tag, num_years,
-                                                 tsvwriter)
+            PrintNYearsAverage(data, metrics, dnfs, races, drivers, tag, num_years, tsvwriter)
 
 
 if __name__ == "__main__":

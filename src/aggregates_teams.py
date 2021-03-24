@@ -48,14 +48,14 @@ def import_races(tsv_filename, races):
     with open(tsv_filename, 'r') as infile:
         tsv_reader = csv.DictReader(infile, delimiter='\t')
         for row in tsv_reader:
-            races[row['Season']][row['Round']] = row['RaceID']
+            races[row['season']][row['stage']] = row['event_id']
 
 
 def load_flat_data(filename, metrics, data):
     """Loads flattened data.
 
     Format:
-        RaceID	TeamUUID    TeamID  NumTeams    [Metric0]Pre	[Metric0]Post
+        event_id	TeamUUID    TeamID  NumTeams    [Metric0]Pre	[Metric0]Post
 
     Output dictionary:
         [team_uuid][year][event_id][metric] = value
@@ -170,6 +170,9 @@ def print_one_year_overall(data, metrics, races, teams, tsv_writer):
             team_name = common_team_name(team_uuid, names)
             for metric in metrics:
                 ratings = [x[metric] for x in race_dict.values()]
+                min_val = min(ratings)
+                if min_val < 0:
+                    continue
                 max_val = max(ratings)
                 season_mean = mean(ratings)
                 season_end = race_dict[sorted_races[-1]][metric]
@@ -241,7 +244,7 @@ def main(argv):
         tsv_writer = csv.writer(outfile, delimiter='\t')
         print_headers(tsv_writer)
         print_one_year_peak(data, metrics, races, teams, tsv_writer)
-        # print_one_year_overall(data, metrics, races, teams, tsv_writer)
+        print_one_year_overall(data, metrics, races, teams, tsv_writer)
         for num_years in [1, 3, 5, 7]:
             tag = 'Range%dy' % num_years
             print_n_years_average(data, metrics, races, teams, tag, num_years, tsv_writer)
