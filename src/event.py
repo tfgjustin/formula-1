@@ -13,6 +13,13 @@ class Event(object):
         self._drivers = set()
         self._teams = set()
 
+    def collect_ratings(self, drivers, teams):
+        """
+        Collect the per-driver and per-team ratings to dicts for easier access later one.
+        """
+        drivers.update({driver: driver.rating().rating() for driver in self._drivers})
+        teams.update({team: team.rating().rating() for team in self._teams})
+
     def start_updates(self, base_car_reliability, base_driver_reliability):
         for driver in sorted(self._drivers, key=lambda d: d.id()):
             driver.start_update(self._id, base_driver_reliability)

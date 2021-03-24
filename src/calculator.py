@@ -5,8 +5,8 @@ import numpy as np
 import sys
 
 from collections import defaultdict
-from ratings import Reliability
-from sklearn.metrics import auc, precision_recall_curve
+from ratings import CarReliability, DriverReliability
+from sklearn.metrics import auc, precision_recall_curve, roc_auc_score
 
 
 def validate_factors(argument):
@@ -199,8 +199,8 @@ class Calculator(object):
             {'Q': dict({'195': 3, '196': 2}),
              'R': dict({'195': 7, '196': 6, '197': 3, '198': 3, '199': 3, '200': 2})
              })
-        self._base_car_reliability = Reliability(self._args.team_reliability_decay)
-        self._base_driver_reliability = Reliability(self._args.driver_reliability_decay)
+        self._base_car_reliability = CarReliability(default_decay_rate=self._args.team_reliability_decay)
+        self._base_driver_reliability = DriverReliability(default_decay_rate=self._args.driver_reliability_decay)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         """
@@ -274,8 +274,6 @@ class Calculator(object):
         """
         if self._logfile is not None:
             print('  Event %s' % (event.id()), file=self._logfile)
-        predictions = EventPrediction(event)
-        self.collect_ratings(event, predictions.drivers_before(), predictions.teams_before())
         k_factor_adjust = 1
         elo_denominator = self._args.elo_exponent_denominator_race
         if event.type() == 'Q':
@@ -285,11 +283,13 @@ class Calculator(object):
             # better chance of finishing near the front than a 100 point Elo advantage in a race).
             k_factor_adjust = self._args.qualifying_kfactor_multiplier
             elo_denominator = self._args.elo_exponent_denominator_qualifying
+        predictions = EventPrediction(event)
+        event.collect_ratings(predictions.drivers_before(), predictions.teams_before())
         # Predict the odds of each entrant either winning or finishing on the podium.
         self.predict_winner(event, k_factor_adjust, elo_denominator, predictions)
+        event.start_updates(self._base_car_reliability, self._base_driver_reliability)
         # Do the full pairwise comparison of each driver. In order to not calculate A vs B and B vs A (or A vs A) only
         # compare when the ID of A<B.
-        event.start_updates(self._base_car_reliability, self._base_driver_reliability)
         for result_a in event.results():
             for result_b in event.results():
                 if result_a.driver().id() >= result_b.driver().id():
@@ -297,15 +297,8 @@ class Calculator(object):
                 self.compare_results(event, result_a, result_b, k_factor_adjust, elo_denominator)
         self.update_all_reliability(event)
         event.commit_updates()
-        self.collect_ratings(event, predictions.drivers_after(), predictions.teams_after())
+        event.collect_ratings(predictions.drivers_after(), predictions.teams_after())
         self.log_results(event, predictions)
-
-    def collect_ratings(self, event, drivers, teams):
-        """
-        Collect the per-driver and per-team ratings to dicts for easier access later one.
-        """
-        drivers.update({driver: driver.rating().rating() for driver in event.drivers()})
-        teams.update({team: team.rating().rating() for team in event.teams()})
 
     def predict_winner(self, event, k_factor_adjust, elo_denominator, predictions):
         """
@@ -377,7 +370,8 @@ class Calculator(object):
                       file=self._debug_file)
 
     def update_all_reliability(self, event):
-        _FAILURE_CONSTANT = 1
+        _CAR_FAILURE_CONSTANT = 0.65
+        _DRIVER_FAILURE_CONSTANT = 0.85
         if event.type() == 'Q':
             return
         for result in event.results():
@@ -387,9 +381,9 @@ class Calculator(object):
             km_car_failure = 0
             km_driver_failure = 0
             if result.dnf_category() == 'car':
-                km_car_failure = _FAILURE_CONSTANT
+                km_car_failure = _CAR_FAILURE_CONSTANT
             elif result.dnf_category() == 'driver':
-                km_driver_failure = _FAILURE_CONSTANT
+                km_driver_failure = _DRIVER_FAILURE_CONSTANT
             if self._debug_file is not None:
                 print(('Event %s Laps: %3d KmPerLap: %5.2f Driver: %s ThisKmSuccess: %5.1f ThisKmFailure: %5.1f '
                        + 'TotalKmSuccess: %8.1f TotalKmFailure: %8.3f ProbFinish: %.4f') % (
@@ -573,6 +567,9 @@ class Calculator(object):
                 self._finish_pred_prob.get(mode).append(completed_probabilities.get(mode))
                 self._finish_pred_true.get(mode).append(1)
                 self.log_one_finish_probability(event, mode, completed_probabilities.get(mode), 1)
+                if self._debug_file is not None:
+                    for km in range(math.floor(distance_success_km)):
+                        print('Reliable\t%s\t%d\t1' % (mode, km), file=self._debug_file)
             # If they didn't finish the race, then either the car succeeded up until it crapped out and the driver
             # succeeded until they didn't, or vice versa.
             if result.dnf_category() == 'car':
@@ -581,12 +578,16 @@ class Calculator(object):
                     self._finish_pred_prob.get(mode).append(full_probabilities.get(mode))
                     self._finish_pred_true.get(mode).append(0)
                     self.log_one_finish_probability(event, mode, full_probabilities.get(mode), 0)
+                    if self._debug_file is not None:
+                        print('Reliable\t%s\t%d\t0' % (mode, math.ceil(distance_success_km)), file=self._debug_file)
             elif result.dnf_category() == 'driver':
                 # Blame the driver are the entire package for not making it to the end.
                 for mode in ['All', 'Driver']:
                     self._finish_pred_prob.get(mode).append(full_probabilities.get(mode))
                     self._finish_pred_true.get(mode).append(0)
                     self.log_one_finish_probability(event, mode, full_probabilities.get(mode), 0)
+                    if self._debug_file is not None:
+                        print('Reliable\t%s\t%d\t0' % (mode, math.ceil(distance_success_km)), file=self._debug_file)
 
     def log_one_finish_probability(self, event, mode, probability, correct):
         if self._predict_file is None:
@@ -641,10 +642,9 @@ class Calculator(object):
             area_under_curve = auc(recall, precision)
             print('Error\tPodAUC-%s\tTotal\t%.6f\t--\t%5d' % (event_type, area_under_curve, podium_count),
                   file=self._summary_file)
+        # For these we use ROC curves
         for mode in ['All', 'Car', 'Driver']:
-            precision, recall, thresholds = precision_recall_curve(self._finish_pred_true[mode],
-                                                                   self._finish_pred_prob[mode])
-            area_under_curve = auc(recall, precision)
+            area_under_curve = roc_auc_score(self._finish_pred_true[mode], self._finish_pred_prob[mode])
             count = len(self._finish_pred_prob[mode])
             print('Error\tFin%sAUC\tTotal\t%.6f\t--\t%5d' % (mode, area_under_curve, count),
                   file=self._summary_file)

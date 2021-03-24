@@ -1,4 +1,3 @@
-import copy
 import math
 
 
@@ -43,27 +42,54 @@ class KFactor(object):
 
 
 class Reliability(object):
+    _MAX_DECAY_RATE = 0.965
+    _MIN_DECAY_RATE = 0.99
     DEFAULT_PROBABILITY = 0.7
     DEFAULT_KM_PER_RACE = 305.0
 
-    def __init__(self, decay_rate=0.97, other=None):
+    def __init__(self, default_decay_rate=0.98, other=None, regress_numerator=None, regress_percent=0.02):
+        self._template = None
         if other is None:
             self._km_success = 0
             self._km_failure = 0
-            self._decay_rate = decay_rate
+            self._default_decay_rate = default_decay_rate
+            self._regress_numerator = regress_numerator
+            self._regress_percent = regress_percent
+            if self._regress_numerator is None:
+                self._regress_numerator = 2 * self.DEFAULT_KM_PER_RACE
         else:
-            self._decay_rate = other.decay_rate()
+            self._default_decay_rate = other.decay_rate()
             self._km_success = other.km_success()
             self._km_failure = other.km_failure()
-            # Since the template we're going to use is taken using 20-30 other drivers, the number of KM of success and
-            # failure will be much larger than for one driver. Normalize the number of success KM down to the maximum
-            # number of KM one driver can generate. Since the limit of the sum of a geometric sequence with a ratio of
-            # $R is 1/(1-$R) we can figure out the maximum value for success.
-            max_success_km = self.DEFAULT_KM_PER_RACE / (1 - self._decay_rate)
-            ratio = self._km_success / max_success_km
-            if ratio < 1.0:
-                self._km_success *= ratio
-                self._km_failure *= ratio
+            self._regress_numerator = other.regress_numerator()
+            self._regress_percent = other.regress_percent()
+            self.regress()
+            self._template = other
+
+    def regress(self):
+        if not self._km_success:
+            return
+        ratio = self._regress_numerator / self._km_success
+        if ratio < 1.0:
+            self._km_success *= ratio
+            self._km_failure *= ratio
+        self.regress_to_template()
+
+    def regress_to_template(self):
+        if self._template is None:
+            return
+        template_km_success = self._template.km_success()
+        template_km_failure = self._template.km_failure()
+        template_total = template_km_failure + template_km_success
+        if not template_total:
+            return
+        ratio = (self._km_success + self._km_failure) / template_km_success
+        template_km_success *= (ratio * self._regress_percent)
+        self._km_success *= (1 - self._regress_percent)
+        self._km_success += template_km_success
+        template_km_failure *= (ratio * self._regress_percent)
+        self._km_failure *= (1 - self._regress_percent)
+        self._km_failure += template_km_failure
 
     def start_update(self):
         self.decay()
@@ -77,8 +103,9 @@ class Reliability(object):
         return
 
     def decay(self):
-        self._km_failure *= self._decay_rate
-        self._km_success *= self._decay_rate
+        decay_rate = self.decay_rate()
+        self._km_failure *= decay_rate
+        self._km_success *= decay_rate
 
     def probability_finishing(self, race_distance_km=DEFAULT_KM_PER_RACE):
         denominator = self._km_failure + self._km_success
@@ -94,7 +121,29 @@ class Reliability(object):
         return self._km_failure
 
     def decay_rate(self):
-        return self._decay_rate
+        return self._default_decay_rate
+
+    def regress_numerator(self):
+        return self._regress_numerator
+
+    def regress_percent(self):
+        return self._regress_percent
+
+
+class CarReliability(Reliability):
+
+    def __init__(self, default_decay_rate=0.98, regress_numerator=(8 * Reliability.DEFAULT_KM_PER_RACE),
+                 regress_percent=0.03):
+        super().__init__(default_decay_rate=default_decay_rate, regress_numerator=regress_numerator,
+                         regress_percent=regress_percent)
+
+
+class DriverReliability(Reliability):
+
+    def __init__(self, default_decay_rate=0.98, regress_numerator=(12 * Reliability.DEFAULT_KM_PER_RACE),
+                 regress_percent=0.01):
+        super().__init__(default_decay_rate=default_decay_rate, regress_numerator=regress_numerator,
+                         regress_percent=regress_percent)
 
 
 class EloRating(object):
@@ -135,11 +184,12 @@ class EloRating(object):
             ))
         if self._temp_rating is not None:
             print('ERROR: start_update was called on this rating multiple times')
-        if self._reliability is not None:
-            self._reliability.start_update()
         self.regress(self._current_event_id)
         self._last_event_id = self._current_event_id
         self._temp_rating = self._rating
+        # The reliability has to have its update happen after we regress in case we need to regress it, too.
+        if self._reliability is not None:
+            self._reliability.start_update()
         self._deferred_complete = True
 
     def update(self, delta):
@@ -194,6 +244,8 @@ class EloRating(object):
         gap = year_gap(event_id, self._last_event_id)
         if not gap:
             return
+        if self._reliability is not None:
+            self._reliability.regress()
         self.regress_internal(gap)
         self._k_factor.regress(gap)
 
