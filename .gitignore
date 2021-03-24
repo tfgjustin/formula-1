@@ -1,6 +1,11 @@
 # Profile output
 profile.*
 
+# Images
+*.png
+*.jpg
+*.gif
+
 # Project configuration files
 .idea/
 
