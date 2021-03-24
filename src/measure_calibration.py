@@ -155,7 +155,7 @@ def get_finish_predictions(filename, mode, finish_predictions):
 
 
 def print_finish_calibration(mode, all_predictions):
-    _TARGET = 50
+    _TARGET = 400
     for decade in (sorted(all_predictions.keys())):
         predictions = all_predictions[decade]
         print(len(predictions))
@@ -176,6 +176,9 @@ def print_finish_calibration(mode, all_predictions):
                 print('%s\t%d\t%4d\t%4d\t%4d\t%.4f\t%.4f\t%7.4f' % (
                     mode, decade, n, odds_sum, correct_sum, expected_pct, actual_pct, error_pct)
                       )
+                odds_sum = 0
+                correct_sum = 0
+                n = 0
         if n % _TARGET != 0:
             expected_pct = odds_sum / n
             actual_pct = correct_sum / n
