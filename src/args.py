@@ -33,10 +33,10 @@ def create_argparser():
                         type=int, default=1000)
     parser.add_argument('--elo_exponent_denominator_qualifying',
                         help='The denominator in the Elo probability exponent for races.',
-                        type=int, default=150)
+                        type=int, default=120)
     parser.add_argument('--elo_exponent_denominator_race',
                         help='The denominator in the Elo probability exponent for races.',
-                        type=int, default=300)
+                        type=int, default=250)
     parser.add_argument('--logfile_uses_parameters',
                         help='Append encoded parameters to the logfile output name.',
                         default=False, action='store_true')
