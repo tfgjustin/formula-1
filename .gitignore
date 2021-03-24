@@ -15,12 +15,13 @@ logs/
 # Scraped files
 html/
 
-# Swap
+# Swap/backups
 [._]*.s[a-v][a-z]
 [._]*.sw[a-p]
 [._]s[a-rt-v][a-z]
 [._]ss[a-gi-z]
 [._]sw[a-p]
+*.bak
 
 # Session
 Session.vim
