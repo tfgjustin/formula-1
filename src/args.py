@@ -28,6 +28,12 @@ def create_argparser():
     parser.add_argument('--driver_reliability_decay',
                         help='Rate at which we decay old reliability data for drivers.',
                         type=float, default=0.99)
+    parser.add_argument('--driver_reliability_lookback',
+                        help='Lookback window in races for driver reliability data.',
+                        type=int, default=64)
+    parser.add_argument('--driver_reliability_regress',
+                        help='Percent by which we shade team reliability data to the field average each year.',
+                        type=float, default=0.02)
     parser.add_argument('--elo_compare_window',
                         help='Compare two results only if their Elo scores are within this difference.',
                         type=int, default=1000)
@@ -72,7 +78,13 @@ def create_argparser():
                         type=float, default=0.10)
     parser.add_argument('--team_reliability_decay',
                         help='Rate at which we decay old reliability data for teams.',
-                        type=float, default=0.99)
+                        type=float, default=0.97)
+    parser.add_argument('--team_reliability_lookback',
+                        help='Lookback window in races for team reliability data.',
+                        type=int, default=64)
+    parser.add_argument('--team_reliability_regress',
+                        help='Percent by which we shade team reliability data to the field average each year.',
+                        type=float, default=0.05)
     parser.add_argument('--team_share_spec',
                         help='Fraction of the combined Elo rating belonging to the team.',
                         type=str, default='50_4_1')

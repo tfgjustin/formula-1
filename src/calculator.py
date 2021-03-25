@@ -5,7 +5,7 @@ import numpy as np
 import sys
 
 from collections import defaultdict
-from ratings import CarReliability, DriverReliability
+from ratings import CarReliability, DriverReliability, Reliability
 from sklearn.metrics import auc, precision_recall_curve, roc_auc_score
 
 
@@ -199,8 +199,14 @@ class Calculator(object):
             {'Q': dict({'195': 3, '196': 2}),
              'R': dict({'195': 7, '196': 6, '197': 3, '198': 3, '199': 3, '200': 2})
              })
-        self._base_car_reliability = CarReliability(default_decay_rate=self._args.team_reliability_decay)
-        self._base_driver_reliability = DriverReliability(default_decay_rate=self._args.driver_reliability_decay)
+        self._base_car_reliability = CarReliability(
+            default_decay_rate=self._args.team_reliability_decay,
+            regress_percent=self._args.team_reliability_regress,
+            regress_numerator=(self._args.team_reliability_lookback * Reliability.DEFAULT_KM_PER_RACE))
+        self._base_driver_reliability = DriverReliability(
+            default_decay_rate=self._args.driver_reliability_decay,
+            regress_percent=self._args.driver_reliability_regress,
+            regress_numerator=(self._args.driver_reliability_lookback * Reliability.DEFAULT_KM_PER_RACE))
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         """

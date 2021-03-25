@@ -1,4 +1,8 @@
+import copy
 import math
+import numpy as np
+
+from lifelines import KaplanMeierFitter
 
 
 def event_to_year(event_id):
@@ -44,10 +48,39 @@ class KFactor(object):
 class Reliability(object):
     _MAX_DECAY_RATE = 0.965
     _MIN_DECAY_RATE = 0.99
+    _DEFAULT_OBSERVATION_SCALE = 1000
     DEFAULT_PROBABILITY = 0.7
     DEFAULT_KM_PER_RACE = 305.0
 
+    class Observation(object):
+
+        def __init__(self, length, failure, decay_rate=0.99, scale=None):
+            if scale is None:
+                scale = Reliability._DEFAULT_OBSERVATION_SCALE
+            self._duration = np.full(scale, length, dtype=np.float)
+            self._failure = np.full(scale, failure, dtype=np.bool)
+            self._current_length = scale
+            self._decay_rate = decay_rate
+
+        def duration(self):
+            return self._duration[:self._current_length]
+
+        def failure(self):
+            return self._failure[:self._current_length]
+
+        def decay(self, decay_rate=None):
+            if decay_rate is None:
+                decay_rate = self._decay_rate
+            self._current_length = math.floor(self._current_length * decay_rate)
+
+        def current_length(self):
+            return self._current_length
+
+        def decay_rate(self):
+            return self._decay_rate
+
     def __init__(self, default_decay_rate=0.98, other=None, regress_numerator=None, regress_percent=0.02):
+        self._model = KaplanMeierFitter()
         self._template = None
         if other is None:
             self._km_success = 0
@@ -55,6 +88,7 @@ class Reliability(object):
             self._default_decay_rate = default_decay_rate
             self._regress_numerator = regress_numerator
             self._regress_percent = regress_percent
+            self._observations = list()
             if self._regress_numerator is None:
                 self._regress_numerator = 2 * self.DEFAULT_KM_PER_RACE
         else:
@@ -63,17 +97,47 @@ class Reliability(object):
             self._km_failure = other.km_failure()
             self._regress_numerator = other.regress_numerator()
             self._regress_percent = other.regress_percent()
+            self._observations = other.observations()
             self.regress()
             self._template = other
 
     def regress(self):
         if not self._km_success:
             return
+        self.regress_observations()
         ratio = self._regress_numerator / self._km_success
         if ratio < 1.0:
             self._km_success *= ratio
             self._km_failure *= ratio
         self.regress_to_template()
+
+    def regress_observations(self):
+        self.cap_observations(self._regress_numerator / self.DEFAULT_KM_PER_RACE)
+        if self._template is None:
+            return
+        self.decay_observations(decay_rate=(1 - self._regress_percent))
+        template_copy = copy.deepcopy(self._template)
+        template_copy.cap_observations(self._regress_numerator / self.DEFAULT_KM_PER_RACE)
+        template_copy.decay_observations(decay_rate=self._regress_percent)
+        self._observations.extend(template_copy.observations())
+
+    def cap_observations(self, max_observations):
+        scaled_max_observations = max_observations * self._DEFAULT_OBSERVATION_SCALE
+        total_observations = self.total_observations()
+        if not total_observations or scaled_max_observations > total_observations:
+            return
+        decay = scaled_max_observations / total_observations
+        self.decay_observations(decay_rate=decay)
+
+    def update_model(self):
+        if not self._observations:
+            return
+        durations = np.array(self._observations[0].duration())
+        failure = np.array(self._observations[0].failure())
+        for observation in self._observations[1:]:
+            durations = np.append(durations, observation.duration())
+            failure = np.append(failure, observation.failure())
+        self._model.fit(durations, failure)
 
     def regress_to_template(self):
         if self._template is None:
@@ -97,17 +161,34 @@ class Reliability(object):
     def update(self, km_success, km_failure):
         self._km_failure += km_failure
         self._km_success += km_success
+        self._observations.append(self.Observation(km_success, km_failure > 0, decay_rate=self._default_decay_rate))
 
     def commit_update(self):
-        # This is a no-op for right now.
-        return
+        # Update the survival models
+        self.update_model()
 
     def decay(self):
+        self.decay_observations()
         decay_rate = self.decay_rate()
         self._km_failure *= decay_rate
         self._km_success *= decay_rate
 
+    def decay_observations(self, decay_rate=None):
+        [observation.decay(decay_rate=decay_rate) for observation in self._observations]
+        self._observations = list(filter(lambda obs: obs.current_length() > 10, self._observations))
+
+    def probability_finishing_model(self, race_distance_km=DEFAULT_KM_PER_RACE):
+        if not self._model:
+            return self.DEFAULT_PROBABILITY
+        if not hasattr(self._model, 'survival_function_'):
+            return self.DEFAULT_PROBABILITY
+        return self._model.predict(math.ceil(race_distance_km))
+
     def probability_finishing(self, race_distance_km=DEFAULT_KM_PER_RACE):
+        # return self.probability_finishing_adhoc(distance_km)
+        return self.probability_finishing_model(race_distance_km=race_distance_km)
+
+    def probability_finishing_adhoc(self, race_distance_km=DEFAULT_KM_PER_RACE):
         denominator = self._km_failure + self._km_success
         if not denominator:
             return self.DEFAULT_PROBABILITY
@@ -129,10 +210,16 @@ class Reliability(object):
     def regress_percent(self):
         return self._regress_percent
 
+    def observations(self):
+        return self._observations
+
+    def total_observations(self):
+        return sum([obs.current_length() for obs in self._observations])
+
 
 class CarReliability(Reliability):
 
-    def __init__(self, default_decay_rate=0.98, regress_numerator=(8 * Reliability.DEFAULT_KM_PER_RACE),
+    def __init__(self, default_decay_rate=0.98, regress_numerator=(64 * Reliability.DEFAULT_KM_PER_RACE),
                  regress_percent=0.03):
         super().__init__(default_decay_rate=default_decay_rate, regress_numerator=regress_numerator,
                          regress_percent=regress_percent)
@@ -140,7 +227,7 @@ class CarReliability(Reliability):
 
 class DriverReliability(Reliability):
 
-    def __init__(self, default_decay_rate=0.98, regress_numerator=(12 * Reliability.DEFAULT_KM_PER_RACE),
+    def __init__(self, default_decay_rate=0.98, regress_numerator=(64 * Reliability.DEFAULT_KM_PER_RACE),
                  regress_percent=0.01):
         super().__init__(default_decay_rate=default_decay_rate, regress_numerator=regress_numerator,
                          regress_percent=regress_percent)
