@@ -25,6 +25,9 @@ def create_argparser():
     parser.add_argument('--driver_kfactor_regress',
                         help='Driver new season K-Factor regression multiplier.',
                         type=float, default=0.05)
+    parser.add_argument('--driver_reliability_failure_constant',
+                        help='Number of "failure" KM we add on a crash when calculating the per-KM failure odds.',
+                        type=float, default=0.85)
     parser.add_argument('--driver_reliability_decay',
                         help='Rate at which we decay old reliability data for drivers.',
                         type=float, default=0.99)
@@ -79,6 +82,9 @@ def create_argparser():
     parser.add_argument('--team_reliability_decay',
                         help='Rate at which we decay old reliability data for teams.',
                         type=float, default=0.99)
+    parser.add_argument('--team_reliability_failure_constant',
+                        help='Number of "failure" KM we add on a car failure when calculating the per-KM failure odds.',
+                        type=float, default=0.7)
     parser.add_argument('--team_reliability_lookback',
                         help='Lookback window in races for team reliability data.',
                         type=int, default=64)
