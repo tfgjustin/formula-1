@@ -376,8 +376,6 @@ class Calculator(object):
                       file=self._debug_file)
 
     def update_all_reliability(self, event):
-        _CAR_FAILURE_CONSTANT = 0.65
-        _DRIVER_FAILURE_CONSTANT = 0.85
         if event.type() == 'Q':
             return
         for result in event.results():
@@ -387,9 +385,9 @@ class Calculator(object):
             km_car_failure = 0
             km_driver_failure = 0
             if result.dnf_category() == 'car':
-                km_car_failure = _CAR_FAILURE_CONSTANT
+                km_car_failure = self._args.team_reliability_failure_constant
             elif result.dnf_category() == 'driver':
-                km_driver_failure = _DRIVER_FAILURE_CONSTANT
+                km_driver_failure = self._args.driver_reliability_failure_constant
             if self._debug_file is not None:
                 print(('Event %s Laps: %3d KmPerLap: %5.2f Driver: %s ThisKmSuccess: %5.1f ThisKmFailure: %5.1f '
                        + 'TotalKmSuccess: %8.1f TotalKmFailure: %8.3f ProbFinish: %.4f') % (

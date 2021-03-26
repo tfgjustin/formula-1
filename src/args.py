@@ -25,18 +25,18 @@ def create_argparser():
     parser.add_argument('--driver_kfactor_regress',
                         help='Driver new season K-Factor regression multiplier.',
                         type=float, default=0.05)
-    parser.add_argument('--driver_reliability_failure_constant',
-                        help='Number of "failure" KM we add on a crash when calculating the per-KM failure odds.',
-                        type=float, default=0.85)
     parser.add_argument('--driver_reliability_decay',
                         help='Rate at which we decay old reliability data for drivers.',
-                        type=float, default=0.99)
+                        type=float, default=0.98)
+    parser.add_argument('--driver_reliability_failure_constant',
+                        help='Number of "failure" KM we add on a crash when calculating the per-KM failure odds.',
+                        type=float, default=0.95)
     parser.add_argument('--driver_reliability_lookback',
                         help='Lookback window in races for driver reliability data.',
                         type=int, default=96)
     parser.add_argument('--driver_reliability_regress',
                         help='Percent by which we shade driver reliability data to the field average each year.',
-                        type=float, default=0.15)
+                        type=float, default=0.2)
     parser.add_argument('--elo_compare_window',
                         help='Compare two results only if their Elo scores are within this difference.',
                         type=int, default=1000)
@@ -81,13 +81,13 @@ def create_argparser():
                         type=float, default=0.10)
     parser.add_argument('--team_reliability_decay',
                         help='Rate at which we decay old reliability data for teams.',
-                        type=float, default=0.99)
+                        type=float, default=0.98)
     parser.add_argument('--team_reliability_failure_constant',
                         help='Number of "failure" KM we add on a car failure when calculating the per-KM failure odds.',
-                        type=float, default=0.7)
+                        type=float, default=0.8)
     parser.add_argument('--team_reliability_lookback',
                         help='Lookback window in races for team reliability data.',
-                        type=int, default=64)
+                        type=int, default=96)
     parser.add_argument('--team_reliability_regress',
                         help='Percent by which we shade team reliability data to the field average each year.',
                         type=float, default=0.25)
