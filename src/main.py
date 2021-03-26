@@ -22,9 +22,25 @@ def create_path(args):
     return path
 
 
-def create_outfile(args):
-    path = create_path(args)
-    return open(path, 'w')
+def run_one_combination(args, task_queue):
+    base_path = create_path(args)
+    precision = math.ceil(math.log10(args.run_max))
+    print_str = '[ %%%dd / %%%dd ] %%s' % (precision, precision)
+    print(print_str % (args.run_index, args.run_max, base_path))
+    with data_loader.DataLoader(args, base_path) as loader:
+        loader.load_events(args.events_tsv)
+        loader.load_drivers(args.drivers_tsv)
+        if not loader.load_teams(args.teams_tsv):
+            print('ERROR during %s' % base_path)
+            if task_queue is not None:
+                task_queue.task_one()
+            return True
+        loader.load_results(args.results_tsv)
+        rating_calculator = calculator.Calculator(args, base_path)
+        rating_calculator.run_all_ratings(loader)
+    if task_queue is not None:
+        task_queue.task_done()
+    return True
 
 
 class Worker(multiprocessing.Process):
@@ -40,44 +56,42 @@ class Worker(multiprocessing.Process):
                 break
             task_done = False
             try:
-                base_path = create_path(args)
-                precision = math.ceil(math.log10(args.run_max))
-                print_str = '[ %%%dd / %%%dd ] %%s' % (precision, precision)
-                print(print_str % (args.run_index, args.run_max, base_path))
-                with data_loader.DataLoader(args, base_path) as loader:
-                    loader.load_events(args.events_tsv)
-                    loader.load_drivers(args.drivers_tsv)
-                    if not loader.load_teams(args.teams_tsv):
-                        print('ERROR %s' % base_path)
-                        self._task_queue.task_done()
-                        task_done = True
-                        break
-                    loader.load_results(args.results_tsv)
-                    rating_calculator = calculator.Calculator(args, base_path)
-                    rating_calculator.run_all_ratings(loader)
-                self._task_queue.task_done()
-                task_done = True
+                task_done = run_one_combination(args, self._task_queue)
             finally:
                 if not task_done:
                     self._task_queue.task_done()
 
 
-def main():
-    _NUM_THREADS = 12
-    factory = ArgFactory()
-    factory.parse_args()
-    print('Running %d combinations' % factory.max_combinations())
-    tasks = multiprocessing.JoinableQueue()
-    workers = [Worker(tasks) for _ in range(_NUM_THREADS)]
+def run_multiprocessor(factory):
+    _NUM_THREADS = 10
+    task_queue = multiprocessing.JoinableQueue()
+    workers = [Worker(task_queue) for _ in range(_NUM_THREADS)]
     for w in workers:
         w.start()
     current_args = factory.next_config()
     while current_args is not None:
-        tasks.put(current_args)
+        task_queue.put(current_args)
         current_args = factory.next_config()
     for _ in range(_NUM_THREADS):
-        tasks.put(None)
-    tasks.join()
+        task_queue.put(None)
+    task_queue.join()
+
+
+def run_in_current_process(factory):
+    args = factory.next_config()
+    if args is None:
+        return
+    run_one_combination(args, None)
+
+
+def main():
+    factory = ArgFactory()
+    factory.parse_args()
+    print('Running %d combination(s)' % factory.max_combinations())
+    if factory.max_combinations() > 1:
+        run_multiprocessor(factory)
+    else:
+        run_in_current_process(factory)
     return 0
 
 
