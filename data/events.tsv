@@ -2069,3 +2069,5 @@ event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance
 2020-16-R	2020	16	R	2020-12-06	Rolex_Sakhir_Grand_Prix	Bahrain International Circuit	20	87	3.543
 2020-17-Q	2020	17	Q	2020-12-13	Etihad_Airways_Abu_Dhabi_Grand_Prix	Yas Marina Circuit	20	1	5.554
 2020-17-R	2020	17	R	2020-12-13	Etihad_Airways_Abu_Dhabi_Grand_Prix	Yas Marina Circuit	20	55	5.554
+2021-01-Q	2021	1	Q	2021-03-28	Gulf_Air_Bahrain_Grand_Prix	Bahrain International Circuit	20	1	5.412
+2021-01-R	2021	1	R	2021-03-28	Gulf_Air_Bahrain_Grand_Prix	Bahrain International Circuit	20	56	5.412
