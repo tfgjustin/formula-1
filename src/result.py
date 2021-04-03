@@ -8,6 +8,9 @@ class Result(object):
         self._num_racers = int(num_racers)
         self._laps = int(laps)
         self._dnf_category = dnf_category
+        self._probability_fail_at_n = None
+        self._probability_fail_after_n = None
+        self._probability_succeed_through_n = None
 
     def event(self):
         return self._event
@@ -37,3 +40,47 @@ class Result(object):
 
     def laps(self):
         return self._laps
+
+    def calculate_lap_reliability(self, num_laps, lap_distance_km):
+        if self._probability_fail_at_n is not None:
+            return
+        self._probability_fail_at_n = [0] * (num_laps + 1)
+        self._probability_fail_after_n = [0] * (num_laps + 1)
+        self._probability_succeed_through_n = [1] * (num_laps + 1)
+        if self._event.type() == 'Q':
+            return
+        per_lap_success_probability = self._driver.rating().probability_finishing(race_distance_km=lap_distance_km)
+        per_lap_success_probability *= self._team.rating().probability_finishing(race_distance_km=lap_distance_km)
+        # print('#Laps: %3d LapDistance: %5.2f Car: %.7f Driver: %.7f All: %.7f' % (
+        #     num_laps, lap_distance_km, self._driver.rating().probability_finishing(race_distance_km=lap_distance_km),
+        #     self._team.rating().probability_finishing(race_distance_km=lap_distance_km), per_lap_success_probability)
+        #       )
+        per_lap_failure_probability = 1 - per_lap_success_probability
+        current_success_probability = 1.0
+        for n in range(1, num_laps + 1):
+            # Odds of completing N-1 laps and then failing at lap N
+            self._probability_fail_at_n[n] = current_success_probability * per_lap_failure_probability
+            # Odds of completing N laps
+            current_success_probability *= per_lap_success_probability
+            self._probability_succeed_through_n[n] = current_success_probability
+        # The probability they fail after N laps is:
+        #   The probability they fail by the end
+        #     MINUS
+        #   The probability they did NOT fail after N laps (i.e., 1 - probability of completing N laps)
+        # (1-succeed[ALL]) - (1-succeed[N])
+        # 1 - succeed[ALL] - 1 + succeed[N]
+        # succeed[N] - succeed[ALL]
+        for n in range(1, num_laps + 1):
+            self._probability_fail_after_n[n] = self._probability_succeed_through_n[n] - current_success_probability
+
+    def probability_complete_n_laps(self, num_laps):
+        self.calculate_lap_reliability(self._event.num_laps(), self._event.lap_distance_km())
+        return self._probability_succeed_through_n[num_laps]
+
+    def probability_fail_at_n(self, num_laps):
+        self.calculate_lap_reliability(self._event.num_laps(), self._event.lap_distance_km())
+        return self._probability_fail_at_n[num_laps]
+
+    def probability_fail_after_n(self, num_laps):
+        self.calculate_lap_reliability(self._event.num_laps(), self._event.lap_distance_km())
+        return self._probability_fail_after_n[num_laps]

@@ -1,8 +1,5 @@
 import copy
 import math
-import numpy as np
-
-from lifelines import KaplanMeierFitter
 
 
 def event_to_year(event_id):
@@ -16,6 +13,7 @@ def year_gap(event_id, last_event_id):
 
 
 class KFactor(object):
+    INVALID = -1
     _MAX_FACTOR = 24
     _MIN_FACTOR = 12
 
@@ -25,7 +23,6 @@ class KFactor(object):
 
     def factor(self):
         if not self._num_events:
-            # Always skip the first event
             return 0
         raw_factor = 800. / self._num_events
         if raw_factor > self._MAX_FACTOR:
@@ -55,23 +52,28 @@ class Reliability(object):
     class Observation(object):
 
         def __init__(self, length, failure, decay_rate=0.99, scale=None):
+            # Create an array of size 'scale' which will store the successful duration and any failures.
+            # We can 'decay' this observation by limiting the length of the data we return when someone
+            # calls to get the distance or failure data. E.g., with a decay rate of 0.99 and a scale of
+            # 1000, after the first decay we only return the first 990 elements of each; after the second
+            # decay we only return the first 981 elements, etc, etc.
             if scale is None:
                 scale = Reliability._DEFAULT_OBSERVATION_SCALE
-            self._duration = np.full(scale, length, dtype=np.float)
-            self._failure = np.full(scale, failure, dtype=np.bool)
+            self._duration = length
+            self._failure = failure
             self._current_length = scale
             self._decay_rate = decay_rate
 
-        def duration(self):
-            return self._duration[:self._current_length]
+        def duration_sum(self):
+            return self._duration * self._current_length
 
-        def failure(self):
-            return self._failure[:self._current_length]
+        def failure_sum(self):
+            return self._failure * self._current_length
 
         def decay(self, decay_rate=None):
             if decay_rate is None:
                 decay_rate = self._decay_rate
-            self._current_length = math.floor(self._current_length * decay_rate)
+            self._current_length *= decay_rate
 
         def current_length(self):
             return self._current_length
@@ -80,8 +82,9 @@ class Reliability(object):
             return self._decay_rate
 
     def __init__(self, default_decay_rate=0.98, other=None, regress_numerator=None, regress_percent=0.02):
-        self._model = KaplanMeierFitter()
         self._template = None
+        self._km_model_duration = 0
+        self._km_model_failures = 0
         if other is None:
             self._km_success = 0
             self._km_failure = 0
@@ -112,32 +115,48 @@ class Reliability(object):
         self.regress_to_template()
 
     def regress_observations(self):
-        self.cap_observations(self._regress_numerator / self.DEFAULT_KM_PER_RACE)
+        # After this function has been called, we want two invariants to hold:
+        # 1) There will be no more than self._regress_numerator's worth of races here; and
+        # 2) Of those, (1 - self._regress_percent) will be "ours" and self._regress_percent will be
+        #    from the template.
+        target_total_events = self._regress_numerator / self.DEFAULT_KM_PER_RACE
+        self.cap_observations(target_total_events * self._DEFAULT_OBSERVATION_SCALE)
+        # If there's no template, then we ARE the template and don't need to regress to ourselves.
         if self._template is None:
             return
-        self.decay_observations(decay_rate=(1 - self._regress_percent))
+        # We are not the template, so let's figure out what we need to do here.
+        total_observations = self.total_observations()
+        if not total_observations:
+            # We're ... empty? I think we can bail now.
+            return
+        target_from_self = target_total_events * (1 - self._regress_percent)
+        target_from_template = target_total_events * self._regress_percent
+        if total_observations <= target_from_self:
+            # We currently have fewer observations than we need to be targeting. This means that we
+            # keep all of ours, but scale down the target base.
+            target_from_template *= (total_observations / target_from_self)
+        else:
+            # We have more than we need. Scale it down.
+            self.cap_observations(target_from_self)
+        # By the time we get here, we've got ourselves sorted out. Make a copy of the template
+        # and scale it down.
         template_copy = copy.deepcopy(self._template)
-        template_copy.cap_observations(self._regress_numerator / self.DEFAULT_KM_PER_RACE)
-        template_copy.decay_observations(decay_rate=self._regress_percent)
+        template_copy.cap_observations(target_from_template)
         self._observations.extend(template_copy.observations())
 
     def cap_observations(self, max_observations):
-        scaled_max_observations = max_observations * self._DEFAULT_OBSERVATION_SCALE
         total_observations = self.total_observations()
-        if not total_observations or scaled_max_observations > total_observations:
+        if not total_observations or max_observations > total_observations:
+            # Either we don't have any observations yet or we're already below the cap.
             return
-        decay = scaled_max_observations / total_observations
+        decay = max_observations / total_observations
         self.decay_observations(decay_rate=decay)
 
     def update_model(self):
         if not self._observations:
             return
-        durations = np.array(self._observations[0].duration())
-        failure = np.array(self._observations[0].failure())
-        for observation in self._observations[1:]:
-            durations = np.append(durations, observation.duration())
-            failure = np.append(failure, observation.failure())
-        self._model.fit(durations, failure)
+        self._km_model_duration = sum([obs.duration_sum() for obs in self._observations])
+        self._km_model_failures = sum([obs.failure_sum() for obs in self._observations])
 
     def regress_to_template(self):
         if self._template is None:
@@ -161,7 +180,7 @@ class Reliability(object):
     def update(self, km_success, km_failure):
         self._km_failure += km_failure
         self._km_success += km_success
-        self._observations.append(self.Observation(km_success, km_failure > 0, decay_rate=self._default_decay_rate))
+        self._observations.append(self.Observation(km_success, km_failure, decay_rate=self._default_decay_rate))
 
     def commit_update(self):
         # Update the survival models
@@ -174,25 +193,27 @@ class Reliability(object):
         self._km_success *= decay_rate
 
     def decay_observations(self, decay_rate=None):
+        minimum_observation_length = math.floor(0.01 * self._DEFAULT_OBSERVATION_SCALE)
         [observation.decay(decay_rate=decay_rate) for observation in self._observations]
-        self._observations = list(filter(lambda obs: obs.current_length() > 10, self._observations))
-
-    def probability_finishing_model(self, race_distance_km=DEFAULT_KM_PER_RACE):
-        if not self._model:
-            return self.DEFAULT_PROBABILITY
-        if not hasattr(self._model, 'survival_function_'):
-            return self.DEFAULT_PROBABILITY
-        return self._model.predict(math.ceil(race_distance_km))
+        self._observations = list(
+            filter(lambda obs: obs.current_length() > minimum_observation_length, self._observations))
 
     def probability_finishing(self, race_distance_km=DEFAULT_KM_PER_RACE):
-        # return self.probability_finishing_adhoc(distance_km)
-        return self.probability_finishing_model(race_distance_km=race_distance_km)
+        return self.probability_finishing_adhoc(race_distance_km=race_distance_km)
+        # return self.probability_finishing_model(race_distance_km=race_distance_km)
 
     def probability_finishing_adhoc(self, race_distance_km=DEFAULT_KM_PER_RACE):
         denominator = self._km_failure + self._km_success
         if not denominator:
             return self.DEFAULT_PROBABILITY
         per_km_success_rate = self._km_success / denominator
+        return math.pow(per_km_success_rate, race_distance_km)
+
+    def probability_finishing_model(self, race_distance_km=DEFAULT_KM_PER_RACE):
+        denominator = self._km_model_failures + self._km_model_duration
+        if not denominator:
+            return self.DEFAULT_PROBABILITY
+        per_km_success_rate = self._km_model_duration / denominator
         return math.pow(per_km_success_rate, race_distance_km)
 
     def km_success(self):
