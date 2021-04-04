@@ -1,4 +1,3 @@
-import copy
 import math
 
 
@@ -83,15 +82,12 @@ class Reliability(object):
 
     def __init__(self, default_decay_rate=0.98, other=None, regress_numerator=None, regress_percent=0.02):
         self._template = None
-        self._km_model_duration = 0
-        self._km_model_failures = 0
         if other is None:
             self._km_success = 0
             self._km_failure = 0
             self._default_decay_rate = default_decay_rate
             self._regress_numerator = regress_numerator
             self._regress_percent = regress_percent
-            self._observations = list()
             if self._regress_numerator is None:
                 self._regress_numerator = 2 * self.DEFAULT_KM_PER_RACE
         else:
@@ -100,63 +96,17 @@ class Reliability(object):
             self._km_failure = other.km_failure()
             self._regress_numerator = other.regress_numerator()
             self._regress_percent = other.regress_percent()
-            self._observations = other.observations()
             self.regress()
             self._template = other
 
     def regress(self):
         if not self._km_success:
             return
-        self.regress_observations()
         ratio = self._regress_numerator / self._km_success
         if ratio < 1.0:
             self._km_success *= ratio
             self._km_failure *= ratio
         self.regress_to_template()
-
-    def regress_observations(self):
-        # After this function has been called, we want two invariants to hold:
-        # 1) There will be no more than self._regress_numerator's worth of races here; and
-        # 2) Of those, (1 - self._regress_percent) will be "ours" and self._regress_percent will be
-        #    from the template.
-        target_total_events = self._regress_numerator / self.DEFAULT_KM_PER_RACE
-        self.cap_observations(target_total_events * self._DEFAULT_OBSERVATION_SCALE)
-        # If there's no template, then we ARE the template and don't need to regress to ourselves.
-        if self._template is None:
-            return
-        # We are not the template, so let's figure out what we need to do here.
-        total_observations = self.total_observations()
-        if not total_observations:
-            # We're ... empty? I think we can bail now.
-            return
-        target_from_self = target_total_events * (1 - self._regress_percent)
-        target_from_template = target_total_events * self._regress_percent
-        if total_observations <= target_from_self:
-            # We currently have fewer observations than we need to be targeting. This means that we
-            # keep all of ours, but scale down the target base.
-            target_from_template *= (total_observations / target_from_self)
-        else:
-            # We have more than we need. Scale it down.
-            self.cap_observations(target_from_self)
-        # By the time we get here, we've got ourselves sorted out. Make a copy of the template
-        # and scale it down.
-        template_copy = copy.deepcopy(self._template)
-        template_copy.cap_observations(target_from_template)
-        self._observations.extend(template_copy.observations())
-
-    def cap_observations(self, max_observations):
-        total_observations = self.total_observations()
-        if not total_observations or max_observations > total_observations:
-            # Either we don't have any observations yet or we're already below the cap.
-            return
-        decay = max_observations / total_observations
-        self.decay_observations(decay_rate=decay)
-
-    def update_model(self):
-        if not self._observations:
-            return
-        self._km_model_duration = sum([obs.duration_sum() for obs in self._observations])
-        self._km_model_failures = sum([obs.failure_sum() for obs in self._observations])
 
     def regress_to_template(self):
         if self._template is None:
@@ -180,40 +130,21 @@ class Reliability(object):
     def update(self, km_success, km_failure):
         self._km_failure += km_failure
         self._km_success += km_success
-        self._observations.append(self.Observation(km_success, km_failure, decay_rate=self._default_decay_rate))
 
     def commit_update(self):
-        # Update the survival models
-        self.update_model()
+        # A no-op for right now
+        return
 
     def decay(self):
-        self.decay_observations()
         decay_rate = self.decay_rate()
         self._km_failure *= decay_rate
         self._km_success *= decay_rate
 
-    def decay_observations(self, decay_rate=None):
-        minimum_observation_length = math.floor(0.01 * self._DEFAULT_OBSERVATION_SCALE)
-        [observation.decay(decay_rate=decay_rate) for observation in self._observations]
-        self._observations = list(
-            filter(lambda obs: obs.current_length() > minimum_observation_length, self._observations))
-
     def probability_finishing(self, race_distance_km=DEFAULT_KM_PER_RACE):
-        return self.probability_finishing_adhoc(race_distance_km=race_distance_km)
-        # return self.probability_finishing_model(race_distance_km=race_distance_km)
-
-    def probability_finishing_adhoc(self, race_distance_km=DEFAULT_KM_PER_RACE):
         denominator = self._km_failure + self._km_success
         if not denominator:
             return self.DEFAULT_PROBABILITY
         per_km_success_rate = self._km_success / denominator
-        return math.pow(per_km_success_rate, race_distance_km)
-
-    def probability_finishing_model(self, race_distance_km=DEFAULT_KM_PER_RACE):
-        denominator = self._km_model_failures + self._km_model_duration
-        if not denominator:
-            return self.DEFAULT_PROBABILITY
-        per_km_success_rate = self._km_model_duration / denominator
         return math.pow(per_km_success_rate, race_distance_km)
 
     def km_success(self):
@@ -230,12 +161,6 @@ class Reliability(object):
 
     def regress_percent(self):
         return self._regress_percent
-
-    def observations(self):
-        return self._observations
-
-    def total_observations(self):
-        return sum([obs.current_length() for obs in self._observations])
 
 
 class CarReliability(Reliability):

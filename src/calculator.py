@@ -62,6 +62,10 @@ def select_reference_result(event):
     return reference_reliability_results[0]
 
 
+def was_performance_win(result_this, result_other):
+    return result_this.dnf_category() == '-' and result_other.dnf_category() == '-'
+
+
 def elo_win_probability(r_a, r_b, denominator):
     """Standard logistic calculator, per
        https://en.wikipedia.org/wiki/Elo_rating_system#Mathematical_details
@@ -75,39 +79,6 @@ def elo_rating_from_result(car_factor, result):
     rating = (1 - car_factor) * result.driver().rating().rating()
     rating += (car_factor * result.team().rating().rating())
     return rating
-
-
-def have_same_team(result_a, result_b):
-    if result_a.team() is None or result_b.team() is None:
-        return False
-    return result_a.team().uuid() == result_b.team().uuid()
-
-
-def allocate_results(result_a, result_b, outfile):
-    """
-    xxxx    Finished    Crashed     Car
-    xxxx    Sa  Di      Sa  Di      Sa  Di
-    --------------------------------------
-    Fin.    D   D+C     D   D       x   x
-    Crash   D   D       D   D       x   x
-    Car     x   x       x   x       x   x
-    """
-    if result_a.dnf_category() == 'car' or result_b.dnf_category() == 'car':
-        return None, None
-    if result_a.dnf_category() == 'driver' or result_b.dnf_category() == 'driver':
-        return None, None
-    same_team = have_same_team(result_a, result_b)
-    use_driver = True
-    use_team = True
-    if same_team:
-        use_team = False
-        if outfile is not None:
-            print('--xtx', file=outfile)
-    else:
-        use_team = True
-        if outfile is not None:
-            print('--xTx', file=outfile)
-    return use_driver, use_team
 
 
 def assign_year_value_dict(spec, divisor, value_dict):
@@ -152,10 +123,10 @@ class HeadToHeadPrediction(object):
         self._debug_file = debug_file
 
     def this_won(self):
-        return self._result_this.end_position() < self._result_other.end_position()
+        return 1 if self._result_this.end_position() < self._result_other.end_position() else 0
 
-    def was_performance_win(self):
-        return self._result_this.dnf_category() != '-' and self._result_other.dnf_category() != '_'
+    def same_team(self):
+        return self._result_this.team().uuid() == self._result_other.team().uuid()
 
     def this_win_probability(self, get_other=False):
         if self._k_factor == ratings.KFactor.INVALID:
@@ -168,21 +139,24 @@ class HeadToHeadPrediction(object):
         if abs(1. - self.probability_double_dnf()) < 1e-3:
             return 0
         num_laps = self._event.num_laps()
-        this_elo_probability = self.this_elo_probability()
+        this_elo_probability_raw, _, _ = self.this_elo_probability()
+        if this_elo_probability_raw is None:
+            return None
         probability_this_complete = self._result_this.probability_complete_n_laps(num_laps)
         probability_other_complete = self._result_other.probability_complete_n_laps(num_laps)
         probability_both_complete = probability_this_complete * probability_other_complete
         probability_this_not_other = probability_this_complete * (1 - probability_other_complete)
         probability_this_further_than_other = self.probability_this_further_than_other()
-        this_elo_probability *= probability_both_complete
+        this_elo_probability = this_elo_probability_raw * probability_both_complete
         full_this_probability = this_elo_probability + probability_this_not_other + probability_this_further_than_other
         full_this_probability += (0.5 * self._tie_probability)
-        print('%s ThisElo: %.7f x %.7f x %.7f = %.7f and PTNO: %.7f PTFTO: %.7f PThisWin: %.7f %s:%s vs %s:%s' % (
-            self._event.id(), self.this_elo_probability(), probability_this_complete, probability_other_complete,
-            this_elo_probability, probability_this_not_other, probability_this_further_than_other,
-            full_this_probability, self._result_this.driver().id(), self._result_this.team().uuid(),
-            self._result_other.driver().id(), self._result_other.team().uuid()),
-              file=self._debug_file)
+        if self._debug_file is not None:
+            print('%s ThisElo: %.7f x %.7f x %.7f = %.7f and PTNO: %.7f PTFTO: %.7f PThisWin: %.7f %s:%s vs %s:%s' % (
+                self._event.id(), this_elo_probability_raw, probability_this_complete, probability_other_complete,
+                this_elo_probability, probability_this_not_other, probability_this_further_than_other,
+                full_this_probability, self._result_this.driver().id(), self._result_this.team().uuid(),
+                self._result_other.driver().id(), self._result_other.team().uuid()),
+                  file=self._debug_file)
         self._this_win_probability = full_this_probability
         if self._this_win_probability == 1.0:
             self._this_win_probability = 1.0 - 1e-6
@@ -195,23 +169,44 @@ class HeadToHeadPrediction(object):
 
     def this_elo_probability(self, get_other=False):
         if self.combined_k_factor() == ratings.KFactor.INVALID:
-            return None
+            return None, None, None
         if self._this_elo_probability is not None:
             if get_other:
-                return 1 - self._this_elo_probability
+                return 1 - self._this_elo_probability, self._rating_other, self._rating_this
             else:
-                return self._this_elo_probability
+                return self._this_elo_probability, self._rating_this, self._rating_other
         self._rating_this = elo_rating_from_result(self._car_factor, self._result_this)
         self._rating_this += self.this_elo_start_position_advantage()
         self._rating_other = elo_rating_from_result(self._car_factor, self._result_other)
         self._this_elo_probability = elo_win_probability(self._rating_this, self._rating_other, self._elo_denominator)
-        print('%s TEP: (%.1f + %.1f) vs (%.1f) = %.6f' % (
-            self._event.id(), self._rating_this, self.this_elo_start_position_advantage(),
-            self._rating_other, self._this_elo_probability), file=self._debug_file)
+        if self._debug_file is not None:
+            print('%s TEP: (%.1f + %.1f) vs (%.1f) = %.6f' % (
+                self._event.id(), self._rating_this, self.this_elo_start_position_advantage(),
+                self._rating_other, self._this_elo_probability), file=self._debug_file)
         if get_other:
-            return 1 - self._this_elo_probability
+            return 1 - self._this_elo_probability, self._rating_other, self._rating_this
         else:
-            return self._this_elo_probability
+            return self._this_elo_probability, self._rating_this, self._rating_other
+
+    def this_elo_deltas(self, get_other=False):
+        if not was_performance_win(self._result_this, self._result_other):
+            # One of these DNF'ed
+            return None, None
+        elo_win_probability_this, _, _ = self.this_elo_probability()
+        if elo_win_probability_this is None:
+            return None, None
+        win_actual_this = self.this_won()
+        k_factor = self.combined_k_factor()
+        delta_all_this = k_factor * (win_actual_this - elo_win_probability_this)
+        if get_other:
+            delta_all_this *= -1
+        if self.same_team():
+            delta_car_this = 0
+            delta_driver_this = delta_all_this
+        else:
+            delta_car_this = self._car_factor * delta_all_this
+            delta_driver_this = delta_all_this - delta_car_this
+        return delta_car_this, delta_driver_this
 
     def elo_rating(self, result):
         if self.combined_k_factor() == ratings.KFactor.INVALID:
@@ -261,7 +256,7 @@ class HeadToHeadPrediction(object):
         if not k_factor_driver_other and not k_factor_team_other:
             self._k_factor = ratings.KFactor.INVALID
             return self._k_factor
-        if have_same_team(self._result_this, self._result_other):
+        if self.same_team():
             # Only average the K-Factor of the two drivers
             self._k_factor = (k_factor_driver_this + k_factor_driver_other) / 2
         else:
@@ -343,11 +338,10 @@ class EventPrediction(object):
                 'All': finish_probability, 'Car': car_finish, 'Driver': driver_finish
             }
             drivers.append(result.driver().id())
-            # win_probability_new_elo = predictions.get_elo_win_probability(result, reference_result)
-            win_probability_new_all = self.get_win_probability(result, reference_result)
-            if win_probability_new_all is None:
+            win_probability = self.get_win_probability(result, reference_result)
+            if win_probability is None:
                 continue
-            probabilities[idx] = win_probability_new_all / (1 - win_probability_new_all)
+            probabilities[idx] = win_probability / (1 - win_probability)
             idx += 1
         probability_sum = np.sum(probabilities)
         if probability_sum > 1e-3:
@@ -407,7 +401,8 @@ class EventPrediction(object):
             if result_a in self._head_to_head[result_b]:
                 return self._head_to_head[result_b][result_a].this_win_probability(get_other=True)
         print('ERROR no (%s:%s) or (%s:%s) in GWP' % (result_a.driver().id(), result_a.team().uuid(),
-                                                      result_b.driver().id(), result_b.team().uuid()))
+                                                      result_b.driver().id(), result_b.team().uuid()),
+              file=self._debug_file)
         return None
 
     def get_elo_win_probability(self, result_a, result_b):
@@ -418,8 +413,21 @@ class EventPrediction(object):
             if result_a in self._head_to_head[result_b]:
                 return self._head_to_head[result_b][result_a].this_elo_probability(get_other=True)
         print('ERROR no (%s:%s) or (%s:%s) in GEWP' % (result_a.driver().id(), result_a.team().uuid(),
-                                                       result_b.driver().id(), result_b.team().uuid()))
+                                                       result_b.driver().id(), result_b.team().uuid()),
+              file=self._debug_file)
         return None
+
+    def get_elo_deltas(self, result_a, result_b):
+        if result_a in self._head_to_head:
+            if result_b in self._head_to_head[result_a]:
+                return self._head_to_head[result_a][result_b].this_elo_deltas()
+        if result_b in self._head_to_head:
+            if result_a in self._head_to_head[result_b]:
+                return self._head_to_head[result_b][result_a].this_elo_deltas(get_other=True)
+        print('ERROR no (%s:%s) or (%s:%s) in GED' % (result_a.driver().id(), result_a.team().uuid(),
+                                                      result_b.driver().id(), result_b.team().uuid()),
+              file=self._debug_file)
+        return None, None
 
     def event(self):
         return self._event
@@ -589,7 +597,7 @@ class Calculator(object):
             for result_b in event.results():
                 if result_a.driver().id() >= result_b.driver().id():
                     continue
-                self.compare_results(event, predictions, result_a, result_b, k_factor_adjust, elo_denominator)
+                self.compare_results(event, predictions, result_a, result_b)
         self.update_all_reliability(event)
         event.commit_updates()
         event.collect_ratings(predictions.drivers_after(), predictions.teams_after())
@@ -622,76 +630,46 @@ class Calculator(object):
             result.team().rating().update_reliability(km_success, km_car_failure)
             result.driver().rating().update_reliability(km_success, km_driver_failure)
 
-    def create_merged_rating(self, season, result):
-        car_factor = self._team_share_dict[season]
-        rating = result.driver().rating().rating()
-        rating *= (1 - car_factor)
-        rating += (car_factor * result.team().rating().rating())
-        k_factor = result.driver().rating().k_factor().factor()
-        k_factor *= (1 - car_factor)
-        k_factor += (car_factor * result.team().rating().k_factor().factor())
-        if self._debug_file is not None and False:  # TODO: Fix this
-            print('        R: %4d KF: %2d NR: %2d SP: %2d EP: %2d PFB: %2d DNF: %6s D: %s T: %s' % (
-                rating, k_factor, result.num_racers(), result.start_position(), result.end_position(),
-                result.position_from_back(), result.dnf_category(), result.driver().id(), result.team().uuid()),
-                  file=self._debug_file)
-        return rating, k_factor, result.position_from_back()
-
-    def compare_results(self, event, predictions, result_a, result_b, k_factor_adjust, elo_denominator,
-                        update_ratings=True, update_errors=True):
-        rating_a, k_factor_a, pfb_a = self.create_merged_rating(event.season(), result_a)
-        rating_b, k_factor_b, pfb_b = self.create_merged_rating(event.season(), result_b)
-        if not k_factor_b or not k_factor_b:
-            if self._debug_file is not None:
-                print('      Skip: K', file=self._debug_file)
-            return None
-        k_factor = ((k_factor_a + k_factor_b) / 2) * k_factor_adjust
-        start_position_advantage = self.start_position_advantage(event, pfb_a, pfb_b)
-        win_prob_a = elo_win_probability(rating_a + start_position_advantage, rating_b, elo_denominator)
-        if self._debug_file is not None:
-            print('%s OEP: (%.1f + %.1f) vs (%.1f) = %.6f' % (
-                event.id(), rating_a, start_position_advantage, rating_b, win_prob_a
-            ),
-                  file=self._debug_file)
-        win_prob_a = predictions.get_elo_win_probability(result_a, result_b)
-        if win_prob_a is None:
-            print('Invalid comparison XXX')
-            return None
+    def compare_results(self, event, predictions, result_a, result_b):
+        # First do the overall win probabilities
         win_actual_a = 1 if result_a.end_position() < result_b.end_position() else 0
-        use_drivers, use_team = allocate_results(result_a, result_b, None)  # Possibly set this back to self._debug_file
-        if use_drivers is None or use_team is None:
-            if self._debug_file is not None and False:  # TODO: Fix this
+        win_prob_a = predictions.get_win_probability(result_a, result_b)
+        if win_prob_a is None:
+            if self._debug_file is not None:
+                print('      Skip: Win Prob is None', file=self._debug_file)
+            return
+        self.add_full_h2h_error(event, win_actual_a, win_prob_a)
+        self.add_full_h2h_error(event, 1 - win_actual_a, 1 - win_prob_a)
+        # Now do the performance (Elo-based) probabilities
+        if not was_performance_win(result_a, result_b):
+            if self._debug_file is not None:
+                print('      Skip: At least one entrant DNF\'ed', file=self._debug_file)
+            return
+        elo_win_prob_a, rating_a, rating_b = predictions.get_elo_win_probability(result_a, result_b)
+        if elo_win_prob_a is None:
+            if self._debug_file is not None:
+                print('      Skip: Elo Prob is None', file=self._debug_file)
+            return
+        car_delta, driver_delta = predictions.get_elo_deltas(result_a, result_b)
+        if car_delta is None or driver_delta is None:
+            if self._debug_file is not None:
                 print('      Skip: Use', file=self._debug_file)
-            return win_prob_a
-        if update_errors:
-            self.add_h2h_error(event, rating_a, rating_b, win_actual_a, win_prob_a)
-            self.add_h2h_error(event, rating_b, rating_a, 1 - win_actual_a, 1 - win_prob_a)
+            return
+        self.add_h2h_error(event, rating_a, rating_b, win_actual_a, elo_win_prob_a)
+        self.add_h2h_error(event, rating_b, rating_a, 1 - win_actual_a, 1 - elo_win_prob_a)
         if not self.should_compare(rating_a, rating_b):
-            if self._debug_file is not None and False:  # TODO: Fix this
+            if self._debug_file is not None:
                 print('      Skip: SC', file=self._debug_file)
-            return win_prob_a
-        if not update_ratings:
-            return win_prob_a
-        delta_a = k_factor * (win_actual_a - win_prob_a)
-        self.update_ratings(event.season(), result_a, use_drivers, use_team, delta_a)
-        self.update_ratings(event.season(), result_b, use_drivers, use_team, -delta_a)
-        return win_prob_a
-
-    def start_position_advantage(self, event, from_back_a, from_back_b):
-        season = event.season()
-        position_base = self._position_base_dict[season]
-        position_diffs = abs(from_back_a - from_back_b)
-        factor = position_diffs
-        if abs(self._args.position_base_factor - 1.0) > 1e-2:
-            factor = 1 - math.pow(self._args.position_base_factor, position_diffs)
-            factor /= 1 - self._args.position_base_factor
-        if from_back_a > from_back_b:
-            return factor * position_base
-        else:
-            return -factor * position_base
+            return
+        self.update_ratings(result_a, car_delta, driver_delta)
+        self.update_ratings(result_b, -car_delta, -driver_delta)
 
     def should_compare(self, rating_a, rating_b):
         return abs(rating_a - rating_b) <= self._args.elo_compare_window
+
+    def add_full_h2h_error(self, event, actual, prob):
+        for _ in range(self.get_oversample_rate(event.type(), event.id())):
+            continue
 
     def add_h2h_error(self, event, rating_a, rating_b, actual, prob):
         event_id = event.id()
@@ -714,23 +692,13 @@ class Calculator(object):
                 print('H2H\t%s\t%.1f\t%.1f\t%.4f\t%d' % (event.id(), rating_a, rating_b, prob, actual),
                       file=self._predict_file)
 
-    def update_ratings(self, season, result, use_drivers, use_teams, delta):
-        if use_teams:
-            car_factor = self._team_share_dict[season]
-            car_delta = car_factor * delta
-            result.driver().rating().update(delta - car_delta)
-            result.team().rating().update(car_delta)
-            if self._debug_file is not None:
-                print('        DD: %5.2f CD: %5.2f D: %s T: %s' % (
-                    delta - car_delta, car_delta, result.driver().id(), result.team().uuid()),
-                      file=self._debug_file)
-        else:
-            # Only drivers
-            if self._debug_file is not None:
-                print('        DD: %5.2f CD: ----- D: %s T: %s' % (
-                    delta, result.driver().id(), result.team().uuid()),
-                      file=self._debug_file)
-            result.driver().rating().update(delta)
+    def update_ratings(self, result, car_delta, driver_delta):
+        result.driver().rating().update(driver_delta)
+        result.team().rating().update(car_delta)
+        if self._debug_file is not None:
+            print('        DD: %5.2f CD: %5.2f D: %s T: %s' % (
+                driver_delta, car_delta, result.driver().id(), result.team().uuid()),
+                  file=self._debug_file)
 
     def log_results(self, event, predictions):
         driver_results = {result.driver().id(): result for result in event.results()}
