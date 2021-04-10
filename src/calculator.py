@@ -344,6 +344,9 @@ class EventPrediction(object):
             probabilities[idx] = win_probability / (1 - win_probability)
             idx += 1
         probability_sum = np.sum(probabilities)
+        # If the collective probability is greater than 0 (which it should be, since comparing someone against
+        # themselves gives a 0.500 odds, which has an odds ratio of 1.0) then normalize the odds. Otherwise give
+        # everyone the same odds.
         if probability_sum > 1e-3:
             probabilities /= probability_sum
         else:
@@ -383,6 +386,9 @@ class EventPrediction(object):
     def predict_all_head_to_head(self):
         for result_a in self._event.results():
             for result_b in self._event.results():
+                # Allow us to calculate the odds of an entrant against themselves. When calculating win probability we
+                # need to calculate the odds of a person against themselves (it should be 50/50) so don't skip over
+                # that one.
                 if result_a.driver().id() > result_b.driver().id():
                     continue
                 head_to_head = HeadToHeadPrediction(self._event, result_a, result_b, self._elo_denominator,
@@ -478,6 +484,10 @@ class Calculator(object):
         self._decade_error_count = dict({'Q': defaultdict(int), 'R': defaultdict(int)})
         self._total_error_sum = 0
         self._total_error_count = 0
+        self._decade_full_error_sum = defaultdict(float)
+        self._decade_full_error_count = defaultdict(int)
+        self._total_full_error_sum = 0
+        self._total_full_error_count = 0
         self._finish_pred_true = dict({'All': list(), 'Car': list(), 'Driver': list()})
         self._finish_pred_prob = dict({'All': list(), 'Car': list(), 'Driver': list()})
         self._win_error_sum = dict({'Q': 0.0, 'R': 0.0})
@@ -668,8 +678,20 @@ class Calculator(object):
         return abs(rating_a - rating_b) <= self._args.elo_compare_window
 
     def add_full_h2h_error(self, event, actual, prob):
+        if event.type() == 'Q':
+            return
+        event_id = event.id()
+        year = int(event_id[:4])
+        decade = int(year / 10) * 10
+        error = actual - prob
+        squared_error = error * error
         for _ in range(self.get_oversample_rate(event.type(), event.id())):
-            continue
+            self._decade_full_error_sum[decade] += squared_error
+            self._decade_full_error_count[decade] += 1
+            self._total_full_error_sum += squared_error
+            self._total_full_error_count += 1
+            if self._predict_file is not None:
+                print('FullH2H\t%s\t%.4f\t%d' % (event_id, prob, actual), file=self._predict_file)
 
     def add_h2h_error(self, event, rating_a, rating_b, actual, prob):
         event_id = event.id()
@@ -878,4 +900,13 @@ class Calculator(object):
                   file=self._summary_file)
         sse = self._total_error_sum
         count = self._total_error_count
-        print('Error\tAllTotal\tTotal\t%.6f\t%7.1f\t%5d' % (sse / count, sse, count), file=self._summary_file)
+        print('Error\tAllTotal\tElo\t%.6f\t%7.1f\t%5d' % (sse / count, sse, count), file=self._summary_file)
+        for decade, count in self._decade_full_error_count.items():
+            if decade not in self._decade_full_error_sum:
+                continue
+            sse = self._decade_full_error_sum[decade]
+            print('Error\tDecade-Full\t%d\t%.6f\t%7.1f\t%5d' % (decade, sse / count, sse, count),
+                  file=self._summary_file)
+        sse = self._total_full_error_sum
+        count = self._total_full_error_count
+        print('Error\tAllTotal\tFull\t%.6f\t%7.1f\t%5d' % (sse / count, sse, count), file=self._summary_file)
