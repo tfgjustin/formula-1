@@ -54,4 +54,4 @@ then
 fi
 
 python "${MAIN_PY}" "${DRIVERS_TSV}" "${EVENTS_TSV}" "${RESULTS_TSV}" "${TEAM_HISTORY_TSV}" \
-  "${LOG_DIR}/${current_time}-${current_git_tag}" --logfile_uses_parameters
+  "${LOG_DIR}/${current_time}-${current_git_tag}" --logfile_uses_parameters --print_predictions
