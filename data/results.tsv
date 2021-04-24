@@ -46913,3 +46913,43 @@ event_id	driver_id	team_id	start_position	end_position	laps	status	dnf_category	
 2021-01-R	Fernando_Alonso	Alpine_F1_Team	 9	19	32	brakes	car	20
 2021-01-Q	Nikita_Mazepin	Uralkali_Haas_F1_Team	0	19	1	-	-	20
 2021-01-R	Nikita_Mazepin	Uralkali_Haas_F1_Team	19	20	0	crash	driver	20
+2021-02-Q	Max_Verstappen	Red_Bull_Racing_Honda	0	 3	1	-	-	20
+2021-02-R	Max_Verstappen	Red_Bull_Racing_Honda	 3	1	63	2:02:34.598	-	20
+2021-02-Q	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	0	 1	1	-	-	20
+2021-02-R	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	 1	2	63	+22.000	-	20
+2021-02-Q	Lando_Norris	McLaren_F1_Team	0	 7	1	-	-	20
+2021-02-R	Lando_Norris	McLaren_F1_Team	 7	3	63	+23.702	-	20
+2021-02-Q	Charles_Leclerc	Scuderia_Mission_Winnow_Ferrari	0	 4	1	-	-	20
+2021-02-R	Charles_Leclerc	Scuderia_Mission_Winnow_Ferrari	 4	4	63	+25.579	-	20
+2021-02-Q	Carlos_Sainz_Jr	Scuderia_Mission_Winnow_Ferrari	0	11	1	-	-	20
+2021-02-R	Carlos_Sainz_Jr	Scuderia_Mission_Winnow_Ferrari	11	5	63	+27.036	-	20
+2021-02-Q	Daniel_Ricciardo	McLaren_F1_Team	0	 6	1	-	-	20
+2021-02-R	Daniel_Ricciardo	McLaren_F1_Team	 6	6	63	+51.220	-	20
+2021-02-Q	Lance_Stroll	Aston_Martin_Cognizant_F1_Team	0	10	1	-	-	20
+2021-02-R	Lance_Stroll	Aston_Martin_Cognizant_F1_Team	10	7	63	+51.909	-	20
+2021-02-Q	Pierre_Gasly	Scuderia_AlphaTauri_Honda	0	 5	1	-	-	20
+2021-02-R	Pierre_Gasly	Scuderia_AlphaTauri_Honda	 5	8	63	+52.818	-	20
+2021-02-Q	Kimi_Raikkonen	Alfa_Romeo_Racing_ORLEN	0	16	1	-	-	20
+2021-02-R	Kimi_Raikkonen	Alfa_Romeo_Racing_ORLEN	16	9	63	+64.773	-	20
+2021-02-Q	Esteban_Ocon	Alpine_F1_Team	0	 9	1	-	-	20
+2021-02-R	Esteban_Ocon	Alpine_F1_Team	 9	10	63	+65.704	-	20
+2021-02-Q	Fernando_Alonso	Alpine_F1_Team	0	15	1	-	-	20
+2021-02-R	Fernando_Alonso	Alpine_F1_Team	15	11	63	+66.561	-	20
+2021-02-Q	Sergio_Perez	Red_Bull_Racing_Honda	0	 2	1	-	-	20
+2021-02-R	Sergio_Perez	Red_Bull_Racing_Honda	 2	12	63	+67.151	-	20
+2021-02-Q	Yuki_Tsunoda	Scuderia_AlphaTauri_Honda	0	20	1	-	-	20
+2021-02-R	Yuki_Tsunoda	Scuderia_AlphaTauri_Honda	20	13	63	+73.184	-	20
+2021-02-Q	Antonio_Giovinazzi	Alfa_Romeo_Racing_ORLEN	0	17	1	-	-	20
+2021-02-R	Antonio_Giovinazzi	Alfa_Romeo_Racing_ORLEN	17	14	62	+1 lap	-	20
+2021-02-Q	Sebastian_Vettel	Aston_Martin_Cognizant_F1_Team	0	13	1	-	-	20
+2021-02-R	Sebastian_Vettel	Aston_Martin_Cognizant_F1_Team	13	15	61	gearbox	car	20
+2021-02-Q	Mick_Schumacher	Uralkali_Haas_F1_Team	0	18	1	-	-	20
+2021-02-R	Mick_Schumacher	Uralkali_Haas_F1_Team	18	16	61	+2 laps	-	20
+2021-02-Q	Nikita_Mazepin	Uralkali_Haas_F1_Team	0	19	1	-	-	20
+2021-02-R	Nikita_Mazepin	Uralkali_Haas_F1_Team	19	17	61	+2 laps	-	20
+2021-02-Q	Valtteri_Bottas	Mercedes_AMG_Petronas_F1_Team	0	 8	1	-	-	20
+2021-02-R	Valtteri_Bottas	Mercedes_AMG_Petronas_F1_Team	 8	18	30	crash	driver	20
+2021-02-Q	George_Russell	Williams_Racing	0	12	1	-	-	20
+2021-02-R	George_Russell	Williams_Racing	12	19	30	crash	driver	20
+2021-02-Q	Nicholas_Latifi	Williams_Racing	0	14	1	-	-	20
+2021-02-R	Nicholas_Latifi	Williams_Racing	14	20	0	crash	driver	20
