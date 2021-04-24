@@ -26,7 +26,7 @@ class Team(object):
 
     def commit_update(self):
         self._rating.commit_update()
-        if self._rating.rating() is None:
+        if self._rating.elo() is None:
             print('ERROR: Team %s has None rating' % self._id)
 
     def rating(self):

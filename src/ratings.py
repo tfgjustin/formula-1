@@ -13,7 +13,7 @@ def year_gap(event_id, last_event_id):
 
 class KFactor(object):
     INVALID = -1
-    _MAX_FACTOR = 24
+    _MAX_FACTOR = 30
     _MIN_FACTOR = 12
 
     def __init__(self, regress_rate=0.0):
@@ -47,38 +47,6 @@ class Reliability(object):
     _DEFAULT_OBSERVATION_SCALE = 1000
     DEFAULT_PROBABILITY = 0.7
     DEFAULT_KM_PER_RACE = 305.0
-
-    class Observation(object):
-
-        def __init__(self, length, failure, decay_rate=0.99, scale=None):
-            # Create an array of size 'scale' which will store the successful duration and any failures.
-            # We can 'decay' this observation by limiting the length of the data we return when someone
-            # calls to get the distance or failure data. E.g., with a decay rate of 0.99 and a scale of
-            # 1000, after the first decay we only return the first 990 elements of each; after the second
-            # decay we only return the first 981 elements, etc, etc.
-            if scale is None:
-                scale = Reliability._DEFAULT_OBSERVATION_SCALE
-            self._duration = length
-            self._failure = failure
-            self._current_length = scale
-            self._decay_rate = decay_rate
-
-        def duration_sum(self):
-            return self._duration * self._current_length
-
-        def failure_sum(self):
-            return self._failure * self._current_length
-
-        def decay(self, decay_rate=None):
-            if decay_rate is None:
-                decay_rate = self._decay_rate
-            self._current_length *= decay_rate
-
-        def current_length(self):
-            return self._current_length
-
-        def decay_rate(self):
-            return self._decay_rate
 
     def __init__(self, default_decay_rate=0.98, other=None, regress_numerator=None, regress_percent=0.02):
         self._template = None
@@ -148,10 +116,14 @@ class Reliability(object):
         return math.pow(per_km_success_rate, race_distance_km)
 
     def km_success(self):
-        return self._km_success
+        if self._km_success is not None:
+            return self._km_success
+        return 0
 
     def km_failure(self):
-        return self._km_failure
+        if self._km_failure is not None:
+            return self._km_failure
+        return 0
 
     def decay_rate(self):
         return self._default_decay_rate
@@ -183,14 +155,14 @@ class EloRating(object):
 
     def __init__(self, init_rating, regress_rate=0.0, k_factor_regress_rate=0.0):
         self._default_rating = init_rating
-        self._rating = init_rating
+        self._elo_rating = init_rating
         self._k_factor = KFactor(regress_rate=k_factor_regress_rate)
         self._regress_rate = regress_rate
         self._reliability = None
         self._non_alias_callers = list()
         self._alias_callers = list()
         self._deferred_complete = False
-        self._temp_rating = None
+        self._temp_elo_rating = None
         self._last_event_id = None
         self._current_event_id = None
         self._commit_complete = False
@@ -215,11 +187,11 @@ class EloRating(object):
             print('ERROR: Multiple canonical callers for %s: [%s]' % (
                 self._current_event_id, ', '.join(self._non_alias_callers)
             ))
-        if self._temp_rating is not None:
+        if self._temp_elo_rating is not None:
             print('ERROR: start_update was called on this rating multiple times')
         self.regress(self._current_event_id)
         self._last_event_id = self._current_event_id
-        self._temp_rating = self._rating
+        self._temp_elo_rating = self._elo_rating
         # The reliability has to have its update happen after we regress in case we need to regress it, too.
         if self._reliability is not None:
             self._reliability.start_update()
@@ -227,7 +199,7 @@ class EloRating(object):
 
     def update(self, delta):
         self.deferred_start_update()
-        self._temp_rating += delta
+        self._temp_elo_rating += delta
 
     def update_reliability(self, km_success, km_failure):
         self.deferred_start_update()
@@ -243,10 +215,10 @@ class EloRating(object):
             return
         # We need this first conditional if a driver or team never has an update called,
         # and therefore never has the deferred update run.
-        if self._temp_rating is None:
+        if self._temp_elo_rating is None:
             self.deferred_start_update()
-        self._rating = self._temp_rating
-        self._temp_rating = None
+        self._elo_rating = self._temp_elo_rating
+        self._temp_elo_rating = None
         self._k_factor.increment_events()
         self._deferred_complete = False
         self._current_event_id = None
@@ -255,8 +227,8 @@ class EloRating(object):
         if self._reliability is not None:
             self._reliability.commit_update()
 
-    def rating(self):
-        return self._rating
+    def elo(self):
+        return self._elo_rating
 
     def k_factor(self):
         return self._k_factor
@@ -288,5 +260,5 @@ class EloRating(object):
         #              this_year - last_year, regress_rate, regress_factor, self._current_event_id,
         #              ', '.join(self._non_alias_callers), ', '.join(self._alias_callers)
         #        ))
-        self._rating *= regress_factor
-        self._rating += ((1 - regress_factor) * self._default_rating)
+        self._elo_rating *= regress_factor
+        self._elo_rating += ((1 - regress_factor) * self._default_rating)

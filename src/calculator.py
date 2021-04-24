@@ -1,4 +1,5 @@
 import argparse
+import copy
 import datetime
 import math
 import numpy as np
@@ -53,13 +54,15 @@ def validate_factors(argument):
     return argument
 
 
-def select_reference_result(event):
-    reliability = sorted([result for result in event.results()], key=lambda r: r.probability_complete_n_laps(1),
-                         reverse=True)
-    max_reliability = reliability[0].probability_complete_n_laps(1)
-    reference_reliability_results = list([r for r in reliability
-                                          if abs(r.probability_complete_n_laps(1) - max_reliability) < 1e-6])
-    return reference_reliability_results[0]
+def select_reference_results(event, car_factor, num_results=3):
+    if event.type() == 'R':
+        reliability = sorted([result for result in event.results()], key=lambda r: r.probability_complete_n_laps(1),
+                             reverse=True)
+        return reliability[:num_results]
+    else:
+        performance = sorted([result for result in event.results()],
+                             key=lambda r: elo_rating_from_result(car_factor, r), reverse=True)
+        return performance[:num_results]
 
 
 def was_performance_win(result_this, result_other):
@@ -76,8 +79,8 @@ def elo_win_probability(r_a, r_b, denominator):
 
 
 def elo_rating_from_result(car_factor, result):
-    rating = (1 - car_factor) * result.driver().rating().rating()
-    rating += (car_factor * result.team().rating().rating())
+    rating = (1 - car_factor) * result.driver().rating().elo()
+    rating += (car_factor * result.team().rating().elo())
     return rating
 
 
@@ -304,10 +307,6 @@ class EventPrediction(object):
         self._car_factor = car_factor
         self._base_points_per_position = base_points_per_position
         self._position_base_factor = position_base_factor
-        self._drivers_before = dict()
-        self._drivers_after = dict()
-        self._teams_before = dict()
-        self._teams_after = dict()
         self._win_probabilities = dict()
         self._podium_probabilities = dict()
         self._finish_probabilities = dict()
@@ -315,6 +314,34 @@ class EventPrediction(object):
         self._team_share_dict = None
         self._head_to_head = defaultdict(dict)
         self._debug_file = debug_file
+        self._driver_cache = None
+        self._team_cache = None
+
+    def cache_ratings(self):
+        self._driver_cache = {driver.id(): copy.deepcopy(driver) for driver in self._event.drivers()}
+        self._team_cache = {team.id(): copy.deepcopy(team) for team in self._event.teams()}
+
+    def driver_before(self, driver_id):
+        return self._driver_cache.get(driver_id)
+
+    def team_before(self, team_id):
+        return self._team_cache.get(team_id)
+
+    def start_updates(self, base_car_reliability, base_driver_reliability):
+        for driver in sorted(self._event.drivers(), key=lambda d: d.id()):
+            driver.start_update(self._event.id(), base_driver_reliability)
+        for team in sorted(self._event.teams(), key=lambda t: t.id()):
+            team.start_update(self._event.id(), base_car_reliability)
+        # It's safe to call this here since we can guarantee it will only be called once.
+        # IOW we won't accidentally decay the rate unnecessarily.
+        base_car_reliability.start_update()
+        base_driver_reliability.start_update()
+
+    def commit_updates(self):
+        for driver in self._event.drivers():
+            driver.commit_update()
+        for team in self._event.teams():
+            team.commit_update()
 
     def predict_winner(self):
         """
@@ -323,8 +350,8 @@ class EventPrediction(object):
         """
         self.predict_all_head_to_head()
         # Identify a reference entrant and compare each entrant to that person.
-        reference_result = select_reference_result(self._event)
-        if reference_result is None:
+        reference_results = select_reference_results(self._event, self._car_factor)
+        if reference_results is None:
             return
         drivers = list()
         probabilities = np.ones([len(self._event.results())], dtype='float')
@@ -338,10 +365,26 @@ class EventPrediction(object):
                 'All': finish_probability, 'Car': car_finish, 'Driver': driver_finish
             }
             drivers.append(result.driver().id())
-            win_probability = self.get_win_probability(result, reference_result)
-            if win_probability is None:
-                continue
-            probabilities[idx] = win_probability / (1 - win_probability)
+            win_probability = 1
+            use_last = False
+            count = 0
+            for ref_result in reference_results:
+                if result == ref_result:
+                    use_last = True
+                    continue
+                if ref_result == reference_results[-1] and not use_last:
+                    continue
+                this_probability = self.get_win_probability(result, ref_result)
+                if this_probability is None:
+                    continue
+                count += 1
+                win_probability *= this_probability
+            if win_probability == 1:
+                probabilities[idx] = win_probability
+            elif count:
+                probabilities[idx] = win_probability / (1 - win_probability)
+            else:
+                probabilities[idx] = 0
             idx += 1
         probability_sum = np.sum(probabilities)
         # If the collective probability is greater than 0 (which it should be, since comparing someone against
@@ -438,17 +481,8 @@ class EventPrediction(object):
     def event(self):
         return self._event
 
-    def drivers_before(self):
-        return self._drivers_before
-
-    def teams_before(self):
-        return self._teams_before
-
-    def drivers_after(self):
-        return self._drivers_after
-
-    def teams_after(self):
-        return self._teams_after
+    def elo_denominator(self):
+        return self._elo_denominator
 
     def win_probabilities(self):
         return self._win_probabilities
@@ -554,9 +588,14 @@ class Calculator(object):
         """
         np.set_printoptions(precision=5, linewidth=300)
         print(('RaceID\tDriverID\tPlaced\tNumDrivers\tDnfReason\tEloPre\tEloPost\tEloDiff\tEffectPre\tEffectPost'
-               + '\tProbFinish\tProbDriverFinish\tProbCarFinish'),
+               + '\tKFEventsPre\tKFEventsPost\tKmSuccessPre\tKmSuccessPost\tKmFailurePre\tKmFailurePost'
+               + '\tSuccessPre\tSuccessPost'
+               ),
               file=self._driver_rating_file)
-        print('RaceID\tTeamUUID\tTeamID\tNumTeams\tEloPre\tEloPost\tEffectPre\tEffectPost\tProbFinish',
+        print(('RaceID\tTeamUUID\tTeamID\tNumTeams\tEloPre\tEloPost\tEloDiff\tEffectPre\tEffectPost'
+               + '\tKFEventsPre\tKFEventsPost\tKmSuccessPre\tKmSuccessPost\tKmFailurePre\tKmFailurePost'
+               + '\tSuccessPre\tSuccessPost'
+               ),
               file=self._team_rating_file)
         for year in sorted(loader.seasons().keys()):
             self.run_one_year(year, loader.seasons()[year])
@@ -597,10 +636,10 @@ class Calculator(object):
         predictions = EventPrediction(event, elo_denominator, k_factor_adjust, self._team_share_dict[event.season()],
                                       self._position_base_dict[event.season()], self._args.position_base_factor,
                                       self._debug_file)
+        predictions.cache_ratings()
         # Predict the odds of each entrant either winning or finishing on the podium.
         predictions.predict_winner()
-        event.collect_ratings(predictions.drivers_before(), predictions.teams_before())
-        event.start_updates(self._base_car_reliability, self._base_driver_reliability)
+        predictions.start_updates(self._base_car_reliability, self._base_driver_reliability)
         # Do the full pairwise comparison of each driver. In order to not calculate A vs B and B vs A (or A vs A) only
         # compare when the ID of A<B.
         for result_a in event.results():
@@ -609,15 +648,14 @@ class Calculator(object):
                     continue
                 self.compare_results(event, predictions, result_a, result_b)
         self.update_all_reliability(event)
-        event.commit_updates()
-        event.collect_ratings(predictions.drivers_after(), predictions.teams_after())
-        self.log_results(event, predictions)
+        predictions.commit_updates()
+        self.log_results(predictions)
 
     def update_all_reliability(self, event):
         if event.type() == 'Q':
             return
         for result in event.results():
-            if result.laps() <= 1:
+            if result.laps() < 1:
                 continue
             km_success = event.lap_distance_km() * result.laps()
             km_car_failure = 0
@@ -722,7 +760,8 @@ class Calculator(object):
                 driver_delta, car_delta, result.driver().id(), result.team().uuid()),
                   file=self._debug_file)
 
-    def log_results(self, event, predictions):
+    def log_results(self, predictions):
+        event = predictions.event()
         driver_results = {result.driver().id(): result for result in event.results()}
         num_drivers = len(driver_results)
         for driver_id, result in sorted(driver_results.items()):
@@ -730,40 +769,63 @@ class Calculator(object):
             self.log_finish_probabilities(event, predictions, driver_id, result)
             self.log_win_probabilities(event, predictions, driver_id, result)
             self.log_podium_probabilities(event, predictions, driver_id, result)
-        for team in sorted(predictions.teams_after().keys(), key=lambda t: t.id()):
+        for team in sorted(predictions.event().teams(), key=lambda t: t.id()):
             self.log_team_results(event, predictions, team)
 
     def log_driver_results(self, event, predictions, num_drivers, result):
         driver = result.driver()
         placed = result.end_position()
         dnf = result.dnf_category()
-        before = predictions.drivers_before().get(driver)
-        after = predictions.drivers_after().get(driver)
-        before_effect = (before - self._args.driver_elo_initial) * (1 - self._team_share_dict[event.season()])
-        after_effect = (after - self._args.driver_elo_initial) * (1 - self._team_share_dict[event.season()])
-        finish_probabilities = predictions.finish_probabilities().get(driver.id())
-        print('S%s\t%s\t%d\t%d\t%s\t%.1f\t%.1f\t%6.1f\t%6.1f\t%6.1f\t%.5f\t%.5f\t%.5f' % (
-            event.id(), driver.id(), placed, num_drivers, dnf, before, after, after - before,
-            before_effect, after_effect, finish_probabilities.get('All'), finish_probabilities.get('Car'),
-            finish_probabilities.get('Driver')),
+        rating_before = predictions.driver_before(result.driver().id()).rating()
+        rating_after = result.driver().rating()
+        elo_diff = rating_after.elo() - rating_before.elo()
+        before_effect = (rating_before.elo() - self._args.driver_elo_initial)
+        before_effect *= (1 - self._team_share_dict[event.season()])
+        after_effect = (rating_after.elo() - self._args.driver_elo_initial)
+        after_effect *= (1 - self._team_share_dict[event.season()])
+        reliability_before = rating_before.reliability()
+        if reliability_before is None:
+            reliability_before = Reliability()
+        reliability_after = rating_after.reliability()
+        if reliability_after is None:
+            reliability_after = Reliability()
+        print(('S%s\t%s\t%d\t%d\t%s\t%6.1f\t%6.1f\t%6.1f\t%6.1f\t%6.1f\t%5.1f\t%5.1f\t%8.2f\t%8.2f'
+               + '\t%8.4f\t%8.4f\t%.6f\t%.6f') % (
+            event.id(), driver.id(), placed, num_drivers, dnf, rating_before.elo(), rating_after.elo(), elo_diff,
+            before_effect, after_effect, rating_before.k_factor().num_events(), rating_after.k_factor().num_events(),
+            reliability_before.km_success(), reliability_after.km_success(),
+            reliability_before.km_failure(), reliability_after.km_failure(),
+            rating_before.probability_finishing(), rating_after.probability_finishing()
+        ),
               file=self._driver_rating_file)
         return
 
     def log_team_results(self, event, predictions, team):
-        before = predictions.teams_before().get(team)
-        after = predictions.teams_after().get(team)
-        before_effect = (before - self._args.team_elo_initial) * self._team_share_dict[event.season()]
-        after_effect = (after - self._args.team_elo_initial) * self._team_share_dict[event.season()]
-        prob_finish = team.rating().reliability().probability_finishing()
-        print('S%s\t%s\t%s\t%d\t%.1f\t%.1f\t%6.1f\t%6.1f\t%6.1f\t%.5f' % (
-            event.id(), team.uuid(), team.id(), len(predictions.teams_after()), before, after, after - before,
-            before_effect, after_effect, prob_finish
-        ), file=self._team_rating_file)
+        rating_before = predictions.team_before(team.id()).rating()
+        rating_after = team.rating()
+        elo_diff = rating_after.elo() - rating_before.elo()
+        before_effect = (rating_before.elo() - self._args.team_elo_initial) * self._team_share_dict[event.season()]
+        after_effect = (rating_after.elo() - self._args.team_elo_initial) * self._team_share_dict[event.season()]
+        reliability_before = rating_before.reliability()
+        if reliability_before is None:
+            reliability_before = Reliability()
+        reliability_after = rating_after.reliability()
+        if reliability_after is None:
+            reliability_after = Reliability()
+        print(('S%s\t%s\t%s\t%d\t%6.1f\t%6.1f\t%6.1f\t%6.1f\t%6.1f\t%5.1f\t%5.1f\t%8.2f\t%8.2f'
+               + '\t%8.4f\t%8.4f\t%.6f\t%.6f') % (
+            event.id(), team.uuid(), team.id(), len(event.teams()), rating_before.elo(), rating_after.elo(), elo_diff,
+            before_effect, after_effect, rating_before.k_factor().num_events(), rating_after.k_factor().num_events(),
+            reliability_before.km_success(), reliability_after.km_success(),
+            reliability_before.km_failure(), reliability_after.km_failure(),
+            rating_before.probability_finishing(), rating_after.probability_finishing()
+        ),
+              file=self._team_rating_file)
 
     def log_finish_probabilities(self, event, predictions, driver_id, result):
         if event.type() != 'R':
             return
-        if result.laps() <= 1:
+        if result.laps() < 1:
             # Ignore opening-lap scraps for right now.
             return
         full_probabilities = predictions.finish_probabilities().get(driver_id)
@@ -816,7 +878,7 @@ class Calculator(object):
               file=self._predict_file)
 
     def log_win_probabilities(self, event, predictions, driver_id, result):
-        elo_before = predictions.drivers_before().get(result.driver())
+        elo_before = predictions.driver_before(driver_id).rating().elo()
         win_odds = predictions.win_probabilities().get(driver_id)
         won = 1 if result.end_position() == 1 else 0
         error = won - win_odds
@@ -831,7 +893,7 @@ class Calculator(object):
                       file=self._predict_file)
 
     def log_podium_probabilities(self, event, predictions, driver_id, result):
-        elo_before = predictions.drivers_before().get(result.driver())
+        elo_before = predictions.driver_before(driver_id).rating().elo()
         podium_odds = predictions.podium_probabilities().get(driver_id)
         podium = 1 if result.end_position() <= 3 else 0
         error = podium - podium_odds

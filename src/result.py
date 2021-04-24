@@ -49,14 +49,12 @@ class Result(object):
         self._probability_succeed_through_n = [1] * (num_laps + 1)
         if self._event.type() == 'Q':
             return
+        self._probability_fail_at_n[0] = 1 - self.probability_survive_opening()
+        self._probability_succeed_through_n[0] = self.probability_survive_opening()
         per_lap_success_probability = self._driver.rating().probability_finishing(race_distance_km=lap_distance_km)
         per_lap_success_probability *= self._team.rating().probability_finishing(race_distance_km=lap_distance_km)
-        # print('#Laps: %3d LapDistance: %5.2f Car: %.7f Driver: %.7f All: %.7f' % (
-        #     num_laps, lap_distance_km, self._driver.rating().probability_finishing(race_distance_km=lap_distance_km),
-        #     self._team.rating().probability_finishing(race_distance_km=lap_distance_km), per_lap_success_probability)
-        #       )
         per_lap_failure_probability = 1 - per_lap_success_probability
-        current_success_probability = 1.0
+        current_success_probability = self._probability_succeed_through_n[0]
         for n in range(1, num_laps + 1):
             # Odds of completing N-1 laps and then failing at lap N
             self._probability_fail_at_n[n] = current_success_probability * per_lap_failure_probability
@@ -72,6 +70,16 @@ class Result(object):
         # succeed[N] - succeed[ALL]
         for n in range(1, num_laps + 1):
             self._probability_fail_after_n[n] = self._probability_succeed_through_n[n] - current_success_probability
+
+    def probability_survive_opening(self):
+        # return 1.0
+        # TODO: Parameterize this
+        if self._event.type() == 'Q':
+            return 1.0
+        if self._start_position <= 10:
+            return 0.982 - (0.0024 * self._start_position)
+        else:
+            return 0.95
 
     def probability_complete_n_laps(self, num_laps):
         self.calculate_lap_reliability(self._event.num_laps(), self._event.lap_distance_km())
