@@ -2075,3 +2075,5 @@ event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance
 2021-02-R	2021	2	R	2021-04-18	Pirelli_Emilia_Romagna_Grand_Prix	Autodromo Enzo Dino Ferrari	20	63	4.909
 2021-03-Q	2021	3	Q	2021-05-02	Heineken_Grand_Prix_of_Portugal	Autodromo International do Algarve	20	1	4.653
 2021-03-R	2021	3	R	2021-05-02	Heineken_Grand_Prix_of_Portugal	Autodromo International do Algarve	20	66	4.653
+2021-04-Q	2021	4	Q	2021-05-09	Aramco_Grand_Prix_of_Spain	Circuit de Catalunya	20	1	4.655
+2021-04-R	2021	4	R	2021-05-09	Aramco_Grand_Prix_of_Spain	Circuit de Catalunya	20	66	4.655

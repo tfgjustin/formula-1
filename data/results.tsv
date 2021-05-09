@@ -46993,3 +46993,43 @@ event_id	driver_id	team_id	start_position	end_position	laps	status	dnf_category	
 2021-03-R	Nikita_Mazepin	Uralkali_Haas_F1_Team	20	19	64	+2 laps	-	20
 2021-03-Q	Kimi_Raikkonen	Alfa_Romeo_Racing_ORLEN	0	15	1	-	-	20
 2021-03-R	Kimi_Raikkonen	Alfa_Romeo_Racing_ORLEN	15	20	1	crash	driver	20
+2021-04-Q	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	0	 1	1	-	-	20
+2021-04-R	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	 1	1	66	1:33:07.680	-	20
+2021-04-Q	Max_Verstappen	Red_Bull_Racing_Honda	0	 2	1	-	-	20
+2021-04-R	Max_Verstappen	Red_Bull_Racing_Honda	 2	2	66	+15.841	-	20
+2021-04-Q	Valtteri_Bottas	Mercedes_AMG_Petronas_F1_Team	0	 3	1	-	-	20
+2021-04-R	Valtteri_Bottas	Mercedes_AMG_Petronas_F1_Team	 3	3	66	+26.610	-	20
+2021-04-Q	Charles_Leclerc	Scuderia_Mission_Winnow_Ferrari	0	 4	1	-	-	20
+2021-04-R	Charles_Leclerc	Scuderia_Mission_Winnow_Ferrari	 4	4	66	+54.616	-	20
+2021-04-Q	Sergio_Perez	Red_Bull_Racing_Honda	0	 8	1	-	-	20
+2021-04-R	Sergio_Perez	Red_Bull_Racing_Honda	 8	5	66	+63.671	-	20
+2021-04-Q	Daniel_Ricciardo	McLaren_F1_Team	0	 7	1	-	-	20
+2021-04-R	Daniel_Ricciardo	McLaren_F1_Team	 7	6	66	+73.768	-	20
+2021-04-Q	Carlos_Sainz_Jr	Scuderia_Mission_Winnow_Ferrari	0	 6	1	-	-	20
+2021-04-R	Carlos_Sainz_Jr	Scuderia_Mission_Winnow_Ferrari	 6	7	66	+74.670	-	20
+2021-04-Q	Lando_Norris	McLaren_F1_Team	0	 9	1	-	-	20
+2021-04-R	Lando_Norris	McLaren_F1_Team	 9	8	65	+1 lap	-	20
+2021-04-Q	Esteban_Ocon	Alpine_F1_Team	0	 5	1	-	-	20
+2021-04-R	Esteban_Ocon	Alpine_F1_Team	 5	9	65	+1 lap	-	20
+2021-04-Q	Pierre_Gasly	Scuderia_AlphaTauri_Honda	0	12	1	-	-	20
+2021-04-R	Pierre_Gasly	Scuderia_AlphaTauri_Honda	12	10	65	+1 lap	-	20
+2021-04-Q	Lance_Stroll	Aston_Martin_Cognizant_F1_Team	0	11	1	-	-	20
+2021-04-R	Lance_Stroll	Aston_Martin_Cognizant_F1_Team	11	11	65	+1 lap	-	20
+2021-04-Q	Kimi_Raikkonen	Alfa_Romeo_Racing_ORLEN	0	17	1	-	-	20
+2021-04-R	Kimi_Raikkonen	Alfa_Romeo_Racing_ORLEN	17	12	65	+1 lap	-	20
+2021-04-Q	Sebastian_Vettel	Aston_Martin_Cognizant_F1_Team	0	13	1	-	-	20
+2021-04-R	Sebastian_Vettel	Aston_Martin_Cognizant_F1_Team	13	13	65	+1 lap	-	20
+2021-04-Q	George_Russell	Williams_Racing	0	15	1	-	-	20
+2021-04-R	George_Russell	Williams_Racing	15	14	65	+1 lap	-	20
+2021-04-Q	Antonio_Giovinazzi	Alfa_Romeo_Racing_ORLEN	0	14	1	-	-	20
+2021-04-R	Antonio_Giovinazzi	Alfa_Romeo_Racing_ORLEN	14	15	65	+1 lap	-	20
+2021-04-Q	Nicholas_Latifi	Williams_Racing	0	19	1	-	-	20
+2021-04-R	Nicholas_Latifi	Williams_Racing	19	16	65	+1 lap	-	20
+2021-04-Q	Fernando_Alonso	Alpine_F1_Team	0	10	1	-	-	20
+2021-04-R	Fernando_Alonso	Alpine_F1_Team	10	17	65	+1 lap	-	20
+2021-04-Q	Mick_Schumacher	Uralkali_Haas_F1_Team	0	18	1	-	-	20
+2021-04-R	Mick_Schumacher	Uralkali_Haas_F1_Team	18	18	64	+2 laps	-	20
+2021-04-Q	Nikita_Mazepin	Uralkali_Haas_F1_Team	0	20	1	-	-	20
+2021-04-R	Nikita_Mazepin	Uralkali_Haas_F1_Team	20	19	64	+2 laps	-	20
+2021-04-Q	Yuki_Tsunoda	Scuderia_AlphaTauri_Honda	0	16	1	-	-	20
+2021-04-R	Yuki_Tsunoda	Scuderia_AlphaTauri_Honda	16	20	6	electrics	car	20
