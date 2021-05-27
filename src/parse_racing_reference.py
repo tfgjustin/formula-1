@@ -41,8 +41,9 @@ def create_argparser():
 
 class RaceParser(HTMLParser):
     _TITLE_PATTERN = '^(\\d{2})/(\\d{2})/(\\d{4}) race: .*$'
-    _YEAR_STAGE_PATTERN = '^https://www.racing-reference.info/race/(\\d{4})-0{0,1}(\\d{1,2})/.$'
-    _RACE_ID_PATTERN = '^/race/\\d{4}_(.*)/.$'
+    _DATE_LINK_PATTERN = '^.*/alldates/(\\d{2})(\\d{2})$'
+    _YEAR_STAGE_PATTERN = '^.*/race[^/]*/(\\d{4})-0{0,1}(\\d{1,2})/.$'
+    _RACE_ID_PATTERN = '^/race[^/]*/\\d{4}_(.*)/.$'
     _FINISHING_POS_TITLE = 'Fin'
     _STARTING_POS_TITLE = 'St'
     _DRIVER_TITLE = 'Driver'
@@ -111,6 +112,8 @@ class RaceParser(HTMLParser):
         elif tag == 'td':
             self.maybe_get_driver_fact(attrs)
         elif tag == 'a':
+            if self._date is None:
+                self.get_date_from_link(attrs)
             if self._driver_count is None:
                 self.maybe_get_race_id(attrs)
                 self.maybe_get_track_id(attrs)
@@ -161,12 +164,25 @@ class RaceParser(HTMLParser):
         self._chassis = None
 
     def get_date_from_title(self, data):
+        # This is still working
         extract = re.search(self._TITLE_PATTERN, data)
         if not extract:
             return
         self._date = '%s-%s-%s' % (extract.group(3), extract.group(1), extract.group(2))
 
+    def get_date_from_link(self, attrs):
+        # This is now working
+        if self._year is None:
+            return
+        for k, v in attrs:
+            if k != 'href':
+                continue
+            extract = re.search(self._DATE_LINK_PATTERN, v)
+            if extract:
+                self._date = '%s-%s-%s' % (self._year, extract.group(1), extract.group(2))
+
     def maybe_set_year(self, attrs):
+        # This is still working
         for k, v in attrs:
             if k != 'href':
                 continue
@@ -176,13 +192,15 @@ class RaceParser(HTMLParser):
                 self._stage = int(extract.group(2))
 
     def maybe_in_driver_table(self, attrs):
+        # This now works
         for tag, value in attrs:
             if tag != 'class':
                 continue
-            if value == 'tb':
+            if value == 'tb' or value == 'tb race-results-tbl ':
                 self._in_driver_table = True
 
     def maybe_start_row(self, attrs):
+        # This still works
         if not self._in_driver_table:
             return
         for tag, value in attrs:
@@ -200,6 +218,7 @@ class RaceParser(HTMLParser):
             self._in_driver_table = False
 
     def maybe_get_column_header(self, data):
+        # This still works
         if not self._in_driver_header:
             return
         if not len(str(data).strip('\n')):
@@ -221,6 +240,7 @@ class RaceParser(HTMLParser):
         self._column_number += 1
 
     def maybe_get_driver_fact(self, data):
+        # TODO: Test this
         if not self._in_driver_row or not isinstance(data, str):
             return
         if not data or re.match('^\\s*$', data):
@@ -247,17 +267,19 @@ class RaceParser(HTMLParser):
             self._status = data
 
     def maybe_get_driver_id(self, attrs):
+        # This now works
         if not self._in_driver_row or self._column_number != self._driver_idx:
             return
         for tag, value in attrs:
             if tag != 'href':
                 continue
-            extract = re.match('^/driver/(.*)$', value)
+            extract = re.match('^.*/driver/([^/]*)/{0,1}.*$', value)
             if not extract:
                 continue
             self._driver_id = extract.group(1)
 
     def maybe_get_race_id(self, attrs):
+        # This now works
         race_id = None
         right_class = False
         for tag, value in attrs:
@@ -275,14 +297,16 @@ class RaceParser(HTMLParser):
         self._race_id = race_id
 
     def maybe_get_track_id(self, attrs):
+        # This is still good
         for tag, value in attrs:
             if tag != 'href':
                 continue
-            extract = re.match('^/tracks/(.*)$', value)
+            extract = re.match('^.*/tracks/(.*)$', value)
             if extract:
                 self._site = extract.group(1).replace('_', ' ')
 
     def maybe_get_lap_distance(self, data):
+        # This is still good
         extract = re.match('.* laps.*on a (.*) kilometer \\w+ (?:course|track).*', data)
         if not extract:
             return
