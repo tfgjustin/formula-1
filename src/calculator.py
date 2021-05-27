@@ -7,7 +7,13 @@ import ratings
 
 from collections import defaultdict
 from ratings import CarReliability, DriverReliability, Reliability
+from scipy.stats import skew
 from sklearn.metrics import auc, precision_recall_curve, roc_auc_score
+
+
+_ALL = 'All'
+_CAR = 'Car'
+_DRIVER = 'Driver'
 
 
 def validate_factors(argument):
@@ -54,7 +60,7 @@ def validate_factors(argument):
     return argument
 
 
-def select_reference_results(event, car_factor, num_results=3):
+def select_reference_results(event, car_factor, num_results=4):
     if event.type() == 'R':
         reliability = sorted([result for result in event.results()], key=lambda r: r.probability_complete_n_laps(1),
                              reverse=True)
@@ -300,16 +306,19 @@ class HeadToHeadPrediction(object):
 class EventPrediction(object):
 
     def __init__(self, event, elo_denominator, k_factor_adjust, car_factor, base_points_per_position,
-                 position_base_factor, debug_file):
+                 position_base_factor, base_car_reliability, base_driver_reliability, debug_file):
         self._event = event
         self._elo_denominator = elo_denominator
         self._k_factor_adjust = k_factor_adjust
         self._car_factor = car_factor
         self._base_points_per_position = base_points_per_position
         self._position_base_factor = position_base_factor
+        self._base_car_reliability = base_car_reliability
+        self._base_driver_reliability = base_driver_reliability
         self._win_probabilities = dict()
         self._podium_probabilities = dict()
         self._finish_probabilities = dict()
+        self._naive_probabilities = dict()
         self._position_base_dict = None
         self._team_share_dict = None
         self._head_to_head = defaultdict(dict)
@@ -357,6 +366,12 @@ class EventPrediction(object):
         probabilities = np.ones([len(self._event.results())], dtype='float')
         idx = 0
         distance_km = self._event.total_distance_km()
+        naive_car_probability = self._base_car_reliability.probability_finishing(race_distance_km=distance_km)
+        naive_driver_probability = self._base_driver_reliability.probability_finishing(race_distance_km=distance_km)
+        naive_all_probability = naive_car_probability * naive_driver_probability
+        self._naive_probabilities = {
+            _ALL: naive_all_probability, _CAR: naive_car_probability, _DRIVER: naive_driver_probability
+        }
         for result in self._event.results():
             driver_finish = result.driver().rating().probability_finishing(race_distance_km=distance_km)
             car_finish = result.team().rating().probability_finishing(race_distance_km=distance_km)
@@ -493,6 +508,9 @@ class EventPrediction(object):
     def finish_probabilities(self):
         return self._finish_probabilities
 
+    def naive_finish_probabilities(self):
+        return self._naive_probabilities
+
 
 class Calculator(object):
 
@@ -511,28 +529,8 @@ class Calculator(object):
         if self._args.print_predictions:
             self._predict_file = open(base_filename + '.predict', 'w')
         self._position_base_dict = dict()
-        self._team_share_dict = dict()
-        self._year_error_sum = dict({'Q': defaultdict(float), 'R': defaultdict(float)})
-        self._year_error_count = dict({'Q': defaultdict(int), 'R': defaultdict(int)})
-        self._decade_error_sum = dict({'Q': defaultdict(float), 'R': defaultdict(float)})
-        self._decade_error_count = dict({'Q': defaultdict(int), 'R': defaultdict(int)})
-        self._total_error_sum = 0
-        self._total_error_count = 0
-        self._decade_full_error_sum = defaultdict(float)
-        self._decade_full_error_count = defaultdict(int)
-        self._total_full_error_sum = 0
-        self._total_full_error_count = 0
-        self._finish_pred_true = dict({'All': list(), 'Car': list(), 'Driver': list()})
-        self._finish_pred_prob = dict({'All': list(), 'Car': list(), 'Driver': list()})
-        self._win_error_sum = dict({'Q': 0.0, 'R': 0.0})
-        self._win_error_count = dict({'Q': 0, 'R': 0})
-        self._podium_error_sum = dict({'Q': 0.0, 'R': 0.0})
-        self._podium_error_count = dict({'Q': 0, 'R': 0})
-        self._podium_pred_prob = dict({'Q': list(), 'R': list()})
-        self._podium_pred_true = dict({'Q': list(), 'R': list()})
-        self._calibrate_num_correct = defaultdict(int)
-        self._calibrate_num_total = defaultdict(int)
         self.create_position_base_dict()
+        self._team_share_dict = dict()
         self.create_team_share_dict()
         self._oversample_rates = dict(
             {'Q': dict({'195': 3, '196': 2}),
@@ -546,6 +544,11 @@ class Calculator(object):
             default_decay_rate=self._args.driver_reliability_decay,
             regress_percent=self._args.driver_reliability_regress,
             regress_numerator=(self._args.driver_reliability_lookback * Reliability.DEFAULT_KM_PER_RACE))
+        self._full_h2h_log = list()
+        self._elo_h2h_log = list()
+        self._podium_odds_log = list()
+        self._win_odds_log = list()
+        self._finish_odds_log = {_ALL: list(), _CAR: list(), _DRIVER: list()}
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         """
@@ -635,7 +638,7 @@ class Calculator(object):
             elo_denominator = self._args.elo_exponent_denominator_qualifying
         predictions = EventPrediction(event, elo_denominator, k_factor_adjust, self._team_share_dict[event.season()],
                                       self._position_base_dict[event.season()], self._args.position_base_factor,
-                                      self._debug_file)
+                                      self._base_car_reliability, self._base_driver_reliability, self._debug_file)
         predictions.cache_ratings()
         # Predict the odds of each entrant either winning or finishing on the podium.
         predictions.predict_winner()
@@ -703,8 +706,8 @@ class Calculator(object):
             if self._debug_file is not None:
                 print('      Skip: Use', file=self._debug_file)
             return
-        self.add_h2h_error(event, rating_a, rating_b, win_actual_a, elo_win_prob_a)
-        self.add_h2h_error(event, rating_b, rating_a, 1 - win_actual_a, 1 - elo_win_prob_a)
+        self.add_elo_h2h_error(event, win_actual_a, elo_win_prob_a)
+        self.add_elo_h2h_error(event, 1 - win_actual_a, 1 - elo_win_prob_a)
         if not self.should_compare(rating_a, rating_b):
             if self._debug_file is not None:
                 print('      Skip: SC', file=self._debug_file)
@@ -718,39 +721,18 @@ class Calculator(object):
     def add_full_h2h_error(self, event, actual, prob):
         if event.type() == 'Q':
             return
-        event_id = event.id()
-        year = int(event_id[:4])
-        decade = int(year / 10) * 10
-        error = actual - prob
-        squared_error = error * error
+        error_array = [event.id(), 0.5, prob, actual]
         for _ in range(self.get_oversample_rate(event.type(), event.id())):
-            self._decade_full_error_sum[decade] += squared_error
-            self._decade_full_error_count[decade] += 1
-            self._total_full_error_sum += squared_error
-            self._total_full_error_count += 1
+            self._full_h2h_log.append(error_array)
             if self._predict_file is not None:
-                print('FullH2H\t%s\t%.4f\t%d' % (event_id, prob, actual), file=self._predict_file)
+                print('FullH2H\t%s\t%.4f\t%.4f\t%d' % (event.id(), 0.5, prob, actual), file=self._predict_file)
 
-    def add_h2h_error(self, event, rating_a, rating_b, actual, prob):
-        event_id = event.id()
-        event_type = event.type()
-        year = int(event_id[:4])
-        decade = int(year / 10) * 10
-        error = actual - prob
-        squared_error = error * error
-        bucket = int(round(100 * prob) / 2) * 2
-        for _ in range(self.get_oversample_rate(event_type, event_id)):
-            self._calibrate_num_total[bucket] += 1
-            self._calibrate_num_correct[bucket] += actual
-            self._year_error_sum[event_type][year] += squared_error
-            self._year_error_count[event_type][year] += 1
-            self._decade_error_sum[event_type][decade] += squared_error
-            self._decade_error_count[event_type][decade] += 1
-            self._total_error_sum += squared_error
-            self._total_error_count += 1
+    def add_elo_h2h_error(self, event, actual, prob):
+        error_array = [event.id(), 0.5, prob, actual]
+        for _ in range(self.get_oversample_rate(event.type(), event.id())):
+            self._elo_h2h_log.append(error_array)
             if self._predict_file is not None:
-                print('H2H\t%s\t%.1f\t%.1f\t%.4f\t%d' % (event.id(), rating_a, rating_b, prob, actual),
-                      file=self._predict_file)
+                print('EloH2H\t%s\t%.4f\t%.4f\t%d' % (event.id(), 0.5, prob, actual), file=self._predict_file)
 
     def update_ratings(self, result, car_delta, driver_delta):
         result.driver().rating().update(driver_delta)
@@ -762,6 +744,8 @@ class Calculator(object):
 
     def log_results(self, predictions):
         event = predictions.event()
+        for team in sorted(predictions.event().teams(), key=lambda t: t.id()):
+            self.log_team_results(event, predictions, team)
         driver_results = {result.driver().id(): result for result in event.results()}
         num_drivers = len(driver_results)
         for driver_id, result in sorted(driver_results.items()):
@@ -769,8 +753,28 @@ class Calculator(object):
             self.log_finish_probabilities(event, predictions, driver_id, result)
             self.log_win_probabilities(event, predictions, driver_id, result)
             self.log_podium_probabilities(event, predictions, driver_id, result)
-        for team in sorted(predictions.event().teams(), key=lambda t: t.id()):
-            self.log_team_results(event, predictions, team)
+
+    def log_team_results(self, event, predictions, team):
+        rating_before = predictions.team_before(team.id()).rating()
+        rating_after = team.rating()
+        elo_diff = rating_after.elo() - rating_before.elo()
+        before_effect = (rating_before.elo() - self._args.team_elo_initial) * self._team_share_dict[event.season()]
+        after_effect = (rating_after.elo() - self._args.team_elo_initial) * self._team_share_dict[event.season()]
+        reliability_before = rating_before.reliability()
+        if reliability_before is None:
+            reliability_before = Reliability()
+        reliability_after = rating_after.reliability()
+        if reliability_after is None:
+            reliability_after = Reliability()
+        print(('S%s\t%s\t%s\t%d\t%6.1f\t%6.1f\t%6.1f\t%6.1f\t%6.1f\t%5.1f\t%5.1f\t%8.2f\t%8.2f'
+               + '\t%8.4f\t%8.4f\t%.6f\t%.6f') % (
+            event.id(), team.uuid(), team.id(), len(event.teams()), rating_before.elo(), rating_after.elo(), elo_diff,
+            before_effect, after_effect, rating_before.k_factor().num_events(), rating_after.k_factor().num_events(),
+            reliability_before.km_success(), reliability_after.km_success(),
+            reliability_before.km_failure(), reliability_after.km_failure(),
+            rating_before.probability_finishing(), rating_after.probability_finishing()
+        ),
+              file=self._team_rating_file)
 
     def log_driver_results(self, event, predictions, num_drivers, result):
         driver = result.driver()
@@ -800,76 +804,62 @@ class Calculator(object):
               file=self._driver_rating_file)
         return
 
-    def log_team_results(self, event, predictions, team):
-        rating_before = predictions.team_before(team.id()).rating()
-        rating_after = team.rating()
-        elo_diff = rating_after.elo() - rating_before.elo()
-        before_effect = (rating_before.elo() - self._args.team_elo_initial) * self._team_share_dict[event.season()]
-        after_effect = (rating_after.elo() - self._args.team_elo_initial) * self._team_share_dict[event.season()]
-        reliability_before = rating_before.reliability()
-        if reliability_before is None:
-            reliability_before = Reliability()
-        reliability_after = rating_after.reliability()
-        if reliability_after is None:
-            reliability_after = Reliability()
-        print(('S%s\t%s\t%s\t%d\t%6.1f\t%6.1f\t%6.1f\t%6.1f\t%6.1f\t%5.1f\t%5.1f\t%8.2f\t%8.2f'
-               + '\t%8.4f\t%8.4f\t%.6f\t%.6f') % (
-            event.id(), team.uuid(), team.id(), len(event.teams()), rating_before.elo(), rating_after.elo(), elo_diff,
-            before_effect, after_effect, rating_before.k_factor().num_events(), rating_after.k_factor().num_events(),
-            reliability_before.km_success(), reliability_after.km_success(),
-            reliability_before.km_failure(), reliability_after.km_failure(),
-            rating_before.probability_finishing(), rating_after.probability_finishing()
-        ),
-              file=self._team_rating_file)
-
     def log_finish_probabilities(self, event, predictions, driver_id, result):
         if event.type() != 'R':
             return
-        if result.laps() < 1:
-            # Ignore opening-lap scraps for right now.
-            return
+        # Identifiers for the entrant, team (car), and driver
+        full_identifier = '%s:%s' % (result.team().uuid(), result.driver().id())
+        identifiers = {
+            _ALL: full_identifier, _CAR: result.team().uuid(), _DRIVER: result.driver().id()
+        }
+        # The probabilities that the average entrant will finish and that this entrant will finish
+        naive_full_probabilities = predictions.naive_finish_probabilities()
         full_probabilities = predictions.finish_probabilities().get(driver_id)
         # Regardless of whether they finished the race or not this is the probability that they got as far as they
         # did in the race.
         distance_success_km = result.laps() * event.lap_distance_km()
         car_probability = result.team().rating().probability_finishing(race_distance_km=distance_success_km)
         driver_probability = result.driver().rating().probability_finishing(race_distance_km=distance_success_km)
-        completed_probabilities = {
-            'All': car_probability * driver_probability, 'Car': car_probability, 'Driver': driver_probability
+        all_probability = car_probability * driver_probability
+        # The naive (baseline) odds that they got as far as they did
+        naive_car_probability = self._base_car_reliability.probability_finishing(race_distance_km=distance_success_km)
+        naive_driver_probability = self._base_driver_reliability.probability_finishing(
+            race_distance_km=distance_success_km)
+        naive_all_probability = naive_driver_probability * naive_car_probability
+        completed_error_arrays = {
+            _ALL: [event.id(), naive_all_probability, all_probability, 1],
+            _CAR: [event.id(), naive_car_probability, car_probability, 1],
+            _DRIVER: [event.id(), naive_driver_probability, driver_probability, 1]
         }
-        full_identifier = '%s:%s' % (result.team().uuid(), result.driver().id())
-        identifiers = {
-            'All': full_identifier, 'Car': result.team().uuid(), 'Driver': result.driver().id()
+        # These are in case the entrant fails to get the full distance
+        failed_error_arrays = {
+            _ALL: [event.id(), naive_full_probabilities[_ALL], full_probabilities[_ALL], 0],
+            _CAR: [event.id(), naive_full_probabilities[_CAR], full_probabilities[_CAR], 0],
+            _DRIVER: [event.id(), naive_full_probabilities[_DRIVER], full_probabilities[_DRIVER], 0]
         }
         for _ in range(self.get_oversample_rate(event.type(), event.id())):
-            for mode in ['All', 'Car', 'Driver']:
-                self._finish_pred_prob.get(mode).append(completed_probabilities.get(mode))
-                self._finish_pred_true.get(mode).append(1)
+            for mode in [_ALL, _CAR, _DRIVER]:
+                self._finish_odds_log[mode].append(completed_error_arrays[mode])
                 self.log_one_finish_probability(
-                    event, mode, identifiers.get(mode), completed_probabilities.get(mode), 1)
+                    event, mode, identifiers.get(mode), completed_error_arrays[mode][-2], 1)
                 if self._debug_file is not None:
                     for km in range(math.floor(distance_success_km)):
                         print('Reliable\t%s\t%d\t1' % (mode, km), file=self._debug_file)
             # If they didn't finish the race, then either the car succeeded up until it crapped out and the driver
             # succeeded until they didn't, or vice versa.
+            failed_modes = []
             if result.dnf_category() == 'car':
                 # The car didn't make it to the end.
-                for mode in ['All', 'Car']:
-                    self._finish_pred_prob.get(mode).append(full_probabilities.get(mode))
-                    self._finish_pred_true.get(mode).append(0)
-                    self.log_one_finish_probability(
-                        event, mode, identifiers.get(mode), completed_probabilities.get(mode), 1)
-                    if self._debug_file is not None:
-                        print('Reliable\t%s\t%d\t0' % (mode, math.ceil(distance_success_km)), file=self._debug_file)
+                failed_modes = [_ALL, _CAR]
             elif result.dnf_category() == 'driver':
                 # Blame the driver are the entire package for not making it to the end.
-                for mode in ['All', 'Driver']:
-                    self._finish_pred_prob.get(mode).append(full_probabilities.get(mode))
-                    self._finish_pred_true.get(mode).append(0)
-                    self.log_one_finish_probability(
-                        event, mode, identifiers.get(mode), completed_probabilities.get(mode), 1)
-                    if self._debug_file is not None:
-                        print('Reliable\t%s\t%d\t0' % (mode, math.ceil(distance_success_km)), file=self._debug_file)
+                failed_modes = [_ALL, _DRIVER]
+            for mode in failed_modes:
+                self._finish_odds_log[mode].append(failed_error_arrays[mode])
+                self.log_one_finish_probability(
+                    event, mode, identifiers.get(mode), failed_error_arrays[mode][-2], 0)
+                if self._debug_file is not None:
+                    print('Reliable\t%s\t%d\t0' % (mode, math.ceil(distance_success_km)), file=self._debug_file)
 
     def log_one_finish_probability(self, event, mode, identifier, probability, correct):
         if self._predict_file is None:
@@ -878,97 +868,154 @@ class Calculator(object):
               file=self._predict_file)
 
     def log_win_probabilities(self, event, predictions, driver_id, result):
-        elo_before = predictions.driver_before(driver_id).rating().elo()
         win_odds = predictions.win_probabilities().get(driver_id)
         won = 1 if result.end_position() == 1 else 0
-        error = won - win_odds
-        error = error ** 2
+        naive_odds = 1.0 / len(event.drivers())
+        error_array = [event.id(), naive_odds, win_odds, won]
         for _ in range(self.get_oversample_rate(event.type(), event.id())):
-            self._win_error_sum[event.type()] += error
-            self._win_error_count[event.type()] += 1
+            self._win_odds_log.append(error_array)
             if self._predict_file is not None:
-                print('WinOR\t%s\t%s\t%.1f\t%.6f\t%d' % (
-                    event.id(), driver_id, elo_before, win_odds, won
+                print('WinOR\t%s\t%s\t%.6f\t%.6f\t%d' % (
+                    event.id(), driver_id, naive_odds, win_odds, won
                 ),
                       file=self._predict_file)
 
     def log_podium_probabilities(self, event, predictions, driver_id, result):
-        elo_before = predictions.driver_before(driver_id).rating().elo()
         podium_odds = predictions.podium_probabilities().get(driver_id)
         podium = 1 if result.end_position() <= 3 else 0
-        error = podium - podium_odds
-        error = error ** 2
+        naive_odds = 1.0 / len(event.drivers())
+        error_array = [event.id(), naive_odds, podium_odds, podium]
         for _ in range(self.get_oversample_rate(event.type(), event.id())):
-            self._podium_pred_prob[event.type()].append(podium_odds)
-            self._podium_pred_true[event.type()].append(podium)
-            self._podium_error_sum[event.type()] += error
-            self._podium_error_count[event.type()] += 1
+            self._podium_odds_log.append(error_array)
             if self._predict_file is not None:
-                print('PodiumOR\t%s\t%s\t%.1f\t%.6f\t%d' % (
-                    event.id(), driver_id, elo_before, podium_odds, podium
+                print('PodiumOR\t%s\t%s\t%.6f\t%.6f\t%d' % (
+                    event.id(), driver_id, naive_odds, podium_odds, podium
                 ),
                       file=self._predict_file)
 
     def log_summary_errors(self):
+        for decade in range(195, 203):
+            self.log_summary_errors_for_decade(decade=str(decade))
+        self.log_summary_errors_for_decade()
+
+    def log_summary_errors_for_decade(self, decade=''):
+        self.log_reliability_summary(decade=decade)
+        self.log_win_summary(decade=decade)
+        self.log_podium_summary(decade=decade)
+        self.log_elo_summary(decade=decade)
+        self.log_full_summary(decade=decade)
+
+    @staticmethod
+    def get_matching_errors(error_log, decade, event_type):
+        matching = [
+            error_array for error_array in error_log
+            if (event_type is None or error_array[0].endswith(event_type)) and error_array[0].startswith(decade)
+        ]
+        return matching
+
+    def log_full_summary(self, decade=''):
+        matching_errors = self.get_matching_errors(self._full_h2h_log, decade, None)
+        self.log_one_error_log('FullH2H', matching_errors, decade, None)
+        self.log_one_pr_auc('FullH2H', matching_errors, decade, None)
+
+    def log_elo_summary(self, decade=''):
         for event_type in ['Q', 'R']:
-            win_sum = self._win_error_sum[event_type]
-            win_count = self._win_error_count[event_type]
-            print('Error\tWin-%s\tTotal\t%.6f\t%7.1f\t%5d' % (event_type, win_sum / win_count, win_sum, win_count),
-                  file=self._summary_file)
-            podium_sum = self._podium_error_sum[event_type]
-            podium_count = self._podium_error_count[event_type]
-            print('Error\tPodium-%s\tTotal\t%.6f\t%7.1f\t%5d' % (
-                event_type, podium_sum / podium_count, podium_sum, podium_count),
-                  file=self._summary_file)
-            precision, recall, thresholds = precision_recall_curve(self._podium_pred_true[event_type],
-                                                                   self._podium_pred_prob[event_type])
-            area_under_curve = auc(recall, precision)
-            print('Error\tPodAUC-%s\tTotal\t%.6f\t--\t%5d' % (event_type, area_under_curve, podium_count),
-                  file=self._summary_file)
+            matching_errors = self.get_matching_errors(self._elo_h2h_log, decade, event_type)
+            self.log_one_error_log('EloH2H', matching_errors, decade, event_type)
+            self.log_one_pr_auc('EloH2H', matching_errors, decade, event_type)
+
+    def log_win_summary(self, decade=''):
+        for event_type in ['Q', 'R']:
+            matching_errors = self.get_matching_errors(self._win_odds_log, decade, event_type)
+            self.log_one_error_log('Win', matching_errors, decade, event_type)
+            self.log_one_pr_auc('Win', matching_errors, decade, event_type)
+
+    def log_podium_summary(self, decade=''):
+        for event_type in ['Q', 'R']:
+            matching_errors = self.get_matching_errors(self._podium_odds_log, decade, event_type)
+            self.log_one_error_log('Podium', matching_errors, decade, event_type)
+            self.log_one_pr_auc('Podium', matching_errors, decade, event_type)
+
+    def log_reliability_summary(self, decade=''):
         # For these we use ROC curves
-        for mode in ['All', 'Car', 'Driver']:
-            area_under_curve = roc_auc_score(self._finish_pred_true[mode], self._finish_pred_prob[mode])
-            count = len(self._finish_pred_prob[mode])
-            print('Error\tFin%sAUC\tTotal\t%.6f\t--\t%5d' % (mode, area_under_curve, count),
-                  file=self._summary_file)
-        for bucket, total in sorted(self._calibrate_num_total.items()):
-            if bucket not in self._calibrate_num_correct:
-                continue
-            correct = self._calibrate_num_correct[bucket]
-            pct_correct = 0
-            if total:
-                pct_correct = float(correct) / total
-            print('Error\tCal\t%.3f\t%.3f\t%5d\t%5d' % (float(bucket) / 100, pct_correct, correct, total),
-                  file=self._summary_file)
-        for event_type, year_error_count in self._year_error_count.items():
-            for year, count in year_error_count.items():
-                if year not in self._year_error_sum[event_type]:
-                    continue
-                sse = self._year_error_sum[event_type][year]
-                print('Error\tYear-%s\t%d\t%.6f\t%6.1f\t%5d' % (event_type, year, sse / count, sse, count),
-                      file=self._summary_file)
-        for event_type, decade_error_count in self._decade_error_count.items():
-            sse_sum = 0
-            count_sum = 0
-            for decade, count in decade_error_count.items():
-                if decade not in self._decade_error_sum[event_type]:
-                    continue
-                sse = self._decade_error_sum[event_type][decade]
-                sse_sum += sse
-                count_sum += count
-                print('Error\tDecade-%s\t%d\t%.6f\t%7.1f\t%5d' % (event_type, decade, sse / count, sse, count),
-                      file=self._summary_file)
-            print('Error\tTotal-%s\tTotal\t%.6f\t%7.1f\t%5d' % (event_type, sse_sum / count_sum, sse_sum, count_sum),
-                  file=self._summary_file)
-        sse = self._total_error_sum
-        count = self._total_error_count
-        print('Error\tAllTotal\tElo\t%.6f\t%7.1f\t%5d' % (sse / count, sse, count), file=self._summary_file)
-        for decade, count in self._decade_full_error_count.items():
-            if decade not in self._decade_full_error_sum:
-                continue
-            sse = self._decade_full_error_sum[decade]
-            print('Error\tDecade-Full\t%d\t%.6f\t%7.1f\t%5d' % (decade, sse / count, sse, count),
-                  file=self._summary_file)
-        sse = self._total_full_error_sum
-        count = self._total_full_error_count
-        print('Error\tAllTotal\tFull\t%.6f\t%7.1f\t%5d' % (sse / count, sse, count), file=self._summary_file)
+        for mode in [_ALL, _CAR, _DRIVER]:
+            matching_errors = self.get_matching_errors(self._finish_odds_log[mode], decade, None)
+            self.log_one_error_log('Fin' + mode, matching_errors, decade, None)
+            self.log_one_roc_auc('Fin' + mode, matching_errors, decade, None)
+
+    def log_one_error_log(self, tag, error_log, decade, event_type):
+        squared_errors = [
+            (error_array[-2] - error_array[-1]) ** 2 for error_array in error_log
+        ]
+        error_sum = sum(squared_errors)
+        error_count = len(squared_errors)
+        if event_type is None:
+            event_type = ''
+        elif not event_type:
+            event_type = '-All'
+        else:
+            event_type = '-' + event_type
+        if not decade:
+            decade = 'Total'
+        else:
+            decade = decade + '0'
+        print('%s%s\tMSE\t%s\t%.6f\t%7.1f\t%5d' % (
+            tag, event_type, decade, error_sum / error_count, error_sum, error_count),
+              file=self._summary_file)
+
+    @staticmethod
+    def get_true_probs_naive_residuals(error_log):
+        is_true = [error_array[-1] for error_array in error_log]
+        probs = [error_array[-2] for error_array in error_log]
+        naive = [error_array[-3] for error_array in error_log]
+        residuals = [error_array[-1] - error_array[-2] for error_array in error_log]
+        return is_true, probs, naive, residuals
+
+    def log_one_pr_auc(self, tag, error_log, decade, event_type):
+        is_true, probs, naive, residuals = self.get_true_probs_naive_residuals(error_log)
+        precision, recall, _ = precision_recall_curve(is_true, probs)
+        area_under_curve = auc(recall, precision)
+        if decade:
+            decade = decade + '0'
+        else:
+            decade = 'Total'
+        if event_type is None:
+            event_type = ''
+        elif not event_type:
+            event_type = '-All'
+        else:
+            event_type = '-' + event_type
+        skew_value = float(skew(np.asarray(residuals)))
+        print('%s%s\tSkew\t%s\t%.6f\t---\t%5d' % (tag, event_type, decade, skew_value, len(is_true)),
+              file=self._summary_file)
+        print('%s%s\tAUC\t%s\t%.6f\t--\t%5d' % (tag, event_type, decade, area_under_curve, len(is_true)),
+              file=self._summary_file)
+        naive_precision, naive_recall, _ = precision_recall_curve(is_true, naive)
+        naive_area_under_curve = auc(naive_recall, naive_precision)
+        print('%s%s\tAUCN\t%s\t%.6f\t--\t%5d' % (tag, event_type, decade, naive_area_under_curve, len(is_true)),
+              file=self._summary_file)
+        area_under_curve_above_naive = (area_under_curve - naive_area_under_curve) / (1 - naive_area_under_curve)
+        print('%s%s\tAUCAN\t%s\t%.6f\t--\t%5d' % (tag, event_type, decade, area_under_curve_above_naive, len(is_true)),
+              file=self._summary_file)
+
+    def log_one_roc_auc(self, tag, error_log, decade, event_type):
+        is_true, probs, naive, residuals = self.get_true_probs_naive_residuals(error_log)
+        if decade:
+            decade = decade + '0'
+        else:
+            decade = 'Total'
+        if not event_type:
+            event_type = 'All'
+        count = len(is_true)
+        skew_value = float(skew(np.asarray(residuals)))
+        print('%s%s\tSkew\t%s\t%.6f\t---\t%5d' % (tag, event_type, decade, skew_value, count),
+              file=self._summary_file)
+        area_under_curve = roc_auc_score(is_true, probs)
+        print('%s\tAUC\t%s\t%.6f\t--\t%5d' % (tag, decade, area_under_curve, count),
+              file=self._summary_file)
+        naive_area_under_curve = roc_auc_score(is_true, naive)
+        print('%s\tAUCN\t%s\t%.6f\t--\t%5d' % (tag, decade, naive_area_under_curve, count),
+              file=self._summary_file)
+        area_under_curve_above_naive = (area_under_curve - naive_area_under_curve) / (1 - naive_area_under_curve)
+        print('%s\tAUCAN\t%s\t%.6f\t--\t%5d' % (tag, decade, area_under_curve_above_naive, count),
+              file=self._summary_file)
