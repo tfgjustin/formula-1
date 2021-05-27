@@ -13,7 +13,7 @@ def year_gap(event_id, last_event_id):
 
 class KFactor(object):
     INVALID = -1
-    _MAX_FACTOR = 30
+    _MAX_FACTOR = 24
     _MIN_FACTOR = 12
 
     def __init__(self, regress_rate=0.0):
