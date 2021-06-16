@@ -134,6 +134,9 @@ class Reliability(object):
     def regress_percent(self):
         return self._regress_percent
 
+    def template(self):
+        return self._template
+
     def set_template(self, other):
         self._template = other
 

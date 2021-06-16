@@ -618,6 +618,7 @@ class Calculator(object):
         events_dict = season.events()
         if self._logfile is not None:
             print('Running %d' % year, file=self._logfile)
+        self._base_new_car_reliability.regress()
         for event_id in sorted(events_dict.keys()):
             event = events_dict[event_id]
             # Skip all the Indianapolis races since they were largely disjoint
@@ -656,9 +657,8 @@ class Calculator(object):
         # compare when the ID of A<B.
         for result_a in event.results():
             for result_b in event.results():
-                if result_a.driver().id() >= result_b.driver().id():
-                    continue
-                self.compare_results(event, predictions, result_a, result_b)
+                if result_a.driver().id() < result_b.driver().id():
+                    self.compare_results(event, predictions, result_a, result_b)
         self.update_all_reliability(event)
         predictions.commit_updates()
         self.log_results(predictions)
@@ -762,8 +762,10 @@ class Calculator(object):
 
     def log_results(self, predictions):
         event = predictions.event()
-        for team in sorted(predictions.event().teams(), key=lambda t: t.id()):
+        for team in sorted(event.teams(), key=lambda t: t.id()):
             self.log_team_results(event, predictions, team)
+        self.log_average_team(event, predictions, self._base_car_reliability, 'TeamBase')
+        self.log_average_team(event, predictions, self._base_new_car_reliability, 'TeamNew')
         driver_results = {result.driver().id(): result for result in event.results()}
         num_drivers = len(driver_results)
         for driver_id, result in sorted(driver_results.items()):
@@ -793,6 +795,31 @@ class Calculator(object):
             rating_before.probability_finishing(), rating_after.probability_finishing()
         ),
               file=self._team_rating_file)
+
+    def log_average_team(self, event, predictions, base_reliability, base_name):
+        matching_teams = [t for t in event.teams()
+                          if t.rating().reliability() is not None
+                          and t.rating().reliability().template() == base_reliability]
+        rating_before = sum([predictions.team_before(t.id()).rating().elo() for t in matching_teams])
+        rating_after = sum([t.rating().elo() for t in matching_teams])
+        before_effect = 0
+        after_effect = 0
+        if matching_teams:
+            rating_before /= len(matching_teams)
+            rating_after /= len(matching_teams)
+            before_effect = (rating_before - self._args.team_elo_initial) * self._team_share_dict[event.season()]
+            after_effect = (rating_after - self._args.team_elo_initial) * self._team_share_dict[event.season()]
+        elo_diff = rating_after - rating_before
+        print(('S%s\t%s\t%s\t%d\t%6.1f\t%6.1f\t%6.1f\t%6.1f\t%6.1f\t%5.1f\t%5.1f\t%8.2f\t%8.2f'
+               + '\t%8.4f\t%8.4f\t%.6f\t%.6f') % (
+            event.id(), base_name, base_name, len(matching_teams), rating_before, rating_after, elo_diff,
+            before_effect, after_effect, 0, 0,
+            0, base_reliability.km_success(),
+            0, base_reliability.km_failure(),
+            0, base_reliability.probability_finishing()
+        ),
+              file=self._team_rating_file)
+        return
 
     def log_driver_results(self, event, predictions, num_drivers, result):
         driver = result.driver()

@@ -81,19 +81,19 @@ def create_argparser():
                         type=float, default=0.10)
     parser.add_argument('--team_reliability_decay',
                         help='Rate at which we decay old reliability data for teams.',
-                        type=float, default=0.99)
+                        type=float, default=0.95)
     parser.add_argument('--team_reliability_failure_constant',
                         help='Number of "failure" KM we add on a car failure when calculating the per-KM failure odds.',
-                        type=float, default=0.8)
+                        type=float, default=0.75)
     parser.add_argument('--team_reliability_lookback',
                         help='Lookback window in races for team reliability data.',
-                        type=int, default=96)
+                        type=int, default=64)
     parser.add_argument('--team_reliability_new_events',
                         help='Number of events during which a new team is still considered "new".',
-                        type=int, default=10)
+                        type=int, default=16)
     parser.add_argument('--team_reliability_regress',
                         help='Percent by which we shade team reliability data to the field average each year.',
-                        type=float, default=0.2)
+                        type=float, default=0.25)
     parser.add_argument('--team_share_spec',
                         help='Fraction of the combined Elo rating belonging to the team.',
                         type=str, default='50_4_1')
