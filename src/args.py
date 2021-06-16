@@ -39,7 +39,7 @@ def create_argparser():
                         type=float, default=0.2)
     parser.add_argument('--elo_compare_window',
                         help='Compare two results only if their Elo scores are within this difference.',
-                        type=int, default=1000)
+                        type=float, default=2.0)
     parser.add_argument('--elo_exponent_denominator_qualifying',
                         help='The denominator in the Elo probability exponent for races.',
                         type=int, default=120)
@@ -88,6 +88,9 @@ def create_argparser():
     parser.add_argument('--team_reliability_lookback',
                         help='Lookback window in races for team reliability data.',
                         type=int, default=96)
+    parser.add_argument('--team_reliability_new_events',
+                        help='Number of events during which a new team is still considered "new".',
+                        type=int, default=10)
     parser.add_argument('--team_reliability_regress',
                         help='Percent by which we shade team reliability data to the field average each year.',
                         type=float, default=0.2)

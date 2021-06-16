@@ -306,7 +306,8 @@ class HeadToHeadPrediction(object):
 class EventPrediction(object):
 
     def __init__(self, event, elo_denominator, k_factor_adjust, car_factor, base_points_per_position,
-                 position_base_factor, base_car_reliability, base_driver_reliability, debug_file):
+                 position_base_factor, base_car_reliability, base_new_car_reliability, base_driver_reliability,
+                 team_reliability_new_events, debug_file):
         self._event = event
         self._elo_denominator = elo_denominator
         self._k_factor_adjust = k_factor_adjust
@@ -314,7 +315,9 @@ class EventPrediction(object):
         self._base_points_per_position = base_points_per_position
         self._position_base_factor = position_base_factor
         self._base_car_reliability = base_car_reliability
+        self._base_new_car_reliability = base_new_car_reliability
         self._base_driver_reliability = base_driver_reliability
+        self._team_reliability_new_events = team_reliability_new_events
         self._win_probabilities = dict()
         self._podium_probabilities = dict()
         self._finish_probabilities = dict()
@@ -336,15 +339,18 @@ class EventPrediction(object):
     def team_before(self, team_id):
         return self._team_cache.get(team_id)
 
-    def start_updates(self, base_car_reliability, base_driver_reliability):
+    def start_updates(self):
         for driver in sorted(self._event.drivers(), key=lambda d: d.id()):
-            driver.start_update(self._event.id(), base_driver_reliability)
+            driver.start_update(self._event.id(), self._base_driver_reliability)
         for team in sorted(self._event.teams(), key=lambda t: t.id()):
-            team.start_update(self._event.id(), base_car_reliability)
+            team.start_update(self._event.id(), self._base_new_car_reliability)
+            if team.rating().k_factor().num_events() >= self._team_reliability_new_events:
+                team.rating().reliability().set_template(self._base_car_reliability)
         # It's safe to call this here since we can guarantee it will only be called once.
         # IOW we won't accidentally decay the rate unnecessarily.
-        base_car_reliability.start_update()
-        base_driver_reliability.start_update()
+        self._base_car_reliability.start_update()
+        self._base_new_car_reliability.start_update()
+        self._base_driver_reliability.start_update()
 
     def commit_updates(self):
         for driver in self._event.drivers():
@@ -540,6 +546,7 @@ class Calculator(object):
             default_decay_rate=self._args.team_reliability_decay,
             regress_percent=self._args.team_reliability_regress,
             regress_numerator=(self._args.team_reliability_lookback * Reliability.DEFAULT_KM_PER_RACE))
+        self._base_new_car_reliability = Reliability(other=self._base_car_reliability)
         self._base_driver_reliability = DriverReliability(
             default_decay_rate=self._args.driver_reliability_decay,
             regress_percent=self._args.driver_reliability_regress,
@@ -638,11 +645,13 @@ class Calculator(object):
             elo_denominator = self._args.elo_exponent_denominator_qualifying
         predictions = EventPrediction(event, elo_denominator, k_factor_adjust, self._team_share_dict[event.season()],
                                       self._position_base_dict[event.season()], self._args.position_base_factor,
-                                      self._base_car_reliability, self._base_driver_reliability, self._debug_file)
+                                      self._base_car_reliability, self._base_new_car_reliability,
+                                      self._base_driver_reliability, self._args.team_reliability_new_events,
+                                      self._debug_file)
         predictions.cache_ratings()
         # Predict the odds of each entrant either winning or finishing on the podium.
         predictions.predict_winner()
-        predictions.start_updates(self._base_car_reliability, self._base_driver_reliability)
+        predictions.start_updates()
         # Do the full pairwise comparison of each driver. In order to not calculate A vs B and B vs A (or A vs A) only
         # compare when the ID of A<B.
         for result_a in event.results():
@@ -680,7 +689,11 @@ class Calculator(object):
                           result.driver().rating().reliability().probability_finishing()
                       ),
                       file=self._debug_file)
-            self._base_car_reliability.update(km_success, km_car_failure)
+            team_num_events = result.team().rating().k_factor().num_events()
+            if team_num_events >= self._args.team_reliability_new_events:
+                self._base_car_reliability.update(km_success, km_car_failure)
+            else:
+                self._base_new_car_reliability.update(km_success, km_car_failure)
             self._base_driver_reliability.update(km_success, km_driver_failure)
             result.team().rating().update_reliability(km_success, km_car_failure)
             result.driver().rating().update_reliability(km_success, km_driver_failure)
@@ -693,8 +706,9 @@ class Calculator(object):
             if self._debug_file is not None:
                 print('      Skip: Win Prob is None', file=self._debug_file)
             return
-        self.add_full_h2h_error(event, win_actual_a, win_prob_a)
-        self.add_full_h2h_error(event, 1 - win_actual_a, 1 - win_prob_a)
+        if result_a.laps() > 1 and result_b.laps() > 1:
+            self.add_full_h2h_error(event, win_actual_a, win_prob_a)
+            self.add_full_h2h_error(event, 1 - win_actual_a, 1 - win_prob_a)
         # Now do the performance (Elo-based) probabilities
         if not was_performance_win(result_a, result_b):
             if self._debug_file is not None:
@@ -712,15 +726,15 @@ class Calculator(object):
             return
         self.add_elo_h2h_error(event, win_actual_a, elo_win_prob_a)
         self.add_elo_h2h_error(event, 1 - win_actual_a, 1 - elo_win_prob_a)
-        if not self.should_compare(rating_a, rating_b):
+        if not self.should_compare(rating_a, rating_b, predictions.elo_denominator()):
             if self._debug_file is not None:
                 print('      Skip: SC', file=self._debug_file)
             return
         self.update_ratings(result_a, car_delta, driver_delta)
         self.update_ratings(result_b, -car_delta, -driver_delta)
 
-    def should_compare(self, rating_a, rating_b):
-        return abs(rating_a - rating_b) <= self._args.elo_compare_window
+    def should_compare(self, rating_a, rating_b, elo_denominator):
+        return (abs(rating_a - rating_b) / elo_denominator) <= self._args.elo_compare_window
 
     def add_full_h2h_error(self, event, actual, prob):
         if event.type() == 'Q':
@@ -826,7 +840,13 @@ class Calculator(object):
         driver_probability = result.driver().rating().probability_finishing(race_distance_km=distance_success_km)
         all_probability = car_probability * driver_probability
         # The naive (baseline) odds that they got as far as they did
-        naive_car_probability = self._base_car_reliability.probability_finishing(race_distance_km=distance_success_km)
+        team_num_events = result.team().rating().k_factor().num_events()
+        if team_num_events >= self._args.team_reliability_new_events:
+            naive_car_probability = self._base_car_reliability.probability_finishing(
+                race_distance_km=distance_success_km)
+        else:
+            naive_car_probability = self._base_new_car_reliability.probability_finishing(
+                race_distance_km=distance_success_km)
         naive_driver_probability = self._base_driver_reliability.probability_finishing(
             race_distance_km=distance_success_km)
         naive_all_probability = naive_driver_probability * naive_car_probability
