@@ -1,4 +1,9 @@
 import math
+import sys
+
+import pandas as pd
+
+from lifelines import CoxPHFitter
 
 
 def event_to_year(event_id):
@@ -42,9 +47,6 @@ class KFactor(object):
 
 
 class Reliability(object):
-    _MAX_DECAY_RATE = 0.965
-    _MIN_DECAY_RATE = 0.99
-    _DEFAULT_OBSERVATION_SCALE = 1000
     DEFAULT_PROBABILITY = 0.7
     DEFAULT_KM_PER_RACE = 305.0
 
@@ -140,21 +142,139 @@ class Reliability(object):
     def set_template(self, other):
         self._template = other
 
+    @staticmethod
+    def opening_lap_car_model():
+        return CarReliability._opening_lap_reliability
+
+    @staticmethod
+    def opening_lap_driver_model():
+        return DriverReliability._opening_lap_reliability
+
 
 class CarReliability(Reliability):
+    _DEFAULT_SCALE = 100
+    _MINIMUM_SCALE = 10
+    _DEFAULT_DECAY = 0.95
+    _opening_lap_reliability = CoxPHFitter()
+    _opening_lap_data = list()
+    _opening_lap_size = list()
 
     def __init__(self, default_decay_rate=0.98, regress_numerator=(64 * Reliability.DEFAULT_KM_PER_RACE),
                  regress_percent=0.03):
         super().__init__(default_decay_rate=default_decay_rate, regress_numerator=regress_numerator,
                          regress_percent=regress_percent)
 
+    @staticmethod
+    def opening_lap_data():
+        return CarReliability._opening_lap_data
+
+    @staticmethod
+    def add_observation(base_probability, laps_completed, did_fail):
+        failure_probability = 1 - base_probability
+        if failure_probability < 1e-4:
+            failure_probability = 1e-4
+        data = [math.log10(failure_probability), laps_completed, did_fail]
+        CarReliability._opening_lap_data.append(data)
+        multiplier = 1
+        if did_fail:
+            multiplier = 4
+        CarReliability._opening_lap_size.append(CarReliability._DEFAULT_SCALE * multiplier)
+
+    @staticmethod
+    def regress_opening_lap():
+        idx_to_remove = list()
+        num_samples_before = len(CarReliability._opening_lap_size)
+        for idx in range(num_samples_before):
+            new_size = CarReliability._opening_lap_size[idx] * CarReliability._DEFAULT_DECAY
+            if math.floor(new_size) >= CarReliability._MINIMUM_SCALE:
+                CarReliability._opening_lap_size[idx] = new_size
+            else:
+                idx_to_remove.append(idx)
+        print('CarReliability SamplesBefore: %d SamplesAfter: %d' % (
+            num_samples_before, num_samples_before - len(idx_to_remove)))
+        for idx in sorted(idx_to_remove, reverse=True):
+            del CarReliability._opening_lap_data[idx]
+            del CarReliability._opening_lap_size[idx]
+
+    @staticmethod
+    def fit_opening_lap(event_id):
+        df = pd.DataFrame(data=CarReliability._opening_lap_data,
+                          columns=['base_probability', 'laps_completed', 'did_crash'])
+        num_unique = len(pd.unique(df['base_probability']))
+        if num_unique < 20:
+            return
+        df['weights'] = CarReliability._opening_lap_size
+        print(df.info())
+        CarReliability._opening_lap_reliability.fit(df, duration_col='laps_completed', event_col='did_crash',
+                                                    weights_col='weights', robust=True)
+        print('CR %s' % event_id)
+        print('CR %s' % event_id, file=sys.stderr)
+        print(CarReliability._opening_lap_reliability.baseline_hazard_)
+        print(CarReliability._opening_lap_reliability.params_)
+        CarReliability._opening_lap_reliability.print_summary()
+
 
 class DriverReliability(Reliability):
+    _DEFAULT_SCALE = 100
+    _MINIMUM_SCALE = 10
+    _DEFAULT_DECAY = 0.975
+    _opening_lap_reliability = CoxPHFitter()
+    _opening_lap_data = list()
+    _opening_lap_size = list()
 
     def __init__(self, default_decay_rate=0.98, regress_numerator=(64 * Reliability.DEFAULT_KM_PER_RACE),
                  regress_percent=0.01):
         super().__init__(default_decay_rate=default_decay_rate, regress_numerator=regress_numerator,
                          regress_percent=regress_percent)
+
+    @staticmethod
+    def opening_lap_data():
+        return DriverReliability._opening_lap_data
+
+    @staticmethod
+    def add_observation(base_probability, start_position, laps_completed, did_fail):
+        failure_probability = 1 - base_probability
+        if failure_probability < 1e-4:
+            failure_probability = 1e-4
+        data = [math.log10(failure_probability), start_position, laps_completed, did_fail]
+        DriverReliability._opening_lap_data.append(data)
+        multiplier = 1
+        if did_fail:
+            multiplier = 9
+        DriverReliability._opening_lap_size.append(DriverReliability._DEFAULT_SCALE * multiplier)
+
+    @staticmethod
+    def regress_opening_lap():
+        idx_to_remove = list()
+        num_samples_before = len(DriverReliability._opening_lap_size)
+        for idx in range(num_samples_before):
+            new_size = DriverReliability._opening_lap_size[idx] * DriverReliability._DEFAULT_DECAY
+            if math.floor(new_size) >= DriverReliability._MINIMUM_SCALE:
+                DriverReliability._opening_lap_size[idx] = new_size
+            else:
+                idx_to_remove.append(idx)
+        print('DriverReliability SamplesBefore: %d SamplesAfter: %d' % (
+            num_samples_before, num_samples_before - len(idx_to_remove)))
+        for idx in sorted(idx_to_remove, reverse=True):
+            del DriverReliability._opening_lap_data[idx]
+            del DriverReliability._opening_lap_size[idx]
+
+    @staticmethod
+    def fit_opening_lap(event_id):
+        df = pd.DataFrame(data=DriverReliability._opening_lap_data,
+                          columns=['base_probability', 'start_position', 'laps_completed', 'did_crash'])
+        num_unique = len(pd.unique(df['base_probability']))
+        if num_unique < 20:
+            return
+        df['weights'] = DriverReliability._opening_lap_size
+        print(df.info())
+        DriverReliability._opening_lap_reliability.fit(df, duration_col='laps_completed', event_col='did_crash',
+                                                       weights_col='weights', robust=True)
+        print('DR %s' % event_id)
+        print('DR %s' % event_id, file=sys.stderr)
+        print(DriverReliability._opening_lap_reliability.baseline_hazard_)
+        print(DriverReliability._opening_lap_reliability.params_)
+        DriverReliability._opening_lap_reliability.print_summary()
 
 
 class EloRating(object):

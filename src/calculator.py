@@ -346,6 +346,11 @@ class EventPrediction(object):
             team.start_update(self._event.id(), self._base_new_car_reliability)
             if team.rating().k_factor().num_events() >= self._team_reliability_new_events:
                 team.rating().reliability().set_template(self._base_car_reliability)
+        if self._event.type() == 'R':
+            CarReliability.fit_opening_lap(self._event.id())
+            CarReliability.regress_opening_lap()
+            DriverReliability.fit_opening_lap(self._event.id())
+            DriverReliability.regress_opening_lap()
         # It's safe to call this here since we can guarantee it will only be called once.
         # IOW we won't accidentally decay the rate unnecessarily.
         self._base_car_reliability.start_update()
@@ -664,14 +669,37 @@ class Calculator(object):
         self.log_results(predictions)
 
     def update_all_reliability(self, event):
+        _OPENING_LAP_COUNT = 1
         if event.type() == 'Q':
             return
         driver_crash_laps = [
-            result.laps() for result in event.results() if result.dnf_category() == 'driver' and result.laps() >= 1
+            result.laps() for result in event.results()
+            if result.dnf_category() == 'driver' and result.laps() >= _OPENING_LAP_COUNT
         ]
         crash_laps = {lap: driver_crash_laps.count(lap) for lap in driver_crash_laps}
+        opening_distance = _OPENING_LAP_COUNT * event.lap_distance_km()
         for result in event.results():
-            if result.laps() < 1:
+            if result.laps() >= _OPENING_LAP_COUNT or result.dnf_category() != 'car':
+                base_probability = result.driver().rating().reliability().probability_finishing(
+                    race_distance_km=opening_distance)
+                num_laps = result.laps()
+                did_fail = 0
+                if num_laps < _OPENING_LAP_COUNT:
+                    did_fail = 1
+                else:
+                    num_laps = _OPENING_LAP_COUNT
+                DriverReliability.add_observation(base_probability, result.start_position(), num_laps, did_fail)
+            if result.laps() >= _OPENING_LAP_COUNT or result.dnf_category() != 'driver':
+                base_probability = result.team().rating().reliability().probability_finishing(
+                    race_distance_km=opening_distance)
+                num_laps = result.laps()
+                did_fail = 0
+                if num_laps < _OPENING_LAP_COUNT:
+                    did_fail = 1
+                else:
+                    num_laps = _OPENING_LAP_COUNT
+                CarReliability.add_observation(base_probability, num_laps, did_fail)
+            if result.laps() < _OPENING_LAP_COUNT:
                 continue
             km_success = event.lap_distance_km() * result.laps()
             km_car_failure = 0
@@ -706,9 +734,9 @@ class Calculator(object):
             if self._debug_file is not None:
                 print('      Skip: Win Prob is None', file=self._debug_file)
             return
-        if result_a.laps() > 1 and result_b.laps() > 1:
-            self.add_full_h2h_error(event, win_actual_a, win_prob_a)
-            self.add_full_h2h_error(event, 1 - win_actual_a, 1 - win_prob_a)
+        # if result_a.laps() > 1 and result_b.laps() > 1:
+        self.add_full_h2h_error(event, win_actual_a, win_prob_a)
+        self.add_full_h2h_error(event, 1 - win_actual_a, 1 - win_prob_a)
         # Now do the performance (Elo-based) probabilities
         if not was_performance_win(result_a, result_b):
             if self._debug_file is not None:

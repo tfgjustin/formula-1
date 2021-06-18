@@ -1,3 +1,7 @@
+import math
+import pandas as pd
+
+
 class Result(object):
     def __init__(self, event, driver, end_position, team=None, start_position=0, num_racers=0, dnf_category='', laps=0):
         self._event = event
@@ -49,11 +53,16 @@ class Result(object):
         self._probability_succeed_through_n = [1] * (num_laps + 1)
         if self._event.type() == 'Q':
             return
-        self._probability_fail_at_n[0] = 1 - self.probability_survive_opening()
-        self._probability_succeed_through_n[0] = self.probability_survive_opening()
-        per_lap_success_probability = self._driver.rating().probability_finishing(race_distance_km=lap_distance_km)
-        per_lap_success_probability *= self._team.rating().probability_finishing(race_distance_km=lap_distance_km)
+        avg_race_driver_success_probability = self._driver.rating().probability_finishing()
+        avg_race_team_success_probability = self._team.rating().probability_finishing()
+        per_lap_driver_success_probability = self._driver.rating().probability_finishing(
+            race_distance_km=lap_distance_km)
+        per_lap_team_success_probability = self._team.rating().probability_finishing(race_distance_km=lap_distance_km)
+        per_lap_success_probability = per_lap_driver_success_probability * per_lap_team_success_probability
         per_lap_failure_probability = 1 - per_lap_success_probability
+        self._probability_fail_at_n[0] = 1 - self.probability_survive_opening(avg_race_driver_success_probability,
+                                                                              avg_race_team_success_probability)
+        self._probability_succeed_through_n[0] = 1 - self._probability_fail_at_n[0]
         current_success_probability = self._probability_succeed_through_n[0]
         for n in range(1, num_laps + 1):
             # Odds of completing N-1 laps and then failing at lap N
@@ -71,11 +80,46 @@ class Result(object):
         for n in range(1, num_laps + 1):
             self._probability_fail_after_n[n] = self._probability_succeed_through_n[n] - current_success_probability
 
-    def probability_survive_opening(self):
-        # return 1.0
-        # TODO: Parameterize this
+    def probability_survive_opening(self, avg_race_driver_success_probability, avg_race_team_success_probability):
         if self._event.type() == 'Q':
             return 1.0
+        opening_probability_car = 1 - (0.1123 * -0.1184 * avg_race_team_success_probability)
+        if self._start_position <= 10:
+            opening_probability_driver = 1 - (0.0159333 + 0.0015939 * self._start_position)
+        else:
+            opening_probability_driver = 1 - (0.0615818 + -0.0016182 * self._start_position)
+        return opening_probability_car * opening_probability_driver
+        """
+        return self.basic_opening_lap_probability()
+        car_model = self._team.rating().reliability().opening_lap_car_model()
+        if not hasattr(car_model, 'params_'):
+            print('Car model has not been initialized')
+            return self.basic_opening_lap_probability()
+        elif car_model.concordance_index_ < 0.60:
+            return self.basic_opening_lap_probability()
+        car_failure_probability = 1 - per_lap_team_success_probability
+        if car_failure_probability < 1e-4:
+            car_failure_probability = 1e-4
+        df = pd.DataFrame(data=[[math.log10(car_failure_probability)]], columns=['base_probability'])
+        car_predicted = car_model.predict_survival_function(df, [0])
+        print(car_predicted[0][0])
+        driver_model = self._driver.rating().reliability().opening_lap_driver_model()
+        if not hasattr(driver_model, 'params_'):
+            print('Driver model has not been initialized')
+            return self.basic_opening_lap_probability()
+        elif driver_model.concordance_index_ < 0.60:
+            return self.basic_opening_lap_probability()
+        driver_failure_probability = 1 - per_lap_driver_success_probability
+        if driver_failure_probability < 1e-4:
+            driver_failure_probability = 1e-4
+        df = pd.DataFrame(data=[[math.log10(driver_failure_probability), self._start_position]],
+                          columns=['base_probability', 'start_position'])
+        driver_predicted = driver_model.predict_survival_function(df, [0])
+        print(type(driver_predicted[0]))
+        return car_predicted[0][0] * driver_predicted[0][0]
+        """
+
+    def basic_opening_lap_probability(self):
         if self._start_position <= 10:
             return 0.982 - (0.0024 * self._start_position)
         else:
