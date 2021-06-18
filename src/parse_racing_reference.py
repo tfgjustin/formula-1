@@ -18,7 +18,9 @@ _DRIVER_DNF_REASONS = (['crash', 'spin', 'damage', 'driver ill', 'spun off', 'cr
 
 
 def dnf_status(status):
-    if status in _DRIVER_DNF_REASONS:
+    if status == 'running':
+        return '-'
+    elif status in _DRIVER_DNF_REASONS:
         return 'driver'
     if any(char.isdigit() for char in status):
         return '-'
