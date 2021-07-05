@@ -13,7 +13,7 @@ def year_gap(event_id, last_event_id):
 
 class KFactor(object):
     INVALID = -1
-    _MAX_FACTOR = 24
+    _MAX_FACTOR = 28
     _MIN_FACTOR = 12
 
     def __init__(self, regress_rate=0.0):
@@ -42,9 +42,6 @@ class KFactor(object):
 
 
 class Reliability(object):
-    _MAX_DECAY_RATE = 0.965
-    _MIN_DECAY_RATE = 0.99
-    _DEFAULT_OBSERVATION_SCALE = 1000
     DEFAULT_PROBABILITY = 0.7
     DEFAULT_KM_PER_RACE = 305.0
 

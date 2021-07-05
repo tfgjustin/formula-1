@@ -72,8 +72,6 @@ class Result(object):
             self._probability_fail_after_n[n] = self._probability_succeed_through_n[n] - current_success_probability
 
     def probability_survive_opening(self):
-        # return 1.0
-        # TODO: Parameterize this
         if self._event.type() == 'Q':
             return 1.0
         if self._start_position <= 10:
