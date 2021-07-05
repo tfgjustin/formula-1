@@ -47113,123 +47113,123 @@ event_id	driver_id	team_id	start_position	end_position	laps	status	dnf_category	
 2021-06-R	Lance_Stroll	Aston_Martin_Cognizant_F1_Team	19	19	29	crash	driver	20
 2021-06-Q	Esteban_Ocon	Alpine_F1_Team	0	12	1	-	-	20
 2021-06-R	Esteban_Ocon	Alpine_F1_Team	12	20	3	turbo	car	20
-2021-07-Q	Antonio_Giovinazzi	Alfa_Romeo_Racing_ORLEN	0	13	1	-	-	20
-2021-07-Q	Carlos_Sainz_Jr	Scuderia_Mission_Winnow_Ferrari	0	5	1	-	-	20
-2021-07-Q	Charles_Leclerc	Scuderia_Mission_Winnow_Ferrari	0	7	1	-	-	20
+2021-07-Q	Max_Verstappen	Red_Bull_Racing_Honda	0	 1	1	-	-	20
+2021-07-Q	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	0	 2	1	-	-	20
+2021-07-Q	Sergio_Perez	Red_Bull_Racing_Honda	0	 4	1	-	-	20
+2021-07-Q	Valtteri_Bottas	Mercedes_AMG_Petronas_F1_Team	0	 3	1	-	-	20
+2021-07-Q	Lando_Norris	McLaren_F1_Team	0	 8	1	-	-	20
 2021-07-Q	Daniel_Ricciardo	McLaren_F1_Team	0	10	1	-	-	20
-2021-07-Q	Esteban_Ocon	Alpine_F1_Team	0	11	1	-	-	20
-2021-07-Q	Fernando_Alonso	Alpine_F1_Team	0	9	1	-	-	20
-2021-07-Q	George_Russell	Williams_Racing	0	14	1	-	-	20
-2021-07-Q	Kimi_Raikkonen	Alfa_Romeo_Racing_ORLEN	0	17	1	-	-	20
-2021-07-Q	Lance_Stroll	Aston_Martin_Cognizant_F1_Team	0	19	1	-	-	20
-2021-07-Q	Lando_Norris	McLaren_F1_Team	0	8	1	-	-	20
-2021-07-Q	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	0	2	1	-	-	20
-2021-07-Q	Max_Verstappen	Red_Bull_Racing_Honda	0	1	1	-	-	20
-2021-07-Q	Mick_Schumacher	Uralkali_Haas_F1_Team	0	15	1	-	-	20
-2021-07-Q	Nicholas_Latifi	Williams_Racing	0	16	1	-	-	20
-2021-07-Q	Nikita_Mazepin	Uralkali_Haas_F1_Team	0	18	1	-	-	20
-2021-07-Q	Pierre_Gasly	Scuderia_AlphaTauri_Honda	0	6	1	-	-	20
+2021-07-Q	Pierre_Gasly	Scuderia_AlphaTauri_Honda	0	 6	1	-	-	20
+2021-07-Q	Fernando_Alonso	Alpine_F1_Team	0	 9	1	-	-	20
 2021-07-Q	Sebastian_Vettel	Aston_Martin_Cognizant_F1_Team	0	12	1	-	-	20
-2021-07-Q	Sergio_Perez	Red_Bull_Racing_Honda	0	4	1	-	-	20
-2021-07-Q	Valtteri_Bottas	Mercedes_AMG_Petronas_F1_Team	0	3	1	-	-	20
+2021-07-Q	Lance_Stroll	Aston_Martin_Cognizant_F1_Team	0	19	1	-	-	20
+2021-07-Q	Carlos_Sainz_Jr	Scuderia_Mission_Winnow_Ferrari	0	 5	1	-	-	20
+2021-07-Q	George_Russell	Williams_Racing	0	14	1	-	-	20
 2021-07-Q	Yuki_Tsunoda	Scuderia_AlphaTauri_Honda	0	20	1	-	-	20
-2021-07-R	Antonio_Giovinazzi	Alfa_Romeo_Racing_ORLEN	13	15	52	+1 lap	-	20
-2021-07-R	Carlos_Sainz_Jr	Scuderia_Mission_Winnow_Ferrari	5	11	53	+27.036	-	20
-2021-07-R	Charles_Leclerc	Scuderia_Mission_Winnow_Ferrari	7	16	52	+1 lap	-	20
-2021-07-R	Daniel_Ricciardo	McLaren_F1_Team	10	6	53	+51.220	-	20
-2021-07-R	Esteban_Ocon	Alpine_F1_Team	11	14	52	+1 lap	-	20
-2021-07-R	Fernando_Alonso	Alpine_F1_Team	9	8	53	+66.561	-	20
+2021-07-Q	Esteban_Ocon	Alpine_F1_Team	0	11	1	-	-	20
+2021-07-Q	Antonio_Giovinazzi	Alfa_Romeo_Racing_ORLEN	0	13	1	-	-	20
+2021-07-Q	Charles_Leclerc	Scuderia_Mission_Winnow_Ferrari	0	 7	1	-	-	20
+2021-07-Q	Kimi_Raikkonen	Alfa_Romeo_Racing_ORLEN	0	17	1	-	-	20
+2021-07-Q	Nicholas_Latifi	Williams_Racing	0	16	1	-	-	20
+2021-07-Q	Mick_Schumacher	Uralkali_Haas_F1_Team	0	15	1	-	-	20
+2021-07-Q	Nikita_Mazepin	Uralkali_Haas_F1_Team	0	18	1	-	-	20
+2021-07-R	Max_Verstappen	Red_Bull_Racing_Honda	 1	1	53	1:27:25.770	-	20
+2021-07-R	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	 2	2	53	+2.904	-	20
+2021-07-R	Sergio_Perez	Red_Bull_Racing_Honda	 4	3	53	+8.811	-	20
+2021-07-R	Valtteri_Bottas	Mercedes_AMG_Petronas_F1_Team	 3	4	53	+14.618	-	20
+2021-07-R	Lando_Norris	McLaren_F1_Team	 8	5	53	+64.032	-	20
+2021-07-R	Daniel_Ricciardo	McLaren_F1_Team	10	6	53	+75.857	-	20
+2021-07-R	Pierre_Gasly	Scuderia_AlphaTauri_Honda	 6	7	53	+76.596	-	20
+2021-07-R	Fernando_Alonso	Alpine_F1_Team	 9	8	53	+77.695	-	20
+2021-07-R	Sebastian_Vettel	Aston_Martin_Cognizant_F1_Team	12	9	53	+79.666	-	20
+2021-07-R	Lance_Stroll	Aston_Martin_Cognizant_F1_Team	19	10	53	+91.946	-	20
+2021-07-R	Carlos_Sainz_Jr	Scuderia_Mission_Winnow_Ferrari	 5	11	53	+99.337	-	20
 2021-07-R	George_Russell	Williams_Racing	14	12	52	+1 lap	-	20
-2021-07-R	Kimi_Raikkonen	Alfa_Romeo_Racing_ORLEN	17	17	52	+1 lap	-	20
-2021-07-R	Lance_Stroll	Aston_Martin_Cognizant_F1_Team	19	10	53	+1 lap	-	20
-2021-07-R	Lando_Norris	McLaren_F1_Team	8	5	53	+23.702	-	20
-2021-07-R	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	2	2	53	+22.000	-	20
-2021-07-R	Max_Verstappen	Red_Bull_Racing_Honda	1	1	53	+1 lap	-	20
-2021-07-R	Mick_Schumacher	Uralkali_Haas_F1_Team	15	19	52	+1 lap	-	20
-2021-07-R	Nicholas_Latifi	Williams_Racing	16	18	52	+1 lap	-	20
-2021-07-R	Nikita_Mazepin	Uralkali_Haas_F1_Team	18	20	52	+1 lap	-	20
-2021-07-R	Pierre_Gasly	Scuderia_AlphaTauri_Honda	6	7	53	+52.818	-	20
-2021-07-R	Sebastian_Vettel	Aston_Martin_Cognizant_F1_Team	12	9	53	+66.561	-	20
-2021-07-R	Sergio_Perez	Red_Bull_Racing_Honda	4	3	53	+67.151	-	20
-2021-07-R	Valtteri_Bottas	Mercedes_AMG_Petronas_F1_Team	3	4	53	+66.561	-	20
 2021-07-R	Yuki_Tsunoda	Scuderia_AlphaTauri_Honda	20	13	52	+1 lap	-	20
-2021-08-Q	Antonio_Giovinazzi	Alfa_Romeo_Racing_ORLEN	0	15	1	-	-	20
+2021-07-R	Esteban_Ocon	Alpine_F1_Team	11	14	52	+1 lap	-	20
+2021-07-R	Antonio_Giovinazzi	Alfa_Romeo_Racing_ORLEN	13	15	52	+1 lap	-	20
+2021-07-R	Charles_Leclerc	Scuderia_Mission_Winnow_Ferrari	 7	16	52	+1 lap	-	20
+2021-07-R	Kimi_Raikkonen	Alfa_Romeo_Racing_ORLEN	17	17	52	+1 lap	-	20
+2021-07-R	Nicholas_Latifi	Williams_Racing	16	18	52	+1 lap	-	20
+2021-07-R	Mick_Schumacher	Uralkali_Haas_F1_Team	15	19	52	+1 lap	-	20
+2021-07-R	Nikita_Mazepin	Uralkali_Haas_F1_Team	18	20	52	+1 lap	-	20
+2021-08-Q	Max_Verstappen	Red_Bull_Racing_Honda	0	 1	1	-	-	20
+2021-08-Q	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	0	 2	1	-	-	20
+2021-08-Q	Valtteri_Bottas	Mercedes_AMG_Petronas_F1_Team	0	 5	1	-	-	20
+2021-08-Q	Sergio_Perez	Red_Bull_Racing_Honda	0	 4	1	-	-	20
+2021-08-Q	Lando_Norris	McLaren_F1_Team	0	 3	1	-	-	20
 2021-08-Q	Carlos_Sainz_Jr	Scuderia_Mission_Winnow_Ferrari	0	12	1	-	-	20
-2021-08-Q	Charles_Leclerc	Scuderia_Mission_Winnow_Ferrari	0	7	1	-	-	20
+2021-08-Q	Charles_Leclerc	Scuderia_Mission_Winnow_Ferrari	0	 7	1	-	-	20
+2021-08-Q	Lance_Stroll	Aston_Martin_Cognizant_F1_Team	0	 9	1	-	-	20
+2021-08-Q	Fernando_Alonso	Alpine_F1_Team	0	 8	1	-	-	20
+2021-08-Q	Yuki_Tsunoda	Scuderia_AlphaTauri_Honda	0	11	1	-	-	20
+2021-08-Q	Kimi_Raikkonen	Alfa_Romeo_Racing_ORLEN	0	18	1	-	-	20
+2021-08-Q	Sebastian_Vettel	Aston_Martin_Cognizant_F1_Team	0	14	1	-	-	20
 2021-08-Q	Daniel_Ricciardo	McLaren_F1_Team	0	13	1	-	-	20
 2021-08-Q	Esteban_Ocon	Alpine_F1_Team	0	17	1	-	-	20
-2021-08-Q	Fernando_Alonso	Alpine_F1_Team	0	9	1	-	-	20
-2021-08-Q	George_Russell	Williams_Racing	0	11	1	-	-	20
-2021-08-Q	Kimi_Raikkonen	Alfa_Romeo_Racing_ORLEN	0	18	1	-	-	20
-2021-08-Q	Lance_Stroll	Aston_Martin_Cognizant_F1_Team	0	10	1	-	-	20
-2021-08-Q	Lando_Norris	McLaren_F1_Team	0	4	1	-	-	20
-2021-08-Q	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	0	3	1	-	-	20
-2021-08-Q	Max_Verstappen	Red_Bull_Racing_Honda	0	1	1	-	-	20
+2021-08-Q	Antonio_Giovinazzi	Alfa_Romeo_Racing_ORLEN	0	15	1	-	-	20
 2021-08-Q	Mick_Schumacher	Uralkali_Haas_F1_Team	0	19	1	-	-	20
 2021-08-Q	Nicholas_Latifi	Williams_Racing	0	16	1	-	-	20
 2021-08-Q	Nikita_Mazepin	Uralkali_Haas_F1_Team	0	20	1	-	-	20
-2021-08-Q	Pierre_Gasly	Scuderia_AlphaTauri_Honda	0	6	1	-	-	20
-2021-08-Q	Sebastian_Vettel	Aston_Martin_Cognizant_F1_Team	0	14	1	-	-	20
-2021-08-Q	Sergio_Perez	Red_Bull_Racing_Honda	0	5	1	-	-	20
-2021-08-Q	Valtteri_Bottas	Mercedes_AMG_Petronas_F1_Team	0	2	1	-	-	20
-2021-08-Q	Yuki_Tsunoda	Scuderia_AlphaTauri_Honda	0	8	1	-	-	20
-2021-08-R	Antonio_Giovinazzi	Alfa_Romeo_Racing_ORLEN	15	15	70	+1 lap	-	20
+2021-08-Q	George_Russell	Williams_Racing	0	10	1	-	-	20
+2021-08-Q	Pierre_Gasly	Scuderia_AlphaTauri_Honda	0	 6	1	-	-	20
+2021-08-R	Max_Verstappen	Red_Bull_Racing_Honda	 1	1	71	1:22:18.925	-	20
+2021-08-R	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	 2	2	71	+35.743	-	20
+2021-08-R	Valtteri_Bottas	Mercedes_AMG_Petronas_F1_Team	 5	3	71	+46.907	-	20
+2021-08-R	Sergio_Perez	Red_Bull_Racing_Honda	 4	4	71	+47.434	-	20
+2021-08-R	Lando_Norris	McLaren_F1_Team	 3	5	70	+1 lap	-	20
 2021-08-R	Carlos_Sainz_Jr	Scuderia_Mission_Winnow_Ferrari	12	6	70	+1 lap	-	20
-2021-08-R	Charles_Leclerc	Scuderia_Mission_Winnow_Ferrari	7	7	70	+1 lap	-	20
+2021-08-R	Charles_Leclerc	Scuderia_Mission_Winnow_Ferrari	 7	7	70	+1 lap	-	20
+2021-08-R	Lance_Stroll	Aston_Martin_Cognizant_F1_Team	 9	8	70	+1 lap	-	20
+2021-08-R	Fernando_Alonso	Alpine_F1_Team	 8	9	70	+1 lap	-	20
+2021-08-R	Yuki_Tsunoda	Scuderia_AlphaTauri_Honda	11	10	70	+1 lap	-	20
+2021-08-R	Kimi_Raikkonen	Alfa_Romeo_Racing_ORLEN	18	11	70	+1 lap	-	20
+2021-08-R	Sebastian_Vettel	Aston_Martin_Cognizant_F1_Team	14	12	70	+1 lap	-	20
 2021-08-R	Daniel_Ricciardo	McLaren_F1_Team	13	13	70	+1 lap	-	20
 2021-08-R	Esteban_Ocon	Alpine_F1_Team	17	14	70	+1 lap	-	20
-2021-08-R	Fernando_Alonso	Alpine_F1_Team	8	9	70	+1 lap	-	20
-2021-08-R	George_Russell	Williams_Racing	10	19	36	engine	car	20
-2021-08-R	Kimi_Raikkonen	Alfa_Romeo_Racing_ORLEN	18	11	70	+1 lap	-	20
-2021-08-R	Lance_Stroll	Aston_Martin_Cognizant_F1_Team	9	8	70	+1 lap	-	20
-2021-08-R	Lando_Norris	McLaren_F1_Team	3	5	70	+1 lap	-	20
-2021-08-R	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	2	2	71	+22.000	-	20
-2021-08-R	Max_Verstappen	Red_Bull_Racing_Honda	1	1	71	+1 lap	-	20
+2021-08-R	Antonio_Giovinazzi	Alfa_Romeo_Racing_ORLEN	15	15	70	+1 lap	-	20
 2021-08-R	Mick_Schumacher	Uralkali_Haas_F1_Team	19	16	69	+2 laps	-	20
-2021-08-R	Nicholas_Latifi	Williams_Racing	16	17	69	+2 laps	-	20
-2021-08-R	Nikita_Mazepin	Uralkali_Haas_F1_Team	20	18	69	+2 laps	-	20
-2021-08-R	Pierre_Gasly	Scuderia_AlphaTauri_Honda	6	20	1	suspension	car	20
-2021-08-R	Sebastian_Vettel	Aston_Martin_Cognizant_F1_Team	14	12	70	+1 lap	-	20
-2021-08-R	Sergio_Perez	Red_Bull_Racing_Honda	4	4	71	+67.151	-	20
-2021-08-R	Valtteri_Bottas	Mercedes_AMG_Petronas_F1_Team	5	3	71	+66.561	-	20
-2021-08-R	Yuki_Tsunoda	Scuderia_AlphaTauri_Honda	11	10	70	+1 lap	-	20
-2021-09-Q	Antonio_Giovinazzi	Alfa_Romeo_Racing_ORLEN	0	15	1	-	-	20
-2021-09-Q	Carlos_Sainz_Jr	Scuderia_Mission_Winnow_Ferrari	0	11	1	-	-	20
-2021-09-Q	Charles_Leclerc	Scuderia_Mission_Winnow_Ferrari	0	12	1	-	-	20
+2021-08-R	Nicholas_Latifi	Williams_Racing	16	17	68	+3 laps	-	20
+2021-08-R	Nikita_Mazepin	Uralkali_Haas_F1_Team	20	18	68	+3 laps	-	20
+2021-08-R	George_Russell	Williams_Racing	10	19	36	engine	car	20
+2021-08-R	Pierre_Gasly	Scuderia_AlphaTauri_Honda	 6	20	1	suspension	car	20
+2021-09-Q	Max_Verstappen	Red_Bull_Racing_Honda	0	 1	1	-	-	20
+2021-09-Q	Valtteri_Bottas	Mercedes_AMG_Petronas_F1_Team	0	 5	1	-	-	20
+2021-09-Q	Lando_Norris	McLaren_F1_Team	0	 2	1	-	-	20
+2021-09-Q	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	0	 4	1	-	-	20
+2021-09-Q	Carlos_Sainz_Jr	Scuderia_Mission_Winnow_Ferrari	0	10	1	-	-	20
+2021-09-Q	Sergio_Perez	Red_Bull_Racing_Honda	0	 3	1	-	-	20
 2021-09-Q	Daniel_Ricciardo	McLaren_F1_Team	0	13	1	-	-	20
-2021-09-Q	Esteban_Ocon	Alpine_F1_Team	0	17	1	-	-	20
+2021-09-Q	Charles_Leclerc	Scuderia_Mission_Winnow_Ferrari	0	12	1	-	-	20
+2021-09-Q	Pierre_Gasly	Scuderia_AlphaTauri_Honda	0	 6	1	-	-	20
 2021-09-Q	Fernando_Alonso	Alpine_F1_Team	0	14	1	-	-	20
-2021-09-Q	George_Russell	Williams_Racing	0	9	1	-	-	20
-2021-09-Q	Kimi_Raikkonen	Alfa_Romeo_Racing_ORLEN	0	16	1	-	-	20
-2021-09-Q	Lance_Stroll	Aston_Martin_Cognizant_F1_Team	0	10	1	-	-	20
-2021-09-Q	Lando_Norris	McLaren_F1_Team	0	2	1	-	-	20
-2021-09-Q	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	0	4	1	-	-	20
-2021-09-Q	Max_Verstappen	Red_Bull_Racing_Honda	0	1	1	-	-	20
-2021-09-Q	Mick_Schumacher	Uralkali_Haas_F1_Team	0	19	1	-	-	20
+2021-09-Q	George_Russell	Williams_Racing	0	 8	1	-	-	20
+2021-09-Q	Yuki_Tsunoda	Scuderia_AlphaTauri_Honda	0	 7	1	-	-	20
+2021-09-Q	Lance_Stroll	Aston_Martin_Cognizant_F1_Team	0	 9	1	-	-	20
+2021-09-Q	Antonio_Giovinazzi	Alfa_Romeo_Racing_ORLEN	0	15	1	-	-	20
 2021-09-Q	Nicholas_Latifi	Williams_Racing	0	18	1	-	-	20
+2021-09-Q	Kimi_Raikkonen	Alfa_Romeo_Racing_ORLEN	0	16	1	-	-	20
+2021-09-Q	Sebastian_Vettel	Aston_Martin_Cognizant_F1_Team	0	11	1	-	-	20
+2021-09-Q	Mick_Schumacher	Uralkali_Haas_F1_Team	0	19	1	-	-	20
 2021-09-Q	Nikita_Mazepin	Uralkali_Haas_F1_Team	0	20	1	-	-	20
-2021-09-Q	Pierre_Gasly	Scuderia_AlphaTauri_Honda	0	6	1	-	-	20
-2021-09-Q	Sebastian_Vettel	Aston_Martin_Cognizant_F1_Team	0	8	1	-	-	20
-2021-09-Q	Sergio_Perez	Red_Bull_Racing_Honda	0	3	1	-	-	20
-2021-09-Q	Valtteri_Bottas	Mercedes_AMG_Petronas_F1_Team	0	5	1	-	-	20
-2021-09-Q	Yuki_Tsunoda	Scuderia_AlphaTauri_Honda	0	7	1	-	-	20
-2021-09-R	Antonio_Giovinazzi	Alfa_Romeo_Racing_ORLEN	15	14	70	+1 lap	-	20
-2021-09-R	Carlos_Sainz_Jr	Scuderia_Mission_Winnow_Ferrari	10	5	71	+22.000	-	20
-2021-09-R	Charles_Leclerc	Scuderia_Mission_Winnow_Ferrari	12	8	71	+22.000	-	20
-2021-09-R	Daniel_Ricciardo	McLaren_F1_Team	13	7	71	+22.000	-	20
-2021-09-R	Esteban_Ocon	Alpine_F1_Team	17	20	0	crash	driver	20
+2021-09-Q	Esteban_Ocon	Alpine_F1_Team	0	17	1	-	-	20
+2021-09-R	Max_Verstappen	Red_Bull_Racing_Honda	 1	1	71	1:23:54.543	-	20
+2021-09-R	Valtteri_Bottas	Mercedes_AMG_Petronas_F1_Team	 5	2	71	+17.973	-	20
+2021-09-R	Lando_Norris	McLaren_F1_Team	 2	3	71	+20.019	-	20
+2021-09-R	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	 4	4	71	+46.452	-	20
+2021-09-R	Carlos_Sainz_Jr	Scuderia_Mission_Winnow_Ferrari	10	5	71	+57.144	-	20
+2021-09-R	Sergio_Perez	Red_Bull_Racing_Honda	 3	6	71	+57.915	-	20
+2021-09-R	Daniel_Ricciardo	McLaren_F1_Team	13	7	71	+60.395	-	20
+2021-09-R	Charles_Leclerc	Scuderia_Mission_Winnow_Ferrari	12	8	71	+61.195	-	20
+2021-09-R	Pierre_Gasly	Scuderia_AlphaTauri_Honda	 6	9	71	+61.844	-	20
 2021-09-R	Fernando_Alonso	Alpine_F1_Team	14	10	70	+1 lap	-	20
-2021-09-R	George_Russell	Williams_Racing	8	11	70	+1 lap	-	20
-2021-09-R	Kimi_Raikkonen	Alfa_Romeo_Racing_ORLEN	16	15	70	+1 lap	-	20
-2021-09-R	Lance_Stroll	Aston_Martin_Cognizant_F1_Team	9	13	70	+1 lap	-	20
-2021-09-R	Lando_Norris	McLaren_F1_Team	2	3	71	+22.000	-	20
-2021-09-R	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	4	4	71	+22.000	-	20
-2021-09-R	Max_Verstappen	Red_Bull_Racing_Honda	1	1	71	+22.000	-	20
+2021-09-R	George_Russell	Williams_Racing	 8	11	70	+1 lap	-	20
+2021-09-R	Yuki_Tsunoda	Scuderia_AlphaTauri_Honda	 7	12	70	+1 lap	-	20
+2021-09-R	Lance_Stroll	Aston_Martin_Cognizant_F1_Team	 9	13	70	+1 lap	-	20
+2021-09-R	Antonio_Giovinazzi	Alfa_Romeo_Racing_ORLEN	15	14	70	+1 lap	-	20
+2021-09-R	Nicholas_Latifi	Williams_Racing	18	15	70	+1 lap	-	20
+2021-09-R	Kimi_Raikkonen	Alfa_Romeo_Racing_ORLEN	16	16	70	+1 lap	-	20
+2021-09-R	Sebastian_Vettel	Aston_Martin_Cognizant_F1_Team	11	17	69	crash	driver	20
 2021-09-R	Mick_Schumacher	Uralkali_Haas_F1_Team	19	18	69	+2 laps	-	20
-2021-09-R	Nicholas_Latifi	Williams_Racing	18	16	70	+1 lap	-	20
 2021-09-R	Nikita_Mazepin	Uralkali_Haas_F1_Team	20	19	69	+2 laps	-	20
-2021-09-R	Pierre_Gasly	Scuderia_AlphaTauri_Honda	6	9	71	+22.000	-	20
-2021-09-R	Sebastian_Vettel	Aston_Martin_Cognizant_F1_Team	11	17	70	crash	driver	20
-2021-09-R	Sergio_Perez	Red_Bull_Racing_Honda	3	6	71	+22.000	-	20
-2021-09-R	Valtteri_Bottas	Mercedes_AMG_Petronas_F1_Team	5	2	71	+22.000	-	20
-2021-09-R	Yuki_Tsunoda	Scuderia_AlphaTauri_Honda	7	12	70	+1 lap	-	20
+2021-09-R	Esteban_Ocon	Alpine_F1_Team	17	20	0	crash damage	driver	20
