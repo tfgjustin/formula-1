@@ -43,7 +43,7 @@ def create_argparser():
 
 class RaceParser(HTMLParser):
     _TITLE_PATTERN = '^(\\d{2})/(\\d{2})/(\\d{4}) race: .*$'
-    _DATE_LINK_PATTERN = '^.*/alldates/(\\d{2})(\\d{2})$'
+    _DATE_LINK_PATTERN = '^.*/all.{0,1}dates/(\\d{2})(\\d{2})$'
     _YEAR_STAGE_PATTERN = '^.*/race[^/]*/(\\d{4})-0{0,1}(\\d{1,2})/.$'
     _RACE_ID_PATTERN = '^/race[^/]*/\\d{4}_(.*)/.$'
     _FINISHING_POS_TITLE = 'Fin'
@@ -172,6 +172,16 @@ class RaceParser(HTMLParser):
             return
         self._date = '%s-%s-%s' % (extract.group(3), extract.group(1), extract.group(2))
 
+    def maybe_set_year(self, attrs):
+        # This is still working
+        for k, v in attrs:
+            if k != 'href':
+                continue
+            extract = re.search(self._YEAR_STAGE_PATTERN, v)
+            if extract:
+                self._year = int(extract.group(1))
+                self._stage = int(extract.group(2))
+
     def get_date_from_link(self, attrs):
         # This is now working
         if self._year is None:
@@ -182,16 +192,6 @@ class RaceParser(HTMLParser):
             extract = re.search(self._DATE_LINK_PATTERN, v)
             if extract:
                 self._date = '%s-%s-%s' % (self._year, extract.group(1), extract.group(2))
-
-    def maybe_set_year(self, attrs):
-        # This is still working
-        for k, v in attrs:
-            if k != 'href':
-                continue
-            extract = re.search(self._YEAR_STAGE_PATTERN, v)
-            if extract:
-                self._year = int(extract.group(1))
-                self._stage = int(extract.group(2))
 
     def maybe_in_driver_table(self, attrs):
         # This now works
