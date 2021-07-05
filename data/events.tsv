@@ -2081,9 +2081,9 @@ event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance
 2021-05-R	2021	5	R	2021-05-23	Grand_Prix_of_Monaco	Circuit de Monaco	20	78	3.337
 2021-06-Q	2021	6	Q	2021-06-06	Azerbaijan_Grand_Prix	Baku City Circuit	20	1	6.003
 2021-06-R	2021	6	R	2021-06-06	Azerbaijan_Grand_Prix	Baku City Circuit	20	51	6.003
-2021-07-Q	2021	7	Q	2021-06-20	Pirelli_Grand_Prix_of_France	Circuit Paul Ricard	20	1	5.842
-2021-07-R	2021	7	R	2021-06-20	Pirelli_Grand_Prix_of_France	Circuit Paul Ricard	20	53	5.842
-2021-08-Q	2021	8	Q	2021-06-27	Styrian_Grand_Prix	Red Bull Ring	20	1	4.318
-2021-08-R	2021	8	R	2021-06-27	Styrian_Grand_Prix	Red Bull Ring	20	71	4.318
-2021-09-Q	2021	9	Q	2021-07-04	Austrian_Grand_Prix	Red Bull Ring	20	1	4.318
-2021-09-R	2021	9	R	2021-07-04	Austrian_Grand_Prix	Red Bull Ring	20	71	4.318
+2021-07-Q	2021	7	Q	2021-06-20	Emirates_Grand_Prix_of_France	Circuit Paul Ricard	20	1	5.842
+2021-07-R	2021	7	R	2021-06-20	Emirates_Grand_Prix_of_France	Circuit Paul Ricard	20	53	5.842
+2021-08-Q	2021	8	Q	2021-06-27	Steiermark_Grand_Prix	Red Bull Ring	20	1	4.318
+2021-08-R	2021	8	R	2021-06-27	Steiermark_Grand_Prix	Red Bull Ring	20	71	4.318
+2021-09-Q	2021	9	Q	2021-07-04	BWT_Grand_Prix_of_Austria	Red Bull Ring	20	1	4.318
+2021-09-R	2021	9	R	2021-07-04	BWT_Grand_Prix_of_Austria	Red Bull Ring	20	71	4.318
