@@ -2,8 +2,7 @@ import csv
 import io
 
 from driver import Driver
-from event import Qualifying
-from event import Race
+from event import Qualifying, Race, SprintQualifying
 from ratings import EloRating
 from result import Result
 from season import Season
@@ -59,6 +58,10 @@ class DataLoader(object):
                 continue
             if row['type'] == 'Q':
                 event = Qualifying(
+                    row['event_id'], row['name'], row['season'], row['stage'], row['date'], row['laps'],
+                    row['lap_distance'])
+            elif row['type'] == 'Q':
+                event = SprintQualifying(
                     row['event_id'], row['name'], row['season'], row['stage'], row['date'], row['laps'],
                     row['lap_distance'])
             elif row['type'] == 'R':

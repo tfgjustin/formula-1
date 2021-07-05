@@ -61,14 +61,15 @@ def validate_factors(argument):
 
 
 def select_reference_results(event, car_factor, num_results=4):
-    if event.type() == 'R':
-        reliability = sorted([result for result in event.results()], key=lambda r: r.probability_complete_n_laps(1),
-                             reverse=True)
-        return reliability[:num_results]
-    else:
+    if event.type() == 'Q':
         performance = sorted([result for result in event.results()],
                              key=lambda r: elo_rating_from_result(car_factor, r), reverse=True)
         return performance[:num_results]
+    else:
+        # Use this for sprint qualifying and races.
+        reliability = sorted([result for result in event.results()], key=lambda r: r.probability_complete_n_laps(1),
+                             reverse=True)
+        return reliability[:num_results]
 
 
 def was_performance_win(result_this, result_other):
@@ -590,6 +591,8 @@ class Calculator(object):
         because earlier seasons of F1 had fewer events and fewer entrants. This mitigates against us creating a model
         which works best for later era F1 but poorly for the earlier decades.
         """
+        if event_type not in self._oversample_rates:
+            return 1
         return self._oversample_rates[event_type].get(event_id[:3], 1)
 
     def run_all_ratings(self, loader):
@@ -644,6 +647,12 @@ class Calculator(object):
             # better chance of finishing near the front than a 100 point Elo advantage in a race).
             k_factor_adjust = self._args.qualifying_kfactor_multiplier
             elo_denominator = self._args.elo_exponent_denominator_qualifying
+        elif event.type() == 'S':
+            # Sprint qualifying, new for 2021. Use the K-Factor adjustment and the average of the race and qualifying
+            # Elo denominator.
+            k_factor_adjust = self._args.qualifying_kfactor_multiplier
+            elo_denominator = (self._args.elo_exponent_denominator_race +
+                               self._args.elo_exponent_denominator_qualifying) / 2
         predictions = EventPrediction(event, elo_denominator, k_factor_adjust, self._team_share_dict[event.season()],
                                       self._position_base_dict[event.season()], self._args.position_base_factor,
                                       self._base_car_reliability, self._base_new_car_reliability,
@@ -666,6 +675,7 @@ class Calculator(object):
     def update_all_reliability(self, event):
         if event.type() == 'Q':
             return
+        # For races and sprint qualifying, keep going.
         driver_crash_laps = [
             result.laps() for result in event.results() if result.dnf_category() == 'driver' and result.laps() >= 1
         ]
@@ -739,6 +749,7 @@ class Calculator(object):
     def add_full_h2h_error(self, event, actual, prob):
         if event.type() == 'Q':
             return
+        # Include races and sprint qualifying.
         error_array = [event.id(), 0.5, prob, actual]
         for _ in range(self.get_oversample_rate(event.type(), event.id())):
             self._full_h2h_log.append(error_array)
@@ -850,7 +861,8 @@ class Calculator(object):
         return
 
     def log_finish_probabilities(self, event, predictions, driver_id, result):
-        if event.type() != 'R':
+        # Log this for sprint qualifying and races but not regular qualifying
+        if event.type() == 'Q':
             return
         # Identifiers for the entrant, team (car), and driver
         full_identifier = '%s:%s' % (result.team().uuid(), result.driver().id())

@@ -62,6 +62,11 @@ class Qualifying(Event):
         super().__init__(event_id, name, season, stage, date, 'Q', num_laps, lap_distance_km)
 
 
+class SprintQualifying(Event):
+    def __init__(self, event_id, name, season, stage, date, num_laps, lap_distance_km):
+        super().__init__(event_id, name, season, stage, date, 'S', num_laps, lap_distance_km)
+
+
 class Race(Event):
     def __init__(self, event_id, name, season, stage, date, num_laps, lap_distance_km):
         super().__init__(event_id, name, season, stage, date, 'R', num_laps, lap_distance_km)
