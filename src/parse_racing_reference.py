@@ -317,7 +317,10 @@ class RaceParser(HTMLParser):
     def print_data(self):
         for row in self._data:
             row.append(self._driver_count)
-            self._results_tsv.writerow(row)
+        for event_type in ['Q', 'S', 'R']:
+            for row in self._data:
+                if row[0].endswith(event_type):
+                    self._results_tsv.writerow(row)
         # Qualifying
         event_id = '%d-%02d-Q' % (self._year, self._stage)
         data = [event_id, self._year, self._stage, 'Q', self._date, self._race_id, self._site, self._driver_count,
