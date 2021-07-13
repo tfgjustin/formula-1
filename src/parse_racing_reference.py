@@ -41,6 +41,17 @@ def create_argparser():
     return argparser
 
 
+def num_qualifying_laps(year):
+    if year <= 1995:
+        return 24
+    elif year <= 2002:
+        return 12
+    elif year <= 2005:
+        return 2
+    else:
+        return 10
+
+
 class RaceParser(HTMLParser):
     _TITLE_PATTERN = '^(\\d{2})/(\\d{2})/(\\d{4}) race: .*$'
     _DATE_LINK_PATTERN = '^.*/all.{0,1}dates/(\\d{2})(\\d{2})$'
@@ -324,7 +335,7 @@ class RaceParser(HTMLParser):
         # Qualifying
         event_id = '%d-%02d-Q' % (self._year, self._stage)
         data = [event_id, self._year, self._stage, 'Q', self._date, self._race_id, self._site, self._driver_count,
-                1, self._lap_distance
+                num_qualifying_laps(self._year), self._lap_distance
                 ]
         self._events_tsv.writerow(data)
         # Race
