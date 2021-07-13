@@ -18,6 +18,13 @@ def has_valid_headers(row, headers):
     return True
 
 
+def is_aggregate_team(row):
+    team_uuid = row['TeamUUID']
+    if team_uuid == 'TeamNew' or team_uuid == 'TeamBase':
+        return True
+    return False
+
+
 def import_teams(tsv_filename, teams, events):
     """Creates a mapping from (team UUID, race ID) to the team ID.
     """
@@ -26,6 +33,8 @@ def import_teams(tsv_filename, teams, events):
         tsv_reader = csv.DictReader(infile, delimiter='\t')
         for row in tsv_reader:
             if not has_valid_headers(row, _HEADERS):
+                continue
+            if is_aggregate_team(row):
                 continue
             race_id = row['RaceID']
             teams[row['TeamUUID']][race_id] = row['TeamID']
@@ -67,6 +76,8 @@ def load_flat_data(filename, metrics, data):
         _HEADERS.extend([metric + 'Post' for metric in metrics])
         for row in tsv_reader:
             if not has_valid_headers(row, _HEADERS):
+                continue
+            if is_aggregate_team(row):
                 continue
             team_uuid = row['TeamUUID']
             year = row['RaceID'][1:5]
