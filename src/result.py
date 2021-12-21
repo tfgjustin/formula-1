@@ -47,8 +47,6 @@ class Result(object):
         self._probability_fail_at_n = [0] * (num_laps + 1)
         self._probability_fail_after_n = [0] * (num_laps + 1)
         self._probability_succeed_through_n = [1] * (num_laps + 1)
-        if self._event.type() == 'Q':
-            return
         self._probability_fail_at_n[0] = 1 - self.probability_survive_opening()
         self._probability_succeed_through_n[0] = self.probability_survive_opening()
         per_lap_success_probability = self._driver.rating().probability_finishing(race_distance_km=lap_distance_km)

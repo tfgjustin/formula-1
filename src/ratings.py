@@ -246,9 +246,6 @@ class EloRating(object):
     def regress(self, event_id):
         if self._last_event_id is None:
             return
-        if self._last_event_id > event_id:
-            print('ERROR: This event before last event: %s > %s' % (
-                self._last_event_id, event_id))
         gap = year_gap(event_id, self._last_event_id)
         if not gap:
             return

@@ -60,7 +60,7 @@ class DataLoader(object):
                 event = Qualifying(
                     row['event_id'], row['name'], row['season'], row['stage'], row['date'], row['laps'],
                     row['lap_distance'])
-            elif row['type'] == 'Q':
+            elif row['type'] == 'S':
                 event = SprintQualifying(
                     row['event_id'], row['name'], row['season'], row['stage'], row['date'], row['laps'],
                     row['lap_distance'])

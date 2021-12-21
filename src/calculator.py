@@ -1,6 +1,7 @@
 import argparse
 import copy
 import datetime
+import functools
 import math
 import numpy as np
 import ratings
@@ -107,6 +108,36 @@ def assign_year_value_dict(spec, divisor, value_dict):
         else:
             count += 1
         value_dict[year] = current_value
+
+
+def compare_events(e1, e2):
+    left = e1.split('-')
+    right = e2.split('-')
+    if left[0] < right[0]:
+        return -1
+    elif left[0] > right[1]:
+        return 1
+    if left[1] < right[1]:
+        return -1
+    elif left[1] > right[1]:
+        return 1
+    if left[2] == 'Q':
+        if right[2] == 'Q':
+            return 0
+        else:
+            return -1
+    elif left[2] == 'S':
+        if right[2] == 'Q':
+            return 1
+        elif right[2] == 'R':
+            return -1
+        else:
+            return 0
+    else:
+        if right[2] == 'R':
+            return 0
+        else:
+            return 1
 
 
 class HeadToHeadPrediction(object):
@@ -622,7 +653,7 @@ class Calculator(object):
         if self._logfile is not None:
             print('Running %d' % year, file=self._logfile)
         self._base_new_car_reliability.regress()
-        for event_id in sorted(events_dict.keys()):
+        for event_id in sorted(events_dict.keys(), key=functools.cmp_to_key(compare_events)):
             event = events_dict[event_id]
             # Skip all the Indianapolis races since they were largely disjoint
             # from the rest of Formula 1.
@@ -638,8 +669,6 @@ class Calculator(object):
         """
         if self._logfile is not None:
             print('  Event %s' % (event.id()), file=self._logfile)
-        k_factor_adjust = 1
-        elo_denominator = self._args.elo_exponent_denominator_race
         if event.type() == 'Q':
             # If this is a qualifying session, adjust all K-factors by a constant multiplier so fewer points flow
             # between the drivers and teams. Also use a different denominator since the advantage is much more
@@ -653,6 +682,9 @@ class Calculator(object):
             k_factor_adjust = self._args.qualifying_kfactor_multiplier
             elo_denominator = (self._args.elo_exponent_denominator_race +
                                self._args.elo_exponent_denominator_qualifying) / 2
+        else:
+            k_factor_adjust = self.race_distance_multiplier(event)
+            elo_denominator = self._args.elo_exponent_denominator_race
         predictions = EventPrediction(event, elo_denominator, k_factor_adjust, self._team_share_dict[event.season()],
                                       self._position_base_dict[event.season()], self._args.position_base_factor,
                                       self._base_car_reliability, self._base_new_car_reliability,
@@ -742,6 +774,20 @@ class Calculator(object):
             return
         self.update_ratings(result_a, car_delta, driver_delta)
         self.update_ratings(result_b, -car_delta, -driver_delta)
+
+    def race_distance_multiplier(self, event):
+        lap_distance_km = event.lap_distance_km()
+        max_laps = max([result.laps() for result in event.results()])
+        if self._debug_file is not None:
+            print('LAPS %s: Projected %3d Actual %3d' % (event.id(), event.num_laps(), max_laps), file=self._debug_file)
+        if max_laps == event.num_laps():
+            return 1.0
+        actual_distance = max_laps * lap_distance_km
+        if self._debug_file is not None:
+            print('  Event %s was scheduled for %.1f km but only ran %.1f km' % (event.id(),
+                event.total_distance_km(), actual_distance
+                ), file=self._debug_file)
+        return actual_distance / 300
 
     def should_compare(self, rating_a, rating_b, elo_denominator):
         return (abs(rating_a - rating_b) / elo_denominator) <= self._args.elo_compare_window
@@ -905,9 +951,6 @@ class Calculator(object):
                 self._finish_odds_log[mode].append(completed_error_arrays[mode])
                 self.log_one_finish_probability(
                     event, mode, identifiers.get(mode), completed_error_arrays[mode][-2], 1)
-                if self._debug_file is not None:
-                    for km in range(math.floor(distance_success_km)):
-                        print('Reliable\t%s\t%d\t1' % (mode, km), file=self._debug_file)
             # If they didn't finish the race, then either the car succeeded up until it crapped out and the driver
             # succeeded until they didn't, or vice versa.
             failed_modes = []
