@@ -329,7 +329,7 @@ class RaceParser(HTMLParser):
         for row in self._data:
             row.append(self._driver_count)
         for event_type in ['Q', 'S', 'R']:
-            for row in self._data:
+            for row in sorted(self._data, key=lambda x: x[1]):
                 if row[0].endswith(event_type):
                     self._results_tsv.writerow(row)
         # Qualifying
@@ -355,7 +355,7 @@ class RaceParser(HTMLParser):
         self.add_team(self._team_id, self._team_name)
         # Qualifying
         event_id = '%d-%02d-Q' % (self._year, self._stage)
-        data = [event_id, self._driver_id, self._team_id, 0, self._start, 1, '-', '-']
+        data = [event_id, self._driver_id, self._team_id, 0, self._start, num_qualifying_laps(self._year), '-', '-']
         self._data.append(data)
         # Race
         event_id = '%d-%02d-R' % (self._year, self._stage)
