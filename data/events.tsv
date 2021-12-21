@@ -2087,3 +2087,32 @@ event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance
 2021-08-R	2021	8	R	2021-06-27	Steiermark_Grand_Prix	Red Bull Ring	20	71	4.318
 2021-09-Q	2021	9	Q	2021-07-04	BWT_Grand_Prix_of_Austria	Red Bull Ring	20	10	4.318
 2021-09-R	2021	9	R	2021-07-04	BWT_Grand_Prix_of_Austria	Red Bull Ring	20	71	4.318
+2021-10-Q	2021	10	Q	2021-07-18	Pirelli_British_Grand_Prix	Silverstone Circuit	20	10	5.891
+2021-10-S	2021	10	S	2021-07-18	Pirelli_British_Grand_Prix	Silverstone Circuit	20	17	5.891
+2021-10-R	2021	10	R	2021-07-18	Pirelli_British_Grand_Prix	Silverstone Circuit	20	52	5.891
+2021-11-Q	2021	11	Q	2021-08-01	Rolex_Hungarian_Grand_Prix	Hungaroring	20	10	4.381
+2021-11-R	2021	11	R	2021-08-01	Rolex_Hungarian_Grand_Prix	Hungaroring	20	70	4.381
+2021-12-Q	2021	12	Q	2021-08-29	Rolex_Belgian_Grand_Prix	Circuit de Spa Francorchamps	20	10	7.004
+2021-12-R	2021	12	R	2021-08-29	Rolex_Belgian_Grand_Prix	Circuit de Spa Francorchamps	20	1	7.004
+2021-13-Q	2021	13	Q	2021-09-05	Heineken_Dutch_Grand_Prix	Circuit Zandvoort	20	10	4.259
+2021-13-R	2021	13	R	2021-09-05	Heineken_Dutch_Grand_Prix	Circuit Zandvoort	20	72	4.259
+2021-14-Q	2021	14	Q	2021-09-12	Heineken_Grand_Prix_of_Italy	Autodromo Nazionale di Monza	20	10	5.793
+2021-14-S	2021	14	S	2021-09-12	Heineken_Grand_Prix_of_Italy	Autodromo Nazionale di Monza	20	18	5.793
+2021-14-R	2021	14	R	2021-09-12	Heineken_Grand_Prix_of_Italy	Autodromo Nazionale di Monza	20	53	5.793
+2021-15-Q	2021	15	Q	2021-09-26	VTB_Russian_Grand_Prix	Sochi Autodrome	20	10	5.848
+2021-15-R	2021	15	R	2021-09-26	VTB_Russian_Grand_Prix	Sochi Autodrome	20	53	5.848
+2021-16-Q	2021	16	Q	2021-10-10	Rolex_Turkish_Grand_Prix	Otodrom Istanbul Park	20	10	5.338
+2021-16-R	2021	16	R	2021-10-10	Rolex_Turkish_Grand_Prix	Otodrom Istanbul Park	20	58	5.338
+2021-17-Q	2021	17	Q	2021-10-24	Aramco_United_States_Grand_Prix	Circuit of the Americas	20	10	5.513
+2021-17-R	2021	17	R	2021-10-24	Aramco_United_States_Grand_Prix	Circuit of the Americas	20	56	5.513
+2021-18-Q	2021	18	Q	2021-11-07	Grand_Prix_of_Mexico_+City	Autodromo Hermanos Rodriguez	20	10	4.304
+2021-18-R	2021	18	R	2021-11-07	Grand_Prix_of_Mexico_+City	Autodromo Hermanos Rodriguez	20	71	4.304
+2021-19-Q	2021	19	Q	2021-11-14	Heineken_Grand_Prix_of_Sao_Paulo	Autodromo Jose Carlos Pace	20	10	4.309
+2021-19-S	2021	19	S	2021-11-14	Heineken_Grand_Prix_of_Sao_Paulo	Autodromo Jose Carlos Pace	20	24	4.309
+2021-19-R	2021	19	R	2021-11-14	Heineken_Grand_Prix_of_Sao_Paulo	Autodromo Jose Carlos Pace	20	71	4.309
+2021-20-Q	2021	20	Q	2021-11-21	Ooredoo_Qatar_Grand_Prix	Losail International Circuit	20	10	5.38
+2021-20-R	2021	20	R	2021-11-21	Ooredoo_Qatar_Grand_Prix	Losail International Circuit	20	57	5.38
+2021-21-Q	2021	21	Q	2021-12-05	STC_Saudi_Arabian_Grand_Prix	Jeddah Street Circuit	20	10	6.174
+2021-21-R	2021	21	R	2021-12-05	STC_Saudi_Arabian_Grand_Prix	Jeddah Street Circuit	20	50	6.174
+2021-22-Q	2021	22	Q	2021-12-12	Etihad_Airways_Abu_Dhabi_Grand_Prix	Yas Marina Circuit	20	10	5.281
+2021-22-R	2021	22	R	2021-12-12	Etihad_Airways_Abu_Dhabi_Grand_Prix	Yas Marina Circuit	20	58	5.281
