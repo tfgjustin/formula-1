@@ -51,7 +51,7 @@ def create_argparser():
                         default=False, action='store_true')
     parser.add_argument('--num_iterations',
                         help='The number of times to simulate an event outcome to estimate win and podium odds.',
-                        type=int, default=1000)
+                        type=int, default=10000)
     parser.add_argument('--qualifying_kfactor_multiplier',
                         help='Value by which to multiply K-Factors during qualifying.',
                         type=float, default=0.15)
