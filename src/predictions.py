@@ -246,8 +246,10 @@ class EventSimulator(object):
         # Raw results: [result][position] = count
         self._results = dict()
 
-    def simulate(self):
-        for _ in range(self._num_iterations):
+    def simulate(self, num_iterations=None):
+        if num_iterations is None:
+            num_iterations = self._num_iterations
+        for _ in range(num_iterations):
             self._simulate_one()
         self._normalize_results()
 

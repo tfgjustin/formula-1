@@ -47,8 +47,9 @@ def validate_factors(argument):
         if step_value < 0 or step_value > 100:
             raise argparse.ArgumentTypeError(
                 'Factor %s has invalid step value %s' % (argument, parts[2]))
-    current_year = datetime.datetime.now().year
-    num_seasons = current_year - 1950
+    # Always look at next year so we can predit one year ahead if necessary.
+    next_year = datetime.datetime.now().year + 1
+    num_seasons = next_year - 1950
     if year_step > 0:
         max_value = initial + (int(num_seasons / year_step) * step_value)
     else:
@@ -68,11 +69,12 @@ def assign_year_value_dict(spec, divisor, value_dict):
     initial = float(parts[0]) / divisor
     window = int(parts[1])
     step = float(parts[2]) / divisor
-    current_year = datetime.datetime.now().year
+    # Always look at next year so we can predit one year ahead if necessary.
+    next_year = datetime.datetime.now().year + 1
     count = 1
     value_dict[1950] = initial
     current_value = initial
-    for year in range(1951, current_year + 1):
+    for year in range(1951, next_year + 1):
         if count >= window:
             current_value += step
             count = 1
@@ -536,6 +538,8 @@ class Calculator(object):
 
     def log_win_probabilities(self, event, predictions, driver_id, result):
         win_odds = predictions.win_probabilities().get(driver_id)
+        if win_odds is None:
+            return
         won = 1 if result.end_position() == 1 else 0
         naive_odds = 1.0 / len(event.drivers())
         error_array = [event.id(), naive_odds, win_odds, won]
@@ -549,6 +553,8 @@ class Calculator(object):
 
     def log_podium_probabilities(self, event, predictions, driver_id, result):
         podium_odds = predictions.podium_probabilities().get(driver_id)
+        if podium_odds is None:
+            return
         podium = 1 if result.end_position() <= 3 else 0
         naive_odds = 1.0 / len(event.drivers())
         error_array = [event.id(), naive_odds, podium_odds, podium]
