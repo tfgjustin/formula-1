@@ -402,7 +402,7 @@ class EventPrediction(object):
         for team in self._event.teams():
             team.commit_update()
 
-    def predict_winner(self):
+    def predict_winner(self, simulate_results):
         """
         Predict the probability of each entrant winning. Use the odds ratio.
         https://en.wikipedia.org/wiki/Odds_ratio
@@ -418,7 +418,8 @@ class EventPrediction(object):
         }
         # Simulate the event
         simulator = EventSimulator(self)
-        simulator.simulate()
+        if simulate_results:
+            simulator.simulate()
         for result, position_probabilities in simulator.position_probabilities().items():
             driver_id = result.driver().id()
             driver_finish = result.driver().rating().probability_finishing(race_distance_km=distance_km)
@@ -427,10 +428,11 @@ class EventPrediction(object):
             self.finish_probabilities()[driver_id] = {
                 'All': finish_probability, 'Car': car_finish, 'Driver': driver_finish
             }
-            self.win_probabilities()[driver_id] = position_probabilities.get(1, 0)
-            self.podium_probabilities()[driver_id] = position_probabilities.get(1, 0)
-            self.podium_probabilities()[driver_id] += position_probabilities.get(2, 0)
-            self.podium_probabilities()[driver_id] += position_probabilities.get(3, 0)
+            if simulate_results:
+                self.win_probabilities()[driver_id] = position_probabilities.get(1, 0)
+                self.podium_probabilities()[driver_id] = position_probabilities.get(1, 0)
+                self.podium_probabilities()[driver_id] += position_probabilities.get(2, 0)
+                self.podium_probabilities()[driver_id] += position_probabilities.get(3, 0)
 
     def predict_podium(self):
         """

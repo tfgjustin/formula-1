@@ -255,7 +255,7 @@ class Calculator(object):
                                       self._args.team_reliability_new_events, self._debug_file)
         predictions.cache_ratings()
         # Predict the odds of each entrant either winning or finishing on the podium.
-        predictions.predict_winner()
+        predictions.predict_winner(self._args.print_predictions)
         predictions.start_updates()
         # Do the full pairwise comparison of each driver. In order to not calculate A vs B and B vs A (or A vs A) only
         # compare when the ID of A<B.
@@ -391,8 +391,9 @@ class Calculator(object):
         for driver_id, result in sorted(driver_results.items()):
             self.log_driver_results(event, predictions, num_drivers, result)
             self.log_finish_probabilities(event, predictions, driver_id, result)
-            self.log_win_probabilities(event, predictions, driver_id, result)
-            self.log_podium_probabilities(event, predictions, driver_id, result)
+            if self._args.print_predictions:
+                self.log_win_probabilities(event, predictions, driver_id, result)
+                self.log_podium_probabilities(event, predictions, driver_id, result)
 
     def log_team_results(self, event, predictions, team):
         rating_before = predictions.team_before(team.id()).rating()
@@ -537,6 +538,8 @@ class Calculator(object):
               file=self._predict_file)
 
     def log_win_probabilities(self, event, predictions, driver_id, result):
+        if self._predict_file is None:
+            return
         win_odds = predictions.win_probabilities().get(driver_id)
         if win_odds is None:
             return
@@ -545,13 +548,14 @@ class Calculator(object):
         error_array = [event.id(), naive_odds, win_odds, won]
         for _ in range(self.get_oversample_rate(event.type(), event.id())):
             self._win_odds_log.append(error_array)
-            if self._predict_file is not None:
-                print('WinOR\t%s\t%s\t%.6f\t%.6f\t%d' % (
-                    event.id(), driver_id, naive_odds, win_odds, won
-                ),
-                      file=self._predict_file)
+            print('WinOR\t%s\t%s\t%.6f\t%.6f\t%d' % (
+                event.id(), driver_id, naive_odds, win_odds, won
+            ),
+                  file=self._predict_file)
 
     def log_podium_probabilities(self, event, predictions, driver_id, result):
+        if self._predict_file is None:
+            return
         podium_odds = predictions.podium_probabilities().get(driver_id)
         if podium_odds is None:
             return
@@ -560,11 +564,10 @@ class Calculator(object):
         error_array = [event.id(), naive_odds, podium_odds, podium]
         for _ in range(self.get_oversample_rate(event.type(), event.id())):
             self._podium_odds_log.append(error_array)
-            if self._predict_file is not None:
-                print('PodiumOR\t%s\t%s\t%.6f\t%.6f\t%d' % (
-                    event.id(), driver_id, naive_odds, podium_odds, podium
-                ),
-                      file=self._predict_file)
+            print('PodiumOR\t%s\t%s\t%.6f\t%.6f\t%d' % (
+                event.id(), driver_id, naive_odds, podium_odds, podium
+            ),
+                  file=self._predict_file)
 
     def log_summary_errors(self):
         for decade in range(195, 203):
@@ -598,12 +601,16 @@ class Calculator(object):
             self.log_one_pr_auc('EloH2H', matching_errors, decade, event_type)
 
     def log_win_summary(self, decade=''):
+        if not self._args.print_predictions:
+            return
         for event_type in ['Q', 'R']:
             matching_errors = self.get_matching_errors(self._win_odds_log, decade, event_type)
             self.log_one_error_log('Win', matching_errors, decade, event_type)
             self.log_one_pr_auc('Win', matching_errors, decade, event_type)
 
     def log_podium_summary(self, decade=''):
+        if not self._args.print_predictions:
+            return
         for event_type in ['Q', 'R']:
             matching_errors = self.get_matching_errors(self._podium_odds_log, decade, event_type)
             self.log_one_error_log('Podium', matching_errors, decade, event_type)
