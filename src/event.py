@@ -47,16 +47,20 @@ class Event(object):
     def add_entrant(self, entrant):
         if entrant.event().id() == self._id:
             self._entrants.append(entrant)
-            self._results.append(entrant.result())
             self._drivers.add(entrant.driver())
             if entrant.team() is not None:
                 self._teams.add(entrant.team())
+            if entrant.has_result():
+                self._results.append(entrant.result())
 
     def num_entrants(self):
         return len(self._results)
 
     def entrants(self):
         return self._entrants
+
+    def has_results(self):
+        return len(self._results) > 0
 
     def results(self):
         return self._results

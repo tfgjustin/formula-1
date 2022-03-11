@@ -29,7 +29,8 @@ class DataLoader(object):
         self._future_seasons = dict()
         self._drivers = dict()
         self._results = list()
-        self._future_entrants = None
+        self._future_drivers = dict()
+        self._future_teams = dict()
         self._args = args
         self._outfile = open(base_filename + '.loader', 'w')
         self._team_factory = TeamFactory(args)
@@ -43,17 +44,26 @@ class DataLoader(object):
     def seasons(self):
         return self._seasons
 
+    def future_seasons(self):
+        return self._future_seasons
+
     def events(self):
         return self._events
 
     def drivers(self):
         return self._drivers
 
+    def future_drivers(self):
+        return self._future_drivers
+
     def results(self):
         return self._results
 
     def team_factory(self):
         return self._team_factory
+
+    def future_teams(self):
+        return self._future_teams
 
     def load_events(self, content):
         self._load_events_internal(content, 'Historical', self._events, self._seasons)
@@ -209,6 +219,8 @@ class DataLoader(object):
                     print('ERROR: Invalid driver ID %s for future lineup' % (row['driver_id']), file=self._outfile)
                     continue
                 driver = deepcopy(self._drivers[row['driver_id']])
+                self._future_teams[team.id()] = team
+                self._future_drivers[driver.id()] = driver
                 for event in self._future_events.values():
                     entrant = Entrant(event, driver, team)
                     event.add_entrant(entrant)

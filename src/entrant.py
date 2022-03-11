@@ -31,6 +31,9 @@ class Entrant(object):
     def num_racers(self):
         return self._num_racers
 
+    def has_result(self):
+        return self._result is not None
+
     def result(self):
         return self._result
 

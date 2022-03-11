@@ -15,6 +15,9 @@ class Driver(object):
             return
         self._rating.start_update(event_id, self._id, base_reliability=base_driver_reliability)
 
+    def maybe_regress(self):
+        self._rating.update(0)
+
     def commit_update(self):
         self._rating.commit_update()
 
