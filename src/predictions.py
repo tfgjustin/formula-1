@@ -11,9 +11,9 @@ _CAR = 'Car'
 _DRIVER = 'Driver'
 
 
-def elo_rating_from_result(car_factor, result):
-    rating = (1 - car_factor) * result.driver().rating().elo()
-    rating += (car_factor * result.team().rating().elo())
+def elo_rating_from_entrant(car_factor, entrant):
+    rating = (1 - car_factor) * entrant.driver().rating().elo()
+    rating += (car_factor * entrant.team().rating().elo())
     return rating
 
 
@@ -26,17 +26,17 @@ def elo_win_probability(r_a, r_b, denominator):
     return q_a / (q_a + q_b)
 
 
-def was_performance_win(result_this, result_other):
-    return result_this.dnf_category() == '-' and result_other.dnf_category() == '-'
+# def was_performance_win(result_this, result_other):
+#     return result_this.dnf_category() == '-' and result_other.dnf_category() == '-'
 
 
 class HeadToHeadPrediction(object):
 
-    def __init__(self, event, result_this, result_other, elo_denominator, k_factor_adjust, car_factor,
+    def __init__(self, event, entrant_this, entrant_other, elo_denominator, k_factor_adjust, car_factor,
                  base_points_per_position, position_base_factor, debug_file):
         self._event = event
-        self._result_this = result_this
-        self._result_other = result_other
+        self._entrant_this = entrant_this
+        self._entrant_other = entrant_other
         self._elo_denominator = elo_denominator
         self._k_factor_adjust = k_factor_adjust
         self._car_factor = car_factor
@@ -54,10 +54,10 @@ class HeadToHeadPrediction(object):
         self._debug_file = debug_file
 
     def this_won(self):
-        return 1 if self._result_this.end_position() < self._result_other.end_position() else 0
+        return 1 if self._entrant_this.result().end_position() < self._entrant_other.result().end_position() else 0
 
     def same_team(self):
-        return self._result_this.team().uuid() == self._result_other.team().uuid()
+        return self._entrant_this.team().uuid() == self._entrant_other.team().uuid()
 
     def this_win_probability(self, get_other=False):
         if self._k_factor == ratings.KFactor.INVALID:
@@ -73,8 +73,8 @@ class HeadToHeadPrediction(object):
         this_elo_probability_raw, _, _ = self.this_elo_probability()
         if this_elo_probability_raw is None:
             return None
-        probability_this_complete = self._result_this.probability_complete_n_laps(num_laps)
-        probability_other_complete = self._result_other.probability_complete_n_laps(num_laps)
+        probability_this_complete = self._entrant_this.probability_complete_n_laps(num_laps)
+        probability_other_complete = self._entrant_other.probability_complete_n_laps(num_laps)
         probability_both_complete = probability_this_complete * probability_other_complete
         probability_this_not_other = probability_this_complete * (1 - probability_other_complete)
         probability_this_further_than_other = self.probability_this_further_than_other()
@@ -85,8 +85,8 @@ class HeadToHeadPrediction(object):
             print('%s ThisElo: %.7f x %.7f x %.7f = %.7f and PTNO: %.7f PTFTO: %.7f PThisWin: %.7f %s:%s vs %s:%s' % (
                 self._event.id(), this_elo_probability_raw, probability_this_complete, probability_other_complete,
                 this_elo_probability, probability_this_not_other, probability_this_further_than_other,
-                full_this_probability, self._result_this.driver().id(), self._result_this.team().uuid(),
-                self._result_other.driver().id(), self._result_other.team().uuid()),
+                full_this_probability, self._entrant_this.driver().id(), self._entrant_this.team().uuid(),
+                self._entrant_other.driver().id(), self._entrant_other.team().uuid()),
                   file=self._debug_file)
         self._this_win_probability = full_this_probability
         if self._this_win_probability == 1.0:
@@ -106,9 +106,9 @@ class HeadToHeadPrediction(object):
                 return 1 - self._this_elo_probability, self._rating_other, self._rating_this
             else:
                 return self._this_elo_probability, self._rating_this, self._rating_other
-        self._rating_this = elo_rating_from_result(self._car_factor, self._result_this)
+        self._rating_this = elo_rating_from_entrant(self._car_factor, self._entrant_this)
         self._rating_this += self.this_elo_start_position_advantage()
-        self._rating_other = elo_rating_from_result(self._car_factor, self._result_other)
+        self._rating_other = elo_rating_from_entrant(self._car_factor, self._entrant_other)
         self._this_elo_probability = elo_win_probability(self._rating_this, self._rating_other, self._elo_denominator)
         if self._debug_file is not None:
             print('%s TEP: (%.1f + %.1f) vs (%.1f) = %.6f' % (
@@ -120,9 +120,11 @@ class HeadToHeadPrediction(object):
             return self._this_elo_probability, self._rating_this, self._rating_other
 
     def this_elo_deltas(self, get_other=False):
-        if not was_performance_win(self._result_this, self._result_other):
+        """
+        if not was_performance_win(self._entrant_this, self._entrant_other):
             # One of these DNF'ed
             return None, None
+        """
         elo_win_probability_this, _, _ = self.this_elo_probability()
         if elo_win_probability_this is None:
             return None, None
@@ -139,12 +141,12 @@ class HeadToHeadPrediction(object):
             delta_driver_this = delta_all_this - delta_car_this
         return delta_car_this, delta_driver_this
 
-    def elo_rating(self, result):
+    def elo_rating(self, entrant):
         if self.combined_k_factor() == ratings.KFactor.INVALID:
             return None
-        if result == self._result_this:
+        if entrant == self._entrant_this:
             return self._rating_this
-        elif result == self._result_other:
+        elif entrant == self._entrant_other:
             return self._rating_other
         else:
             return None
@@ -153,8 +155,8 @@ class HeadToHeadPrediction(object):
         if self._double_dnf_probability is not None:
             return self._double_dnf_probability
         num_laps = self._event.num_laps()
-        probability_this_dnf = 1 - self._result_this.probability_complete_n_laps(num_laps)
-        probability_other_dnf = 1 - self._result_other.probability_complete_n_laps(num_laps)
+        probability_this_dnf = 1 - self._entrant_this.probability_complete_n_laps(num_laps)
+        probability_other_dnf = 1 - self._entrant_other.probability_complete_n_laps(num_laps)
         self._double_dnf_probability = probability_this_dnf * probability_other_dnf
         return self._double_dnf_probability
 
@@ -165,9 +167,9 @@ class HeadToHeadPrediction(object):
         total_tie_probability = 0
         # This is the probability that 'other' fails on lap N AND 'this' fails after N laps but before the end.
         for current_lap in range(0, self._event.num_laps()):
-            probability_this_fail_at_n = self._result_this.probability_fail_at_n(current_lap)
-            probability_this_fail_after_n = self._result_this.probability_fail_after_n(current_lap)
-            probability_other_fail_at_n = self._result_other.probability_fail_at_n(current_lap)
+            probability_this_fail_at_n = self._entrant_this.probability_fail_at_n(current_lap)
+            probability_this_fail_after_n = self._entrant_this.probability_fail_after_n(current_lap)
+            probability_other_fail_at_n = self._entrant_other.probability_fail_at_n(current_lap)
             total_this_further += (probability_this_fail_after_n * probability_other_fail_at_n)
             total_tie_probability += (probability_this_fail_at_n * probability_other_fail_at_n)
         self._this_further_than_other = total_this_further
@@ -177,10 +179,10 @@ class HeadToHeadPrediction(object):
     def combined_k_factor(self):
         if self._k_factor is not None:
             return self._k_factor
-        k_factor_driver_this = self._result_this.driver().rating().k_factor().factor()
-        k_factor_team_this = self._result_this.team().rating().k_factor().factor()
-        k_factor_driver_other = self._result_other.driver().rating().k_factor().factor()
-        k_factor_team_other = self._result_other.team().rating().k_factor().factor()
+        k_factor_driver_this = self._entrant_this.driver().rating().k_factor().factor()
+        k_factor_team_this = self._entrant_this.team().rating().k_factor().factor()
+        k_factor_driver_other = self._entrant_other.driver().rating().k_factor().factor()
+        k_factor_team_other = self._entrant_other.team().rating().k_factor().factor()
         if not k_factor_driver_this and not k_factor_team_this:
             self._k_factor = ratings.KFactor.INVALID
             return self._k_factor
@@ -210,7 +212,7 @@ class HeadToHeadPrediction(object):
         """
         if self._this_elo_start_position_advantage is not None:
             return self._this_elo_start_position_advantage
-        start_position_difference = self._result_other.start_position() - self._result_this.start_position()
+        start_position_difference = self._entrant_other.start_position() - self._entrant_this.start_position()
         if not start_position_difference:
             self._this_elo_start_position_advantage = 0
             return self._this_elo_start_position_advantage
@@ -219,7 +221,7 @@ class HeadToHeadPrediction(object):
             factor /= 1 - self._position_base_factor
         else:
             factor = self._position_base_factor * abs(start_position_difference)
-        if self._result_other.start_position() < self._result_this.start_position():
+        if self._entrant_other.start_position() < self._entrant_this.start_position():
             factor *= -1.0
         self._this_elo_start_position_advantage = self._base_points_per_position * factor
         return self._this_elo_start_position_advantage
@@ -232,24 +234,24 @@ class EventSimulator(object):
         self._num_iterations = event_prediction.num_iterations()
         self._event = event_prediction.event()
         self._num_entrants = len(self._event.results())
-        # Raw results: [result][position] = count
-        self._results = dict()
-        self._init_results()
-        self._tmp_results = [None] * self._num_entrants
+        # Raw results: [entrant][position] = count
+        self._all_simulated_results = dict()
+        self._init_simulated_results()
+        self._tmp_one_simulation_ordering = [None] * self._num_entrants
 
-    def _init_results(self):
-        for result in self._event.results():
-            self._results[result] = {int(n + 1): 0 for n in range(self._num_entrants)}
+    def _init_simulated_results(self):
+        for entrant in self._event.entrants():
+            self._all_simulated_results[entrant] = {int(n + 1): 0 for n in range(self._num_entrants)}
 
     def simulate(self, num_iterations=None):
         if num_iterations is None:
             num_iterations = self._num_iterations
         for _ in range(num_iterations):
             self._simulate_one()
-        self._normalize_results()
+        self._normalize_simulated_positions()
 
     def position_probabilities(self):
-        return self._results
+        return self._all_simulated_results
 
     def _simulate_one(self):
         # Figure out how far each one gets
@@ -259,20 +261,20 @@ class EventSimulator(object):
         self._determine_positions(distances)
 
     def _calculate_distances(self, distances):
-        for result in self._event.results():
-            distances[self._calculate_num_laps(result)].append(result)
+        for entrant in self._event.entrants():
+            distances[self._calculate_num_laps(entrant)].append(entrant)
 
-    def _calculate_num_laps(self, result):
+    def _calculate_num_laps(self, entrant):
         failure_probability = random.random()
         # Did we make it to the end?
-        if failure_probability < result.probability_complete_n_laps(self._event.num_laps()):
+        if failure_probability < entrant.probability_complete_n_laps(self._event.num_laps()):
             return self._event.num_laps()
         # Binary search the rest
         high = self._event.num_laps()
         low = 0
         while high - 1 > low:
             mid = int((high + low) / 2)
-            mid_prob = result.probability_complete_n_laps(mid)
+            mid_prob = entrant.probability_complete_n_laps(mid)
             if failure_probability < mid_prob:
                 # We went further than the midpoint
                 low = mid
@@ -281,14 +283,14 @@ class EventSimulator(object):
                 high = mid
         # Either high == low or high = low + 1
         if high == low:
-            if failure_probability < result.probability_complete_n_laps(high):
+            if failure_probability < entrant.probability_complete_n_laps(high):
                 return high
             else:
                 return high - 1
         else:
-            if failure_probability < result.probability_complete_n_laps(high):
+            if failure_probability < entrant.probability_complete_n_laps(high):
                 return high
-            elif failure_probability < result.probability_complete_n_laps(low):
+            elif failure_probability < entrant.probability_complete_n_laps(low):
                 return low
             else:
                 return low - 1
@@ -297,50 +299,50 @@ class EventSimulator(object):
         curr_start = 0
         for lap_num in sorted(distances, reverse=True):
             curr_end = curr_start + len(distances[lap_num])
-            self._tmp_results[curr_start:curr_end] = self._order_results(distances[lap_num])
+            self._tmp_one_simulation_ordering[curr_start:curr_end] = self._order_entrant_results(distances[lap_num])
             curr_start += len(distances[lap_num])
         pos = 1
-        for result in self._tmp_results:
-            self._results[result][pos] += 1
+        for entrant in self._tmp_one_simulation_ordering:
+            self._all_simulated_results[entrant][pos] += 1
             pos += 1
 
-    def _normalize_results(self):
-        for result, positions in self._results.items():
+    def _normalize_simulated_positions(self):
+        for positions in self._all_simulated_results.values():
             for position in positions.keys():
                 positions[position] /= self._num_iterations
 
-    def _order_results(self, same_lap_results):
-        num_results = len(same_lap_results)
-        if num_results <= 1:
-            return same_lap_results
-        return_array = [None] * num_results
-        pivot_idx = random.randrange(num_results - 1)
-        pivot_result = same_lap_results[pivot_idx]
+    def _order_entrant_results(self, same_lap_entrant_results):
+        num_entrants = len(same_lap_entrant_results)
+        if num_entrants <= 1:
+            return same_lap_entrant_results
+        return_array = [None] * num_entrants
+        pivot_idx = random.randrange(num_entrants - 1)
+        pivot_entrant = same_lap_entrant_results[pivot_idx]
         ahead_idx = 0
-        behind_idx = num_results - 1
-        for r in same_lap_results:
-            if r == pivot_result:
+        behind_idx = num_entrants - 1
+        for e in same_lap_entrant_results:
+            if e == pivot_entrant:
                 continue
-            c = self._compare(r, pivot_result)
+            c = self._compare(e, pivot_entrant)
             if c < 0:
-                # 'r' finished ahead of the pivot_result
-                return_array[ahead_idx] = r
+                # 'r' finished ahead of the pivot_entrant
+                return_array[ahead_idx] = e
                 ahead_idx += 1
             else:
-                return_array[behind_idx] = r
+                return_array[behind_idx] = e
                 behind_idx -= 1
-        return_array[ahead_idx] = pivot_result
+        return_array[ahead_idx] = pivot_entrant
         if ahead_idx > 1:
-            return_array[0:ahead_idx] = self._order_results(return_array[0:ahead_idx])
-        if num_results - behind_idx > 1:
-            return_array[behind_idx + 1:num_results] = \
-                    self._order_results(return_array[behind_idx + 1:num_results])
+            return_array[0:ahead_idx] = self._order_entrant_results(return_array[0:ahead_idx])
+        if num_entrants - behind_idx > 1:
+            return_array[behind_idx + 1:num_entrants] = \
+                    self._order_entrant_results(return_array[behind_idx + 1:num_entrants])
         return return_array
 
-    def _compare(self, a, b):
+    def _compare(self, entrant_a, entrant_b):
         """Return a value < 0 if 'a' finished ahead of 'b'
         """
-        elo_win_prob, _, _ = self._prediction.get_elo_win_probability(a, b)
+        elo_win_prob, _, _ = self._prediction.get_elo_win_probability(entrant_a, entrant_b)
         if elo_win_prob is None:
             return 0
         return random.random() - elo_win_prob
@@ -402,7 +404,7 @@ class EventPrediction(object):
         for team in self._event.teams():
             team.commit_update()
 
-    def predict_winner(self, simulate_results):
+    def predict_winner(self, do_simulate_results):
         """
         Predict the probability of each entrant winning. Use the odds ratio.
         https://en.wikipedia.org/wiki/Odds_ratio
@@ -418,17 +420,17 @@ class EventPrediction(object):
         }
         # Simulate the event
         simulator = EventSimulator(self)
-        if simulate_results:
+        if do_simulate_results:
             simulator.simulate()
-        for result, position_probabilities in simulator.position_probabilities().items():
-            driver_id = result.driver().id()
-            driver_finish = result.driver().rating().probability_finishing(race_distance_km=distance_km)
-            car_finish = result.team().rating().probability_finishing(race_distance_km=distance_km)
+        for entrant, position_probabilities in simulator.position_probabilities().items():
+            driver_id = entrant.driver().id()
+            driver_finish = entrant.driver().rating().probability_finishing(race_distance_km=distance_km)
+            car_finish = entrant.team().rating().probability_finishing(race_distance_km=distance_km)
             finish_probability = driver_finish * car_finish
             self.finish_probabilities()[driver_id] = {
                 'All': finish_probability, 'Car': car_finish, 'Driver': driver_finish
             }
-            if simulate_results:
+            if do_simulate_results:
                 self.win_probabilities()[driver_id] = position_probabilities.get(1, 0)
                 self.podium_probabilities()[driver_id] = position_probabilities.get(1, 0)
                 self.podium_probabilities()[driver_id] += position_probabilities.get(2, 0)
@@ -462,54 +464,54 @@ class EventPrediction(object):
                       file=self._debug_file)
 
     def predict_all_head_to_head(self):
-        for result_a in self._event.results():
-            for result_b in self._event.results():
+        for entrant_a in self._event.entrants():
+            for entrant_b in self._event.entrants():
                 # Allow us to calculate the odds of an entrant against themselves. When calculating win probability we
                 # need to calculate the odds of a person against themselves (it should be 50/50) so don't skip over
                 # that one.
-                if result_a.driver().id() > result_b.driver().id():
+                if entrant_a.driver().id() > entrant_b.driver().id():
                     continue
-                head_to_head = HeadToHeadPrediction(self._event, result_a, result_b, self._elo_denominator,
+                head_to_head = HeadToHeadPrediction(self._event, entrant_a, entrant_b, self._elo_denominator,
                                                     self._k_factor_adjust, self._car_factor,
                                                     self._base_points_per_position, self._position_base_factor,
                                                     self._debug_file)
-                self._head_to_head[result_a][result_b] = head_to_head
+                self._head_to_head[entrant_a][entrant_b] = head_to_head
                 # print('Added (%s:%s) and (%s:%s)' % (result_a.driver().id(), result_a.team().uuid(),
                 #                                      result_b.driver().id(), result_b.team().uuid()))
 
-    def get_win_probability(self, result_a, result_b):
-        if result_a in self._head_to_head:
-            if result_b in self._head_to_head[result_a]:
-                return self._head_to_head[result_a][result_b].this_win_probability()
-        if result_b in self._head_to_head:
-            if result_a in self._head_to_head[result_b]:
-                return self._head_to_head[result_b][result_a].this_win_probability(get_other=True)
-        print('ERROR no (%s:%s) or (%s:%s) in GWP' % (result_a.driver().id(), result_a.team().uuid(),
-                                                      result_b.driver().id(), result_b.team().uuid()),
+    def get_win_probability(self, entrant_a, entrant_b):
+        if entrant_a in self._head_to_head:
+            if entrant_b in self._head_to_head[entrant_a]:
+                return self._head_to_head[entrant_a][entrant_b].this_win_probability()
+        if entrant_b in self._head_to_head:
+            if entrant_a in self._head_to_head[entrant_b]:
+                return self._head_to_head[entrant_b][entrant_a].this_win_probability(get_other=True)
+        print('ERROR no (%s:%s) or (%s:%s) in GWP' % (entrant_a.driver().id(), entrant_a.team().uuid(),
+                                                      entrant_b.driver().id(), entrant_b.team().uuid()),
               file=self._debug_file)
         return None
 
-    def get_elo_win_probability(self, result_a, result_b):
-        if result_a in self._head_to_head:
-            if result_b in self._head_to_head[result_a]:
-                return self._head_to_head[result_a][result_b].this_elo_probability()
-        if result_b in self._head_to_head:
-            if result_a in self._head_to_head[result_b]:
-                return self._head_to_head[result_b][result_a].this_elo_probability(get_other=True)
-        print('ERROR no (%s:%s) or (%s:%s) in GEWP' % (result_a.driver().id(), result_a.team().uuid(),
-                                                       result_b.driver().id(), result_b.team().uuid()),
+    def get_elo_win_probability(self, entrant_a, entrant_b):
+        if entrant_a in self._head_to_head:
+            if entrant_b in self._head_to_head[entrant_a]:
+                return self._head_to_head[entrant_a][entrant_b].this_elo_probability()
+        if entrant_b in self._head_to_head:
+            if entrant_a in self._head_to_head[entrant_b]:
+                return self._head_to_head[entrant_b][entrant_a].this_elo_probability(get_other=True)
+        print('ERROR no (%s:%s) or (%s:%s) in GEWP' % (entrant_a.driver().id(), entrant_a.team().uuid(),
+                                                       entrant_b.driver().id(), entrant_b.team().uuid()),
               file=self._debug_file)
         return None
 
-    def get_elo_deltas(self, result_a, result_b):
-        if result_a in self._head_to_head:
-            if result_b in self._head_to_head[result_a]:
-                return self._head_to_head[result_a][result_b].this_elo_deltas()
-        if result_b in self._head_to_head:
-            if result_a in self._head_to_head[result_b]:
-                return self._head_to_head[result_b][result_a].this_elo_deltas(get_other=True)
-        print('ERROR no (%s:%s) or (%s:%s) in GED' % (result_a.driver().id(), result_a.team().uuid(),
-                                                      result_b.driver().id(), result_b.team().uuid()),
+    def get_elo_deltas(self, entrant_a, entrant_b):
+        if entrant_a in self._head_to_head:
+            if entrant_b in self._head_to_head[entrant_a]:
+                return self._head_to_head[entrant_a][entrant_b].this_elo_deltas()
+        if entrant_b in self._head_to_head:
+            if entrant_b in self._head_to_head[entrant_b]:
+                return self._head_to_head[entrant_b][entrant_a].this_elo_deltas(get_other=True)
+        print('ERROR no (%s:%s) or (%s:%s) in GED' % (entrant_a.driver().id(), entrant_a.team().uuid(),
+                                                      entrant_b.driver().id(), entrant_b.team().uuid()),
               file=self._debug_file)
         return None, None
 

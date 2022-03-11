@@ -13,6 +13,9 @@ class Result(object):
     def event(self):
         return self._event
 
+    def entrant(self):
+        return self._entrant
+
     def driver(self):
         return self._entrant.driver()
 
@@ -38,12 +41,3 @@ class Result(object):
 
     def laps(self):
         return self._laps_completed
-
-    def probability_complete_n_laps(self, num_laps):
-        return self._entrant.probability_complete_n_laps(num_laps)
-
-    def probability_fail_at_n(self, num_laps):
-        return self._entrant.probability_fail_at_n(num_laps)
-
-    def probability_fail_after_n(self, num_laps):
-        return self._entrant.probability_fail_after_n(num_laps)

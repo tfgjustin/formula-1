@@ -157,7 +157,7 @@ class DataLoader(object):
                             dnf_category=row['dnf_category'], laps_completed=row['laps'])
             entrant.set_result(result)
             self._results.append(result)
-            self._events[event.id()].add_result(result)
+            self._events[event.id()].add_entrant(entrant)
         self.identify_all_participants()
         print('Loaded %d results' % (len(self._results)), file=self._outfile)
 

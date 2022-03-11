@@ -304,9 +304,11 @@ class Calculator(object):
             result.driver().rating().update_reliability(km_success, km_driver_failure)
 
     def compare_results(self, event, predictions, result_a, result_b):
+        entrant_a = result_a.entrant()
+        entrant_b = result_b.entrant()
         # First do the overall win probabilities
         win_actual_a = 1 if result_a.end_position() < result_b.end_position() else 0
-        win_prob_a = predictions.get_win_probability(result_a, result_b)
+        win_prob_a = predictions.get_win_probability(entrant_a, entrant_b)
         if win_prob_a is None:
             if self._debug_file is not None:
                 print('      Skip: Win Prob is None', file=self._debug_file)
@@ -319,12 +321,12 @@ class Calculator(object):
             if self._debug_file is not None:
                 print('      Skip: At least one entrant DNF\'ed', file=self._debug_file)
             return
-        elo_win_prob_a, rating_a, rating_b = predictions.get_elo_win_probability(result_a, result_b)
+        elo_win_prob_a, rating_a, rating_b = predictions.get_elo_win_probability(entrant_a, entrant_b)
         if elo_win_prob_a is None:
             if self._debug_file is not None:
                 print('      Skip: Elo Prob is None', file=self._debug_file)
             return
-        car_delta, driver_delta = predictions.get_elo_deltas(result_a, result_b)
+        car_delta, driver_delta = predictions.get_elo_deltas(entrant_a, entrant_b)
         if car_delta is None or driver_delta is None:
             if self._debug_file is not None:
                 print('      Skip: Use', file=self._debug_file)
