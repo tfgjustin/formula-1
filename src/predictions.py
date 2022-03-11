@@ -26,10 +26,6 @@ def elo_win_probability(r_a, r_b, denominator):
     return q_a / (q_a + q_b)
 
 
-# def was_performance_win(result_this, result_other):
-#     return result_this.dnf_category() == '-' and result_other.dnf_category() == '-'
-
-
 class HeadToHeadPrediction(object):
 
     def __init__(self, event, entrant_this, entrant_other, elo_denominator, k_factor_adjust, car_factor,
@@ -120,11 +116,6 @@ class HeadToHeadPrediction(object):
             return self._this_elo_probability, self._rating_this, self._rating_other
 
     def this_elo_deltas(self, get_other=False):
-        """
-        if not was_performance_win(self._entrant_this, self._entrant_other):
-            # One of these DNF'ed
-            return None, None
-        """
         elo_win_probability_this, _, _ = self.this_elo_probability()
         if elo_win_probability_this is None:
             return None, None
@@ -233,7 +224,7 @@ class EventSimulator(object):
         self._prediction = event_prediction
         self._num_iterations = event_prediction.num_iterations()
         self._event = event_prediction.event()
-        self._num_entrants = len(self._event.results())
+        self._num_entrants = len(self._event.entrants())
         # Raw results: [entrant][position] = count
         self._all_simulated_results = dict()
         self._init_simulated_results()
@@ -476,8 +467,6 @@ class EventPrediction(object):
                                                     self._base_points_per_position, self._position_base_factor,
                                                     self._debug_file)
                 self._head_to_head[entrant_a][entrant_b] = head_to_head
-                # print('Added (%s:%s) and (%s:%s)' % (result_a.driver().id(), result_a.team().uuid(),
-                #                                      result_b.driver().id(), result_b.team().uuid()))
 
     def get_win_probability(self, entrant_a, entrant_b):
         if entrant_a in self._head_to_head:
