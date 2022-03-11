@@ -26,18 +26,6 @@ def elo_win_probability(r_a, r_b, denominator):
     return q_a / (q_a + q_b)
 
 
-def select_reference_results(event, car_factor, num_results=4):
-    if event.type() == 'Q':
-        performance = sorted([result for result in event.results()],
-                             key=lambda r: elo_rating_from_result(car_factor, r), reverse=True)
-        return performance[:num_results]
-    else:
-        # Use this for sprint qualifying and races.
-        reliability = sorted([result for result in event.results()], key=lambda r: r.probability_complete_n_laps(1),
-                             reverse=True)
-        return reliability[:num_results]
-
-
 def was_performance_win(result_this, result_other):
     return result_this.dnf_category() == '-' and result_other.dnf_category() == '-'
 
@@ -243,8 +231,15 @@ class EventSimulator(object):
         self._prediction = event_prediction
         self._num_iterations = event_prediction.num_iterations()
         self._event = event_prediction.event()
+        self._num_entrants = len(self._event.results())
         # Raw results: [result][position] = count
         self._results = dict()
+        self._init_results()
+        self._tmp_results = [None] * self._num_entrants
+
+    def _init_results(self):
+        for result in self._event.results():
+            self._results[result] = {int(n + 1): 0 for n in range(self._num_entrants)}
 
     def simulate(self, num_iterations=None):
         if num_iterations is None:
@@ -268,25 +263,45 @@ class EventSimulator(object):
             distances[self._calculate_num_laps(result)].append(result)
 
     def _calculate_num_laps(self, result):
-        distance = random.random()
-        for laps_from_end in range(self._event.num_laps()):
-            complete_n = self._event.num_laps() - laps_from_end
-            if result.probability_complete_n_laps(complete_n) > distance:
-                return complete_n
-        return 0
+        failure_probability = random.random()
+        # Did we make it to the end?
+        if failure_probability < result.probability_complete_n_laps(self._event.num_laps()):
+            return self._event.num_laps()
+        # Binary search the rest
+        high = self._event.num_laps()
+        low = 0
+        while high - 1 > low:
+            mid = int((high + low) / 2)
+            mid_prob = result.probability_complete_n_laps(mid)
+            if failure_probability < mid_prob:
+                # We went further than the midpoint
+                low = mid
+            else:
+                # We didn't make it to the midpoint
+                high = mid
+        # Either high == low or high = low + 1
+        if high == low:
+            if failure_probability < result.probability_complete_n_laps(high):
+                return high
+            else:
+                return high - 1
+        else:
+            if failure_probability < result.probability_complete_n_laps(high):
+                return high
+            elif failure_probability < result.probability_complete_n_laps(low):
+                return low
+            else:
+                return low - 1
 
     def _determine_positions(self, distances):
-        ordered_results = list()
+        curr_start = 0
         for lap_num in sorted(distances, reverse=True):
-            ordered_results.extend(self._order_results(distances[lap_num]))
+            curr_end = curr_start + len(distances[lap_num])
+            self._tmp_results[curr_start:curr_end] = self._order_results(distances[lap_num])
+            curr_start += len(distances[lap_num])
         pos = 1
-        for result in ordered_results:
-            positions = self._results.get(result, dict())
-            if pos in positions:
-                positions[pos] += 1
-            else:
-                positions[pos] = 1
-            self._results[result] = positions
+        for result in self._tmp_results:
+            self._results[result][pos] += 1
             pos += 1
 
     def _normalize_results(self):
@@ -295,25 +310,40 @@ class EventSimulator(object):
                 positions[position] /= self._num_iterations
 
     def _order_results(self, same_lap_results):
-        if len(same_lap_results) <= 1:
+        num_results = len(same_lap_results)
+        if num_results <= 1:
             return same_lap_results
-        random.shuffle(same_lap_results)
-        pivot_result = same_lap_results[0]
-        ahead = list()
-        behind = list()
-        for r in same_lap_results[1:]:
-            cmp = self._compare(pivot_result, r)
-            if cmp < 0:
-                ahead.append(r)
+        return_array = [None] * num_results
+        pivot_idx = random.randrange(num_results - 1)
+        pivot_result = same_lap_results[pivot_idx]
+        ahead_idx = 0
+        behind_idx = num_results - 1
+        for r in same_lap_results:
+            if r == pivot_result:
+                continue
+            c = self._compare(r, pivot_result)
+            if c < 0:
+                # 'r' finished ahead of the pivot_result
+                return_array[ahead_idx] = r
+                ahead_idx += 1
             else:
-                behind.append(r)
-        return self._order_results(ahead) + [pivot_result] + self._order_results(behind)
+                return_array[behind_idx] = r
+                behind_idx -= 1
+        return_array[ahead_idx] = pivot_result
+        if ahead_idx > 1:
+            return_array[0:ahead_idx] = self._order_results(return_array[0:ahead_idx])
+        if num_results - behind_idx > 1:
+            return_array[behind_idx + 1:num_results] = \
+                    self._order_results(return_array[behind_idx + 1:num_results])
+        return return_array
 
     def _compare(self, a, b):
+        """Return a value < 0 if 'a' finished ahead of 'b'
+        """
         elo_win_prob, _, _ = self._prediction.get_elo_win_probability(a, b)
         if elo_win_prob is None:
             return 0
-        return math.copysign(1, elo_win_prob - random.random())
+        return random.random() - elo_win_prob
 
 
 class EventPrediction(object):

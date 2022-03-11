@@ -78,13 +78,16 @@ class Result(object):
             return 0.95
 
     def probability_complete_n_laps(self, num_laps):
-        self.calculate_lap_reliability(self._event.num_laps(), self._event.lap_distance_km())
+        if self._probability_fail_at_n is None:
+            self.calculate_lap_reliability(self._event.num_laps(), self._event.lap_distance_km())
         return self._probability_succeed_through_n[num_laps]
 
     def probability_fail_at_n(self, num_laps):
-        self.calculate_lap_reliability(self._event.num_laps(), self._event.lap_distance_km())
+        if self._probability_fail_at_n is None:
+            self.calculate_lap_reliability(self._event.num_laps(), self._event.lap_distance_km())
         return self._probability_fail_at_n[num_laps]
 
     def probability_fail_after_n(self, num_laps):
-        self.calculate_lap_reliability(self._event.num_laps(), self._event.lap_distance_km())
+        if self._probability_fail_at_n is None:
+            self.calculate_lap_reliability(self._event.num_laps(), self._event.lap_distance_km())
         return self._probability_fail_after_n[num_laps]
