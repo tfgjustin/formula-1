@@ -24,6 +24,9 @@ class Team(object):
     def start_update(self, event_id, base_car_reliability):
         self._rating.start_update(event_id, self._id, is_alias=self._is_alias, base_reliability=base_car_reliability)
 
+    def maybe_regress(self):
+        self._rating.update(0)
+
     def commit_update(self):
         self._rating.commit_update()
         if self._rating.elo() is None:

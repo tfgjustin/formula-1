@@ -389,6 +389,12 @@ class EventPrediction(object):
         self._base_new_car_reliability.start_update()
         self._base_driver_reliability.start_update()
 
+    def maybe_force_regress(self):
+        for driver in sorted(self._event.drivers(), key=lambda d: d.id()):
+            driver.maybe_regress()
+        for team in sorted(self._event.teams(), key=lambda t: t.id()):
+            team.maybe_regress()
+
     def commit_updates(self):
         for driver in self._event.drivers():
             driver.commit_update()
