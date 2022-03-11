@@ -1,3 +1,33 @@
+def compare_events(e1, e2):
+    left = e1.split('-')
+    right = e2.split('-')
+    if left[0] < right[0]:
+        return -1
+    elif left[0] > right[1]:
+        return 1
+    if left[1] < right[1]:
+        return -1
+    elif left[1] > right[1]:
+        return 1
+    if left[2] == 'Q':
+        if right[2] == 'Q':
+            return 0
+        else:
+            return -1
+    elif left[2] == 'S':
+        if right[2] == 'Q':
+            return 1
+        elif right[2] == 'R':
+            return -1
+        else:
+            return 0
+    else:
+        if right[2] == 'R':
+            return 0
+        else:
+            return 1
+
+
 class Event(object):
 
     def __init__(self, event_id, name, season, stage, date, event_type, num_laps, lap_distance_km):

@@ -39,6 +39,7 @@ def run_one_combination(args, task_queue):
                 task_queue.task_one()
             return True
         loader.load_results(args.results_tsv)
+        loader.load_future_simulation_data()
         rating_calculator = calculator.Calculator(args, base_path)
         rating_calculator.run_all_ratings(loader)
     if task_queue is not None:

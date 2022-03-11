@@ -46,6 +46,12 @@ def create_argparser():
     parser.add_argument('--elo_exponent_denominator_race',
                         help='The denominator in the Elo probability exponent for races.',
                         type=int, default=250)
+    parser.add_argument('--future_events_tsv',
+                        help='TSV file containing list of future events.',
+                        type=str, default='')
+    parser.add_argument('--future_lineup_tsv',
+                        help='TSV file containing driver and team lineup for future events.',
+                        type=str, default='')
     parser.add_argument('--logfile_uses_parameters',
                         help='Append encoded parameters to the logfile output name.',
                         default=False, action='store_true')
@@ -63,6 +69,9 @@ def create_argparser():
                         type=float, default=0.8)
     parser.add_argument('--print_debug',
                         help='Print a file containing detailed debugging information (this will be large).',
+                        default=False, action='store_true')
+    parser.add_argument('--print_future_simulations',
+                        help='Print a file logging results of simulated future results.',
                         default=False, action='store_true')
     parser.add_argument('--print_predictions',
                         help='Print a file containing all the predictions, useful in calibrating the model.',

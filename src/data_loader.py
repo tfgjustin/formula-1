@@ -1,9 +1,11 @@
 import csv
+import functools
 import io
 
+from copy import deepcopy
 from driver import Driver
 from entrant import Entrant
-from event import Qualifying, Race, SprintQualifying
+from event import Qualifying, Race, SprintQualifying, compare_events
 from ratings import EloRating
 from result import Result
 from season import Season
@@ -22,9 +24,12 @@ class DataLoader(object):
 
     def __init__(self, args, base_filename):
         self._events = dict()
+        self._future_events = dict()
         self._seasons = dict()
+        self._future_seasons = dict()
         self._drivers = dict()
         self._results = list()
+        self._future_entrants = None
         self._args = args
         self._outfile = open(base_filename + '.loader', 'w')
         self._team_factory = TeamFactory(args)
@@ -50,40 +55,8 @@ class DataLoader(object):
     def team_factory(self):
         return self._team_factory
 
-    def load_events(self, contents):
-        _HEADERS = ['season', 'stage', 'date', 'name', 'type', 'event_id', 'laps', 'lap_distance']
-        handle = io.StringIO(contents)
-        reader = csv.DictReader(handle, delimiter='\t')
-        for row in reader:
-            if not _is_valid_row(row, _HEADERS):
-                continue
-            if row['type'] == 'Q':
-                event = Qualifying(
-                    row['event_id'], row['name'], row['season'], row['stage'], row['date'], row['laps'],
-                    row['lap_distance'])
-            elif row['type'] == 'S':
-                event = SprintQualifying(
-                    row['event_id'], row['name'], row['season'], row['stage'], row['date'], row['laps'],
-                    row['lap_distance'])
-            elif row['type'] == 'R':
-                event = Race(
-                    row['event_id'], row['name'], row['season'], row['stage'], row['date'], row['laps'],
-                    row['lap_distance'])
-            else:
-                continue
-            self._events[event.id()] = event
-            if event.season() in self._seasons:
-                self._seasons[event.season()].add_event(event)
-            else:
-                season = Season(event.season())
-                season.add_event(event)
-                self._seasons[event.season()] = season
-        print('Loaded %d events' % (len(self._events)), file=self._outfile)
-        print('Loaded %d seasons' % (len(self._seasons)), file=self._outfile)
-        for year in sorted(self._seasons.keys()):
-            season = self._seasons[year]
-            num_events = len(season.events())
-            print('Season: %4d #Events: %2d' % (season.year(), num_events), file=self._outfile)
+    def load_events(self, content):
+        self._load_events_internal(content, 'Historical', self._events, self._seasons)
 
     def load_drivers(self, content):
         _HEADERS = ['driver_id', 'driver_name']
@@ -161,6 +134,96 @@ class DataLoader(object):
         self.identify_all_participants()
         print('Loaded %d results' % (len(self._results)), file=self._outfile)
 
+    def load_future_simulation_data(self):
+        if not self._args.print_future_simulations:
+            return
+        self.load_future_events(self._args.future_events_tsv)
+        self.load_future_lineup(self._args.future_lineup_tsv)
+
+    def load_future_events(self, filename):
+        if not filename:
+            return
+        with open(filename, 'r') as infile:
+            content = infile.read()
+        self._load_events_internal(content, 'Future', self._future_events, self._future_seasons)
+
+    def load_future_lineup(self, filename):
+        if filename:
+            self._load_future_lineup_from_file(filename)
+        else:
+            self._get_future_lineup_from_last_event()
+
     def identify_all_participants(self):
         for season in self._seasons.values():
             season.identify_participants()
+
+    def _load_events_internal(self, contents, tag, event_log, season_log):
+        _HEADERS = ['season', 'stage', 'date', 'name', 'type', 'event_id', 'laps', 'lap_distance']
+        handle = io.StringIO(contents)
+        reader = csv.DictReader(handle, delimiter='\t')
+        for row in reader:
+            if not _is_valid_row(row, _HEADERS):
+                continue
+            if row['type'] == 'Q':
+                event = Qualifying(
+                    row['event_id'], row['name'], row['season'], row['stage'], row['date'], row['laps'],
+                    row['lap_distance'])
+            elif row['type'] == 'S':
+                event = SprintQualifying(
+                    row['event_id'], row['name'], row['season'], row['stage'], row['date'], row['laps'],
+                    row['lap_distance'])
+            elif row['type'] == 'R':
+                event = Race(
+                    row['event_id'], row['name'], row['season'], row['stage'], row['date'], row['laps'],
+                    row['lap_distance'])
+            else:
+                continue
+            event_log[event.id()] = event
+            if event.season() in season_log:
+                season_log[event.season()].add_event(event)
+            else:
+                season = Season(event.season())
+                season.add_event(event)
+                season_log[event.season()] = season
+        print('Loaded %d %s events' % (len(event_log), tag.lower()), file=self._outfile)
+        print('Loaded %d %s seasons' % (len(season_log), tag.lower()), file=self._outfile)
+        for year in sorted(season_log.keys()):
+            season = season_log[year]
+            num_events = len(season.events())
+            print('%s Season: %4d #Events: %2d' % (tag, season.year(), num_events), file=self._outfile)
+
+    def _load_future_lineup_from_file(self, filename):
+        _HEADERS = ['driver_id', 'team_id']
+        count = 0
+        with open(filename, 'r') as infile:
+            reader = csv.DictReader(infile, delimiter='\t')
+            for row in reader:
+                if not _is_valid_row(row, _HEADERS):
+                    continue
+                team = self._team_factory.get_current_team(row['team_id'])
+                if team is None:
+                    print('ERROR: Invalid team ID %s for future lineup' % (row['team_id']), file=self._outfile)
+                    continue
+                team = deepcopy(team)
+                if row['driver_id'] not in self._drivers:
+                    print('ERROR: Invalid driver ID %s for future lineup' % (row['driver_id']), file=self._outfile)
+                    continue
+                driver = deepcopy(self._drivers[row['driver_id']])
+                for event in self._future_events.values():
+                    entrant = Entrant(event, driver, team)
+                    event.add_entrant(entrant)
+                count += 1
+        print('Loaded %d future entrants from %s' % (count, filename), file=self._outfile)
+
+    def _get_future_lineup_from_last_event(self):
+        last_event_id = sorted(self._events.keys(),  key=functools.cmp_to_key(compare_events))[-1]
+        last_event = self._events[last_event_id]
+        count = 0
+        for entrant in last_event.entrants():
+            driver = deepcopy(entrant.driver())
+            team = deepcopy(entrant.team())
+            for event in self._future_events.values():
+                entrant = Entrant(event, driver, team)
+                event.add_entrant(entrant)
+            count += 1
+        print('Reused %d future entrants from %s' % (count, last_event.id()), file=self._outfile)

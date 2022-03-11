@@ -4,6 +4,7 @@ import functools
 import math
 import numpy as np
 
+from event import compare_events
 from predictions import EventPrediction
 from ratings import CarReliability, DriverReliability, Reliability
 from scipy.stats import skew
@@ -81,36 +82,6 @@ def assign_year_value_dict(spec, divisor, value_dict):
         else:
             count += 1
         value_dict[year] = current_value
-
-
-def compare_events(e1, e2):
-    left = e1.split('-')
-    right = e2.split('-')
-    if left[0] < right[0]:
-        return -1
-    elif left[0] > right[1]:
-        return 1
-    if left[1] < right[1]:
-        return -1
-    elif left[1] > right[1]:
-        return 1
-    if left[2] == 'Q':
-        if right[2] == 'Q':
-            return 0
-        else:
-            return -1
-    elif left[2] == 'S':
-        if right[2] == 'Q':
-            return 1
-        elif right[2] == 'R':
-            return -1
-        else:
-            return 0
-    else:
-        if right[2] == 'R':
-            return 0
-        else:
-            return 1
 
 
 class Calculator(object):
