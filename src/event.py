@@ -9,19 +9,24 @@ class Event(object):
         self._type = event_type
         self._num_laps = int(num_laps)
         self._lap_distance_km = float(lap_distance_km)
+        self._entrants = list()
         self._results = list()
         self._drivers = set()
         self._teams = set()
 
-    def add_result(self, result):
-        if result.event().id() == self._id:
-            self._results.append(result)
-            self._drivers.add(result.driver())
-            if result.team() is not None:
-                self._teams.add(result.team())
+    def add_entrant(self, entrant):
+        if entrant.event().id() == self._id:
+            self._entrants.append(entrant)
+            self._results.append(entrant.result())
+            self._drivers.add(entrant.driver())
+            if entrant.team() is not None:
+                self._teams.add(entrant.team())
 
     def num_entrants(self):
         return len(self._results)
+
+    def entrants(self):
+        return self._entrants
 
     def results(self):
         return self._results
