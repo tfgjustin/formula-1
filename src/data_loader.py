@@ -2,6 +2,7 @@ import csv
 import io
 
 from driver import Driver
+from entrant import Entrant
 from event import Qualifying, Race, SprintQualifying
 from ratings import EloRating
 from result import Result
@@ -151,9 +152,10 @@ class DataLoader(object):
                       file=self._outfile)
                 continue
             driver = self._drivers[row['driver_id']]
-            result = Result(event, driver, row['end_position'],
-                            team=team, start_position=start_position,
-                            num_racers=row['num_racers'], dnf_category=row['dnf_category'], laps=row['laps'])
+            entrant = Entrant(event, driver, team, start_position=start_position)
+            result = Result(event, entrant, row['end_position'],
+                            dnf_category=row['dnf_category'], laps_completed=row['laps'])
+            entrant.set_result(result)
             self._results.append(result)
             self._events[event.id()].add_result(result)
         self.identify_all_participants()

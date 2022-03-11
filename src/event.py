@@ -20,6 +20,9 @@ class Event(object):
             if result.team() is not None:
                 self._teams.add(result.team())
 
+    def num_entrants(self):
+        return len(self._results)
+
     def results(self):
         return self._results
 
