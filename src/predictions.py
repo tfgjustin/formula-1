@@ -225,31 +225,43 @@ class EventSimulator(object):
         self._num_iterations = event_prediction.num_iterations()
         self._event = event_prediction.event()
         self._num_entrants = len(self._event.entrants())
-        # Raw results: [entrant][position] = count
+        self._simulation_log_file = self._prediction.simulation_log_file()
+        # Raw and normalized results: [entrant][position] = count
         self._all_simulated_results = dict()
-        self._init_simulated_results()
+        self._position_probabilities = dict()
+        self._simulation_log = list()
         self._tmp_one_simulation_ordering = [None] * self._num_entrants
+        self._init_simulated_results()
 
     def _init_simulated_results(self):
+        # Force there to be the correct number of spots so even 0-count results are accounted for
         for entrant in self._event.entrants():
             self._all_simulated_results[entrant] = {int(n + 1): 0 for n in range(self._num_entrants)}
 
-    def simulate(self, num_iterations=None):
+    def simulate(self, num_iterations=None, idx_offset=0):
         if num_iterations is None:
             num_iterations = self._num_iterations
-        for _ in range(num_iterations):
-            self._simulate_one()
+        for idx in range(num_iterations):
+            self._simulate_one(idx + idx_offset)
         self._normalize_simulated_positions()
+
+    def position_counts(self):
+        return self._all_simulated_results
 
     def position_probabilities(self):
         return self._all_simulated_results
 
-    def _simulate_one(self):
+    def simulation_log(self):
+        return self._simulation_log
+
+    def _simulate_one(self, idx):
         # Figure out how far each one gets
         distances = defaultdict(list)
         self._calculate_distances(distances)
         # Then compare all within each position
         self._determine_positions(distances)
+        if self._simulation_log_file is not None:
+            self.log_results(idx)
 
     def _calculate_distances(self, distances):
         for entrant in self._event.entrants():
@@ -292,15 +304,19 @@ class EventSimulator(object):
             curr_end = curr_start + len(distances[lap_num])
             self._tmp_one_simulation_ordering[curr_start:curr_end] = self._order_entrant_results(distances[lap_num])
             curr_start += len(distances[lap_num])
+        # Append this outcome to the simulation log
+        self._simulation_log.append('|'.join([e.driver().id() for e in self._tmp_one_simulation_ordering]))
         pos = 1
         for entrant in self._tmp_one_simulation_ordering:
             self._all_simulated_results[entrant][pos] += 1
             pos += 1
 
     def _normalize_simulated_positions(self):
-        for positions in self._all_simulated_results.values():
+        for entrant, positions in self._all_simulated_results.items():
+            entrant_probabilities = dict()
             for position in positions.keys():
-                positions[position] /= self._num_iterations
+                entrant_probabilities[position] = positions[position] / self._num_iterations
+            self._position_probabilities[entrant] = entrant_probabilities
 
     def _order_entrant_results(self, same_lap_entrant_results):
         num_entrants = len(same_lap_entrant_results)
@@ -338,12 +354,16 @@ class EventSimulator(object):
             return 0
         return random.random() - elo_win_prob
 
+    def log_results(self, idx):
+        order_string = '|'.join([e.id() for e in self._tmp_one_simulation_ordering])
+        print('%s,%s,%s' % (self._event.id(), idx, order_string), file=self._simulation_log_file)
+
 
 class EventPrediction(object):
 
     def __init__(self, event, num_iterations, elo_denominator, k_factor_adjust, car_factor, base_points_per_position,
                  position_base_factor, base_car_reliability, base_new_car_reliability, base_driver_reliability,
-                 team_reliability_new_events, debug_file):
+                 team_reliability_new_events, debug_file, starting_positions=None, simulation_log=None):
         self._event = event
         self._num_iterations = num_iterations
         self._elo_denominator = elo_denominator
@@ -361,10 +381,16 @@ class EventPrediction(object):
         self._naive_probabilities = dict()
         self._position_base_dict = None
         self._team_share_dict = None
+        # Mapping of [entrant_a][entrant_b] to HeadToHeadPrediction
         self._head_to_head = defaultdict(dict)
+        # Mapping of [starting_key][entrant_a][entrant_b] to HeadToHeadPrediction
+        self._all_head_to_head = defaultdict(dict)
         self._debug_file = debug_file
         self._driver_cache = None
         self._team_cache = None
+        # These are only used in only_simulate_outcomes
+        self._starting_positions = starting_positions
+        self._simulation_log_file = simulation_log
 
     def cache_ratings(self):
         self._driver_cache = {driver.id(): copy.deepcopy(driver) for driver in self._event.drivers()}
@@ -403,10 +429,9 @@ class EventPrediction(object):
 
     def predict_winner(self, do_simulate_results):
         """
-        Predict the probability of each entrant winning. Use the odds ratio.
+        Predict the probability of each entrant winning. Use the Odds Ratio.
         https://en.wikipedia.org/wiki/Odds_ratio
         """
-        self.predict_all_head_to_head()
         # Calculate the naive probabilities to finish this event.
         distance_km = self._event.total_distance_km()
         naive_car_probability = self._base_car_reliability.probability_finishing(race_distance_km=distance_km)
@@ -415,7 +440,8 @@ class EventPrediction(object):
         self._naive_probabilities = {
             _ALL: naive_all_probability, _CAR: naive_car_probability, _DRIVER: naive_driver_probability
         }
-        # Simulate the event
+        # Predict all head-to-head and then simulate the event
+        self.predict_all_head_to_head()
         simulator = EventSimulator(self)
         if do_simulate_results:
             simulator.simulate()
@@ -460,7 +486,64 @@ class EventPrediction(object):
                     second.get(driver_id, 0), third.get(driver_id, 0), driver_id),
                       file=self._debug_file)
 
-    def predict_all_head_to_head(self):
+    def only_simulate_outcomes(self):
+        if self._starting_positions is None:
+            # This is a function call signature mismatch
+            print('ERROR: Starting positions is None in simulation-only mode.', file=self._debug_file)
+            return
+        if not self._starting_positions:
+            # This is a qualifying event and there are no starting positions
+            self.set_starting_positions(None)
+            self.predict_all_head_to_head()
+            simulator = EventSimulator(self)
+            simulator.simulate()
+            self._starting_positions.extend(simulator.simulation_log())
+        else:
+            # By default, only run one simulation per starting position ordering. However, if only one starting
+            # position ordering is specified, this means it was generated artificially from a previous event.  E.g., the
+            # last seen actual/real event was qualifying, and now we need to simulate the race given the outcome of
+            # that qualifying session; in that case do the full set of simulations.
+            num_iterations = 1
+            if len(self._starting_positions) == 1:
+                num_iterations = self._num_iterations
+            elif len(self._starting_positions) != self._num_iterations:
+                print('ERROR: In simulation-only mode were only given %d starting positions but expected %d.' % (
+                    len(self._starting_positions), self._num_iterations
+                ), file=self._debug_file)
+                return
+            simulation_outcomes = list()
+            idx = 0
+            for starting_order in self._starting_positions:
+                self.set_starting_positions(starting_order)
+                self.predict_all_head_to_head(starting_order=starting_order)
+                simulator = EventSimulator(self)
+                simulator.simulate(num_iterations=num_iterations, idx_offset=idx)
+                simulation_outcomes.extend(simulator.simulation_log())
+                idx += 1
+            self._starting_positions.clear()
+            if self._event.type() != 'R':
+                # We don't carry race results over but otherwise (qualifying and sprint) carry them over.
+                self._starting_positions.extend(simulation_outcomes)
+
+    def set_starting_positions(self, starting_order):
+        driver_to_start_position = dict()
+        if starting_order is not None:
+            p = 1
+            for driver_id in starting_order.split('|'):
+                driver_to_start_position[driver_id] = p
+                p += 1
+        for entrant in self._event.entrants():
+            start_position = driver_to_start_position.get(entrant.driver().id(), 0)
+            entrant.set_start_position(start_position)
+
+    def predict_all_head_to_head(self, starting_order=None):
+        # TODO: Figure out how to optimize this even more.
+        if starting_order is not None:
+            if starting_order in self._all_head_to_head:
+                self._head_to_head = self._all_head_to_head[starting_order]
+                return
+            # If the starting order is not in the cache, create it and possibly save it
+        self._head_to_head.clear()
         for entrant_a in self._event.entrants():
             for entrant_b in self._event.entrants():
                 # Allow us to calculate the odds of an entrant against themselves. When calculating win probability we
@@ -473,6 +556,8 @@ class EventPrediction(object):
                                                     self._base_points_per_position, self._position_base_factor,
                                                     self._debug_file)
                 self._head_to_head[entrant_a][entrant_b] = head_to_head
+        if starting_order is not None:
+            self._all_head_to_head[starting_order] = self._head_to_head
 
     def get_win_probability(self, entrant_a, entrant_b):
         if entrant_a in self._head_to_head:
@@ -515,6 +600,9 @@ class EventPrediction(object):
 
     def num_iterations(self):
         return self._num_iterations
+
+    def simulation_log_file(self):
+        return self._simulation_log_file
 
     def elo_denominator(self):
         return self._elo_denominator

@@ -48,7 +48,7 @@ def validate_factors(argument):
         if step_value < 0 or step_value > 100:
             raise argparse.ArgumentTypeError(
                 'Factor %s has invalid step value %s' % (argument, parts[2]))
-    # Always look at next year so we can predit one year ahead if necessary.
+    # Always look at next year so we can predict one year ahead if necessary.
     next_year = datetime.datetime.now().year + 1
     num_seasons = next_year - 1950
     if year_step > 0:
@@ -70,7 +70,7 @@ def assign_year_value_dict(spec, divisor, value_dict):
     initial = float(parts[0]) / divisor
     window = int(parts[1])
     step = float(parts[2]) / divisor
-    # Always look at next year so we can predit one year ahead if necessary.
+    # Always look at next year so we can predict one year ahead if necessary.
     next_year = datetime.datetime.now().year + 1
     count = 1
     value_dict[1950] = initial
@@ -100,6 +100,9 @@ class Calculator(object):
         self._predict_file = None
         if self._args.print_predictions:
             self._predict_file = open(base_filename + '.predict', 'w')
+        self._simulation_log_file = None
+        if self._args.print_future_simulations:
+            self._simulation_log_file = open(base_filename + '.simulations', 'w')
         self._position_base_dict = dict()
         self.create_position_base_dict()
         self._team_share_dict = dict()
@@ -189,9 +192,7 @@ class Calculator(object):
         self._base_new_car_reliability.regress()
         for event_id in sorted(events_dict.keys(), key=functools.cmp_to_key(compare_events)):
             event = events_dict[event_id]
-            # Skip all the Indianapolis races since they were largely disjoint
-            # from the rest of Formula 1.
-            if 'Indianapolis' in event.name() and event.season() <= 1960:
+            if self.should_skip_event(event):
                 if self._logfile is not None:
                     print('Skipping %s (%s)' % (event.id(), event.name()), file=self._logfile)
                 continue
@@ -203,6 +204,85 @@ class Calculator(object):
         """
         if self._logfile is not None:
             print('  Event %s' % (event.id()), file=self._logfile)
+        elo_denominator, k_factor_adjust = self.get_elo_and_k_factor_parameters(event)
+        predictions = EventPrediction(event, self._args.num_iterations, elo_denominator, k_factor_adjust,
+                                      self._team_share_dict[event.season()], self._position_base_dict[event.season()],
+                                      self._args.position_base_factor, self._base_car_reliability,
+                                      self._base_new_car_reliability, self._base_driver_reliability,
+                                      self._args.team_reliability_new_events, self._debug_file)
+        predictions.cache_ratings()
+        # Starting the updates will also regress the start-of-year back to the mean
+        predictions.start_updates()
+        predictions.maybe_force_regress()
+        # Predict the odds of each entrant either winning or finishing on the podium.
+        predictions.predict_winner(self._args.print_predictions)
+        # Do the full pairwise comparison of each driver. In order to not calculate A vs B and B vs A (or A vs A) only
+        # compare when the ID of A<B.
+        for result_a in event.results():
+            for result_b in event.results():
+                if result_a.driver().id() < result_b.driver().id():
+                    self.compare_results(event, predictions, result_a, result_b)
+        self.update_all_reliability(event)
+        predictions.commit_updates()
+        self.log_results(predictions)
+
+    def simulate_future_events(self, loader):
+        last_seen_event_id = sorted(loader.events().keys(), key=functools.cmp_to_key(compare_events))[-1]
+        last_seen_event = loader.events()[last_seen_event_id]
+        for year in sorted(loader.future_seasons().keys()):
+            self.simulate_one_future_year(last_seen_event, year, loader.future_seasons()[year])
+
+    def simulate_one_future_year(self, last_seen_event, year, future_season):
+        events_dict = future_season.events()
+        if self._logfile is not None:
+            print('Simulating future year %d' % year, file=self._logfile)
+        # List of outcomes, with each item specifying the ordering of finishers by driver ID in a previous event. This
+        # lets us carryover starting positions from qualifying to sprint races to actual races.
+        carryover_starting_positions = list()
+        if last_seen_event.season() != year:
+            # If the last seen real event was in a previous year, regress this back to the mean.
+            self._base_new_car_reliability.regress()
+        else:
+            # The last seen event was in this year. See if it was a race (no need to carry anything over) or something
+            # else (we do need to carryover).
+            if last_seen_event.type() != 'R' and last_seen_event.has_results():
+                # We do need to carryover the results.
+                self.create_carryover_from_event(last_seen_event, carryover_starting_positions)
+        for event_id in sorted(events_dict.keys(), key=functools.cmp_to_key(compare_events)):
+            event = events_dict[event_id]
+            if self.should_skip_event(event):
+                if self._logfile is not None:
+                    print('Skipping %s (%s)' % (event.id(), event.name()), file=self._logfile)
+                continue
+            self.simulate_one_future_event(event, carryover_starting_positions)
+
+    def simulate_one_future_event(self, event, carryover_starting_positions):
+        if event.type() == 'Q':
+            carryover_starting_positions.clear()
+        if self._logfile is not None:
+            print('  Future Event %s' % (event.id()), file=self._logfile)
+        elo_denominator, k_factor_adjust = self.get_elo_and_k_factor_parameters(event)
+        predictions = EventPrediction(event, self._args.num_iterations, elo_denominator, k_factor_adjust,
+                                      self._team_share_dict[event.season()], self._position_base_dict[event.season()],
+                                      self._args.position_base_factor, self._base_car_reliability,
+                                      self._base_new_car_reliability, self._base_driver_reliability,
+                                      self._args.team_reliability_new_events, self._debug_file,
+                                      simulation_log=self._simulation_log_file,
+                                      starting_positions=carryover_starting_positions)
+        # Starting the updates will also regress the start-of-year back to the mean
+        predictions.start_updates()
+        predictions.maybe_force_regress()
+        # Only simulate the results, don't actually update the Elo and reliability ratings.
+        predictions.only_simulate_outcomes()
+        predictions.commit_updates()
+
+    @staticmethod
+    def should_skip_event(event):
+        # Skip all the Indianapolis races since they were largely disjoint
+        # from the rest of Formula 1.
+        return 'Indianapolis' in event.name() and event.season() <= 1960
+
+    def get_elo_and_k_factor_parameters(self, event):
         if event.type() == 'Q':
             # If this is a qualifying session, adjust all K-factors by a constant multiplier so fewer points flow
             # between the drivers and teams. Also use a different denominator since the advantage is much more
@@ -219,24 +299,13 @@ class Calculator(object):
         else:
             k_factor_adjust = self.race_distance_multiplier(event)
             elo_denominator = self._args.elo_exponent_denominator_race
-        predictions = EventPrediction(event, self._args.num_iterations, elo_denominator, k_factor_adjust,
-                                      self._team_share_dict[event.season()], self._position_base_dict[event.season()],
-                                      self._args.position_base_factor, self._base_car_reliability,
-                                      self._base_new_car_reliability, self._base_driver_reliability,
-                                      self._args.team_reliability_new_events, self._debug_file)
-        predictions.cache_ratings()
-        # Predict the odds of each entrant either winning or finishing on the podium.
-        predictions.predict_winner(self._args.print_predictions)
-        predictions.start_updates()
-        # Do the full pairwise comparison of each driver. In order to not calculate A vs B and B vs A (or A vs A) only
-        # compare when the ID of A<B.
-        for result_a in event.results():
-            for result_b in event.results():
-                if result_a.driver().id() < result_b.driver().id():
-                    self.compare_results(event, predictions, result_a, result_b)
-        self.update_all_reliability(event)
-        predictions.commit_updates()
-        self.log_results(predictions)
+        return elo_denominator, k_factor_adjust
+
+    @staticmethod
+    def create_carryover_from_event(event, carryover_starting_positions):
+        carryover_starting_positions.append(
+            '|'.join([r.driver().id() for r in sorted(event.results(), key=lambda r: r.end_position())])
+        )
 
     def update_all_reliability(self, event):
         if event.type() == 'Q':
@@ -313,7 +382,7 @@ class Calculator(object):
 
     def race_distance_multiplier(self, event):
         lap_distance_km = event.lap_distance_km()
-        max_laps = max([result.laps() for result in event.results()])
+        max_laps = max([result.laps() for result in event.results()], default=event.num_laps())
         if self._debug_file is not None:
             print('LAPS %s: Projected %3d Actual %3d' % (event.id(), event.num_laps(), max_laps), file=self._debug_file)
         if max_laps == event.num_laps():

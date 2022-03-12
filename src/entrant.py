@@ -9,12 +9,16 @@ class Entrant(object):
         self._probability_fail_at_n = None
         self._probability_fail_after_n = None
         self._probability_succeed_through_n = None
+        self._id = self._create_id()
 
     def set_result(self, result):
         self._result = result
 
     def set_start_position(self, start_position):
         self._start_position = start_position
+
+    def id(self):
+        return self._id
 
     def event(self):
         return self._event
@@ -99,3 +103,9 @@ class Entrant(object):
         if self._probability_fail_at_n is None:
             self.calculate_lap_reliability(self._event.num_laps(), self._event.lap_distance_km())
         return self._probability_fail_after_n[num_laps]
+
+    def _create_id(self):
+        team_uuid = 'TeamXXXXX'
+        if self._team is not None:
+            team_uuid = self._team.uuid()
+        return '%s:%s' % (self._driver.id(), team_uuid)

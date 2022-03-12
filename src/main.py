@@ -39,9 +39,13 @@ def run_one_combination(args, task_queue):
                 task_queue.task_one()
             return True
         loader.load_results(args.results_tsv)
-        loader.load_future_simulation_data()
         rating_calculator = calculator.Calculator(args, base_path)
         rating_calculator.run_all_ratings(loader)
+        if args.print_future_simulations:
+            # We have to load the future simulation data after we run all the ratings, otherwise the deepcopy
+            # of the teams and drivers will just pull out their pre-calculated default ratings.
+            loader.load_future_simulation_data()
+            rating_calculator.simulate_future_events(loader)
     if task_queue is not None:
         task_queue.task_done()
     return True
