@@ -1,3 +1,48 @@
 event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance
 2022-01-Q	2022	1	Q	2022-03-20	Gulf_Air_Bahrain_Grand_Prix	Bahrain International Circuit	20	10	5.412
 2022-01-R	2022	1	R	2022-03-20	Gulf_Air_Bahrain_Grand_Prix	Bahrain International Circuit	20	56	5.412
+2022-02-Q	2022	2	Q	2022-03-27	STC_Saudi_Arabian_Grand_Prix	Jeddah Street Circuit	20	10	6.174
+2022-02-R	2022	2	R	2022-03-27	STC_Saudi_Arabian_Grand_Prix	Jeddah Street Circuit	20	50	6.174
+2022-03-Q	2022	3	Q	2022-04-10	Rolex_Australian_Grand_Prix	Albert Park Grand Prix Circuit	20	10	5.303
+2022-03-R	2022	3	R	2022-04-10	Rolex_Australian_Grand_Prix	Albert Park Grand Prix Circuit	20	58	5.303
+2022-04-Q	2022	4	Q	2022-04-24	Pirelli_Emilia_Romagna_Grand_Prix	Autodromo Enzo Dino Ferrari	20	10	4.909
+2022-04-R	2022	4	R	2022-04-24	Pirelli_Emilia_Romagna_Grand_Prix	Autodromo Enzo Dino Ferrari	20	63	4.909
+2022-05-Q	2022	5	Q	2022-05-08	Grand_Prix_of_Miami	Miami International Autodrome	20	10	5.410
+2022-05-R	2022	5	R	2022-05-08	Grand_Prix_of_Miami	Miami International Autodrome	20	57	5.410
+2022-06-Q	2022	6	Q	2022-05-22	Aramco_Grand_Prix_of_Spain	Circuit de Catalunya	20	10	4.655
+2022-06-R	2022	6	R	2022-05-22	Aramco_Grand_Prix_of_Spain	Circuit de Catalunya	20	66	4.655
+2022-07-Q	2022	7	Q	2022-05-29	Grand_Prix_of_Monaco	Circuit de Monaco	20	10	3.337
+2022-07-R	2022	7	R	2022-05-29	Grand_Prix_of_Monaco	Circuit de Monaco	20	78	3.337
+2022-08-Q	2022	8	Q	2022-06-12	Azerbaijan_Grand_Prix	Baku City Circuit	20	10	6.003
+2022-08-R	2022	8	R	2022-06-12	Azerbaijan_Grand_Prix	Baku City Circuit	20	51	6.003
+2022-09-Q	2022	9	Q	2022-06-19	Pirelli_Grand_Prix_of_Canada	Circuit Gilles Villeneuve	20	10	4.361
+2022-09-R	2022	9	R	2022-06-19	Pirelli_Grand_Prix_of_Canada	Circuit Gilles Villeneuve	20	70	4.361
+2022-10-Q	2022	10	Q	2022-07-03	Pirelli_British_Grand_Prix	Silverstone Circuit	20	10	5.891
+2022-10-R	2022	10	R	2022-07-03	Pirelli_British_Grand_Prix	Silverstone Circuit	20	52	5.891
+2022-11-Q	2022	11	Q	2022-07-10	BWT_Grand_Prix_of_Austria	Red Bull Ring	20	10	4.318
+2022-11-S	2022	11	S	2022-07-10	BWT_Grand_Prix_of_Austria	Red Bull Ring	20	24	4.318
+2022-11-R	2022	11	R	2022-07-10	BWT_Grand_Prix_of_Austria	Red Bull Ring	20	71	4.318
+2022-12-Q	2022	12	Q	2022-07-24	Emirates_Grand_Prix_of_France	Circuit Paul Ricard	20	10	5.842
+2022-12-R	2022	12	R	2022-07-24	Emirates_Grand_Prix_of_France	Circuit Paul Ricard	20	53	5.842
+2022-13-Q	2022	13	Q	2022-07-31	Rolex_Hungarian_Grand_Prix	Hungaroring	20	10	4.381
+2022-13-R	2022	13	R	2022-07-31	Rolex_Hungarian_Grand_Prix	Hungaroring	20	70	4.381
+2022-14-Q	2022	14	Q	2022-08-28	Rolex_Belgian_Grand_Prix	Circuit de Spa Francorchamps	20	10	7.004
+2022-14-R	2022	14	R	2022-08-28	Rolex_Belgian_Grand_Prix	Circuit de Spa Francorchamps	20	44	7.004
+2022-15-Q	2022	15	Q	2022-09-04	Heineken_Dutch_Grand_Prix	Circuit Zandvoort	20	10	4.259
+2022-15-R	2022	15	R	2022-09-04	Heineken_Dutch_Grand_Prix	Circuit Zandvoort	20	72	4.259
+2022-16-Q	2022	16	Q	2022-09-11	Heineken_Grand_Prix_of_Italy	Autodromo Nazionale di Monza	20	10	5.793
+2022-16-S	2022	16	S	2022-09-11	Heineken_Grand_Prix_of_Italy	Autodromo Nazionale di Monza	20	18	5.793
+2022-16-R	2022	16	R	2022-09-11	Heineken_Grand_Prix_of_Italy	Autodromo Nazionale di Monza	20	53	5.793
+2022-17-Q	2022	17	Q	2022-10-02	Singapore_Airlines_Singapore_Grand_Prix	Marina Bay Street Circuit	20	10	5.065
+2022-17-R	2022	17	R	2022-10-02	Singapore_Airlines_Singapore_Grand_Prix	Marina Bay Street Circuit	20	61	5.065
+2022-18-Q	2022	18	Q	2022-10-09	Japanese_Grand_Prix	Suzuka Circuitland	20	10	5.807
+2022-18-R	2022	18	R	2022-10-09	Japanese_Grand_Prix	Suzuka Circuitland	20	52	5.807
+2022-19-Q	2022	19	Q	2022-10-23	Aramco_United_States_Grand_Prix	Circuit of the Americas	20	10	5.513
+2022-19-R	2022	19	R	2022-10-23	Aramco_United_States_Grand_Prix	Circuit of the Americas	20	56	5.513
+2022-20-Q	2022	20	Q	2022-10-30	Grand_Prix_of_Mexico_+City	Autodromo Hermanos Rodriguez	20	10	4.304
+2022-20-R	2022	20	R	2022-10-30	Grand_Prix_of_Mexico_+City	Autodromo Hermanos Rodriguez	20	71	4.304
+2022-21-Q	2022	21	Q	2022-11-13	Heineken_Grand_Prix_of_Sao_Paulo	Autodromo Jose Carlos Pace	20	10	4.309
+2022-21-S	2022	21	S	2022-11-13	Heineken_Grand_Prix_of_Sao_Paulo	Autodromo Jose Carlos Pace	20	24	4.309
+2022-21-R	2022	21	R	2022-11-13	Heineken_Grand_Prix_of_Sao_Paulo	Autodromo Jose Carlos Pace	20	71	4.309
+2022-22-Q	2022	22	Q	2022-11-20	Etihad_Airways_Abu_Dhabi_Grand_Prix	Yas Marina Circuit	20	10	5.281
+2022-22-R	2022	22	R	2022-11-20	Etihad_Airways_Abu_Dhabi_Grand_Prix	Yas Marina Circuit	20	58	5.281
