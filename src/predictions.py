@@ -231,6 +231,7 @@ class EventSimulator(object):
         self._position_probabilities = dict()
         self._simulation_log = list()
         self._tmp_one_simulation_ordering = [None] * self._num_entrants
+        self._tmp_one_simulation_num_laps = [None] * self._num_entrants
         self._init_simulated_results()
 
     def _init_simulated_results(self):
@@ -265,7 +266,8 @@ class EventSimulator(object):
 
     def _calculate_distances(self, distances):
         for entrant in self._event.entrants():
-            distances[self._calculate_num_laps(entrant)].append(entrant)
+            laps_completed = max([self._calculate_num_laps(entrant), 0])
+            distances[laps_completed].append(entrant)
 
     def _calculate_num_laps(self, entrant):
         failure_probability = random.random()
@@ -303,6 +305,7 @@ class EventSimulator(object):
         for lap_num in sorted(distances, reverse=True):
             curr_end = curr_start + len(distances[lap_num])
             self._tmp_one_simulation_ordering[curr_start:curr_end] = self._order_entrant_results(distances[lap_num])
+            self._tmp_one_simulation_num_laps[curr_start:curr_end] = [lap_num] * len(distances[lap_num])
             curr_start += len(distances[lap_num])
         # Append this outcome to the simulation log
         self._simulation_log.append('|'.join([e.driver().id() for e in self._tmp_one_simulation_ordering]))
@@ -355,8 +358,12 @@ class EventSimulator(object):
         return random.random() - elo_win_prob
 
     def log_results(self, idx):
-        order_string = '|'.join([e.id() for e in self._tmp_one_simulation_ordering])
+        order_string = '|'.join([self.simulation_log_string(idx) for idx in range(self._num_entrants)])
         print('%s,%s,%s' % (self._event.id(), idx, order_string), file=self._simulation_log_file)
+
+    def simulation_log_string(self, idx):
+        entrant = self._tmp_one_simulation_ordering[idx]
+        return '%s:%d:%d' % (entrant.id(), entrant.start_position(), self._tmp_one_simulation_num_laps[idx])
 
 
 class EventPrediction(object):
