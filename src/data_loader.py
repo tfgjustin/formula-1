@@ -16,6 +16,7 @@ def _is_valid_row(row, headers):
     for header in headers:
         if header not in row or not row[header]:
             print('Missing header %s' % header)
+            print(row)
             return False
     return True
 
@@ -69,7 +70,7 @@ class DataLoader(object):
         self._load_events_internal(content, 'Historical', self._events, self._seasons)
 
     def load_drivers(self, content):
-        _HEADERS = ['driver_id', 'driver_name']
+        _HEADERS = ['driver_id', 'driver_name', 'birthday', 'birth_year']
         handle = io.StringIO(content)
         reader = csv.DictReader(handle, delimiter='\t')
         for row in reader:
@@ -81,7 +82,7 @@ class DataLoader(object):
                     self._args.driver_elo_initial,
                     regress_rate=self._args.driver_elo_regress,
                     k_factor_regress_rate=self._args.driver_kfactor_regress
-                ))
+                ), row['birthday'], row['birth_year'])
         print('Loaded %d drivers' % (len(self._drivers)), file=self._outfile)
 
     def load_teams(self, content):
