@@ -117,6 +117,8 @@ class DataLoader(object):
         last_event_id = None
         for row in sorted(all_rows, key=lambda r: r['event_id']):
             event_id = row['event_id']
+            if event_id.startswith('#'):
+                continue
             if last_event_id is None or event_id != last_event_id:
                 self._team_factory.update_for_event(event_id)
                 last_event_id = event_id
@@ -175,6 +177,8 @@ class DataLoader(object):
         for row in reader:
             if not _is_valid_row(row, _HEADERS):
                 continue
+            if row['event_id'].startswith('#'):
+                continue
             if row['type'] == 'Q':
                 event = Qualifying(
                     row['event_id'], row['name'], row['season'], row['stage'], row['date'], row['laps'],
@@ -220,6 +224,8 @@ class DataLoader(object):
                     print('ERROR: Invalid driver ID %s for future lineup' % (row['driver_id']), file=self._outfile)
                     continue
                 driver = deepcopy(self._drivers[row['driver_id']])
+                self._disable_reliability_decay(driver.rating())
+                self._disable_reliability_decay(team.rating())
                 self._future_teams[team.id()] = team
                 self._future_drivers[driver.id()] = driver
                 for event in self._future_events.values():
@@ -235,8 +241,16 @@ class DataLoader(object):
         for entrant in last_event.entrants():
             driver = deepcopy(entrant.driver())
             team = deepcopy(entrant.team())
+            self._disable_reliability_decay(driver.rating())
+            self._disable_reliability_decay(team.rating())
+            self._future_drivers[driver.id()] = driver
+            self._future_teams[team.id()] = team
             for event in self._future_events.values():
                 entrant = Entrant(event, driver, team)
                 event.add_entrant(entrant)
             count += 1
         print('Reused %d future entrants from %s' % (count, last_event.id()), file=self._outfile)
+
+    @staticmethod
+    def _disable_reliability_decay(rating):
+        rating.reliability().set_decay_rate(1.0)
