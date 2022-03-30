@@ -33,7 +33,7 @@ def load_events(filename, reference_events, test_events, results):
                 continue
             event_id = row['RaceID']
             year = event_id[1:5]
-            if int(year) < 1991 or int(year) > 2020:
+            if int(year) < 1991 or int(year) > 2021:
                 continue
             all_events[year].add(event_id)
             rating = float(row['EffectPost'])
@@ -52,7 +52,7 @@ def load_events(filename, reference_events, test_events, results):
 
 def process_events(reference_events, test_events, results):
     # Create [year][entrant] = reference_score
-    reference_ratings = defaultdict(dict)
+    eoy_reference_ratings = defaultdict(dict)
     for year, events in reference_events.items():
         for entrant, event_ratings in results.items():
             ratings = [event_ratings[event_id] for event_id in events if event_id in event_ratings]
@@ -61,7 +61,7 @@ def process_events(reference_events, test_events, results):
             target = sum(ratings) / len(ratings)
             if target < 50:
                 continue
-            reference_ratings[year][entrant] = target
+            eoy_reference_ratings[year][entrant] = target
     # Create [round][current, reference] array
     regression = defaultdict(list)
     errors = defaultdict(list)
@@ -70,10 +70,10 @@ def process_events(reference_events, test_events, results):
             for event_id in events:
                 if event_id not in event_ratings:
                     continue
-                if entrant not in reference_ratings[year]:
+                if entrant not in eoy_reference_ratings[year]:
                     continue
                 current = event_ratings[event_id]
-                target = reference_ratings[year][entrant]
+                target = eoy_reference_ratings[year][entrant]
                 round_key = event_id[6:-2]
                 regression[round_key].append([current, target])
                 errors[round_key].append(abs(current - target))

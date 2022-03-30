@@ -134,6 +134,9 @@ class Reliability(object):
     def template(self):
         return self._template
 
+    def set_decay_rate(self, decay_rate):
+        self._default_decay_rate = decay_rate
+
     def set_template(self, other):
         self._template = other
 

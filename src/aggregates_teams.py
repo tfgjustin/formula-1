@@ -233,7 +233,7 @@ def print_n_years_average(data, metrics, races, teams, tag, num_years, tsv_write
 
 
 def print_headers(tsv_writer):
-    tsv_writer.writerow(['Aggregate', 'Metric', 'TeamUUID', 'CommonID', 'CommonName', 'StartYear', 'EndYear', 'Value'])
+    tsv_writer.writerow(['Aggregate', 'Metric', 'TeamUUID', 'CommonName', 'StartYear', 'EndYear', 'Value'])
 
 
 def main(argv):

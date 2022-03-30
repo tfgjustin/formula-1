@@ -57,7 +57,7 @@ def create_argparser():
                         default=False, action='store_true')
     parser.add_argument('--num_iterations',
                         help='The number of times to simulate an event outcome to estimate win and podium odds.',
-                        type=int, default=10000)
+                        type=int, default=20000)
     parser.add_argument('--qualifying_kfactor_multiplier',
                         help='Value by which to multiply K-Factors during qualifying.',
                         type=float, default=0.15)
@@ -283,10 +283,10 @@ class ArgFactory(object):
 
         For example, if the maximum number of args in each position is [2, 3, 1, 2] and we're currently at 0-index of
         [1, 2, 0, 0], incrementing it would return [0, 0, 0, 1]:
-        idx0) Incrementing 1 to 2 would hit the max, so reset to 0 and carry over
-        idx1) Incrementing 2 to 3 would hit the max, so reset to 0 and carry over
-        idx2) Incrementing 0 to 1 would hit the max, so reset to 0 and carry over
-        idx3) Incrementing 0 to 1 would NOT hit the max, so increment and return
+        idx0: Incrementing 1 to 2 would hit the max, so reset to 0 and carry over
+        idx1: Incrementing 2 to 3 would hit the max, so reset to 0 and carry over
+        idx2: Incrementing 0 to 1 would hit the max, so reset to 0 and carry over
+        idx3: Incrementing 0 to 1 would NOT hit the max, so increment and return
         """
         self._used_combinations += 1
         for option in self._opt_names:
