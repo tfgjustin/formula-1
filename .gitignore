@@ -15,6 +15,9 @@ logs/
 # Scraped files
 html/
 
+# Sentiment files
+sentiment/
+
 # Swap/backups
 [._]*.s[a-v][a-z]
 [._]*.sw[a-p]
