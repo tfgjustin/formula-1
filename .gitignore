@@ -18,6 +18,12 @@ html/
 # Sentiment files
 sentiment/
 
+# Python profiling runs
+profiles/
+
+# Scratch working space before it's ready for use
+scratch/
+
 # Swap/backups
 [._]*.s[a-v][a-z]
 [._]*.sw[a-p]
