@@ -159,17 +159,17 @@ class DriverReliability(Reliability):
 
 class EloRating(object):
 
-    def __init__(self, init_rating, regress_rate=0.0, k_factor_regress_rate=0.0):
+    def __init__(self, init_rating, regress_rate=0.0, k_factor_regress_rate=0.0, reliability=None, last_event_id=None):
         self._default_rating = init_rating
         self._elo_rating = init_rating
         self._k_factor = KFactor(regress_rate=k_factor_regress_rate)
         self._regress_rate = regress_rate
-        self._reliability = None
+        self._reliability = reliability
+        self._last_event_id = last_event_id
         self._non_alias_callers = list()
         self._alias_callers = list()
         self._deferred_complete = False
         self._temp_elo_rating = None
-        self._last_event_id = None
         self._current_event_id = None
         self._commit_complete = False
 

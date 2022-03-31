@@ -1,3 +1,4 @@
+from collections import defaultdict
 from ratings import EloRating
 
 
@@ -42,7 +43,7 @@ class TeamFactory(object):
         # Various parameters when setting up and modifying ratings
         self._args = args
         # Unique counter so we can track canonical teams through aliases etc
-        self._team_id_counter = 0
+        self._team_uuid_counter = 0
         # Set of valid team IDs, used for validation when loading results
         self._all_team_ids = set()
         # (event_id, team_id) ~> Team object
@@ -56,7 +57,7 @@ class TeamFactory(object):
         # String identifier (e.g., Team_Lotus) to the current Team object
         self._current_teams = dict()
         # Mapping of events to teams we have to handle
-        self._teams_by_event = dict()
+        self._teams_by_event = defaultdict(list)
         # Overall flag if this operation succeeded or not.
         self._success = True
 
@@ -70,10 +71,9 @@ class TeamFactory(object):
         return self._current_teams.get(team_id, None)
 
     def update_for_event(self, event_id):
-        teams = self._teams_by_event.get(event_id, None)
-        if teams is None:
+        if event_id not in self._teams_by_event:
             return
-        for team_key in teams:
+        for team_key in self._teams_by_event[event_id]:
             if team_key not in self._all_teams:
                 print('ERROR: Event %s references invalid team %s' % (event_id, team_key))
                 continue
@@ -85,14 +85,12 @@ class TeamFactory(object):
 
     def create_team(self, team_type, event_id, team_id, team_name, other_event_id=None, other_team_id=None):
         this_key = '%s:%s' % (event_id, team_id)
-        teams = self._teams_by_event.get(event_id, list())
-        teams.append(this_key)
-        self._teams_by_event[event_id] = teams
+        self._teams_by_event[event_id].append(this_key)
         other_key = None
         if other_event_id is not None and other_team_id is not None:
             other_key = '%s:%s' % (other_event_id, other_team_id)
         if team_type == 'new':
-            uuid = 'Team%04d' % self._team_id_counter
+            uuid = 'Team%04d' % self._team_uuid_counter
             self._all_teams[this_key] = Team(
                 uuid, team_id, team_name,
                 rating=EloRating(
@@ -101,7 +99,7 @@ class TeamFactory(object):
                     k_factor_regress_rate=self._args.team_kfactor_regress
                 ))
             self._all_team_ids.add(team_id)
-            self._team_id_counter += 1
+            self._team_uuid_counter += 1
         elif team_type == 'change':
             if other_key is not None:
                 self._is_change[this_key] = other_key
