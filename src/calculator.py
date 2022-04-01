@@ -5,6 +5,7 @@ import math
 import numpy as np
 
 from event import compare_events
+from fuzz import Fuzzer
 from predictions import EventPrediction
 from ratings import CarReliability, DriverReliability, Reliability
 from scipy.stats import skew
@@ -125,7 +126,7 @@ class Calculator(object):
         self._podium_odds_log = list()
         self._win_odds_log = list()
         self._finish_odds_log = {_ALL: list(), _CAR: list(), _DRIVER: list()}
-        self._fuzzer = None  # Fuzzer(self._args)
+        self._fuzzer = Fuzzer(self._args, self._logfile)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         """
@@ -237,8 +238,8 @@ class Calculator(object):
 
     def simulate_one_future_year(self, last_seen_event, year, loader):
         events = loader.future_seasons()[year].events()
-        # drivers = loader.future_drivers()
-        # teams = loader.future_teams()
+        drivers = loader.future_drivers()
+        teams = loader.future_teams()
         if self._logfile is not None:
             print('Simulating future year %d' % year, file=self._logfile)
         # List of outcomes, with each item specifying the ordering of finishers by driver ID in a previous event. This
@@ -253,7 +254,7 @@ class Calculator(object):
             if last_seen_event.type() != 'R' and last_seen_event.has_results():
                 # We do need to carryover the results.
                 self.create_carryover_from_event(last_seen_event, carryover_starting_positions)
-        # self._fuzzer.generate_all_fuzz(year, events, drivers, teams)
+        self._fuzzer.generate_all_fuzz(year, events, drivers, teams)
         for event_id in sorted(events.keys(), key=functools.cmp_to_key(compare_events)):
             event = events[event_id]
             if self.should_skip_event(event):
@@ -280,8 +281,7 @@ class Calculator(object):
         predictions.maybe_force_regress()
         predictions.commit_updates()
         # Only simulate the results, don't actually update the Elo and reliability ratings.
-        # TODO: Replace with self._fuzzer.all_fuzz() when fuzz is implemented
-        predictions.only_simulate_outcomes(dict())
+        predictions.only_simulate_outcomes(self._fuzzer.all_fuzz())
 
     @staticmethod
     def should_skip_event(event):
