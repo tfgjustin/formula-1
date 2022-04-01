@@ -31,3 +31,6 @@ class Driver(object):
 
     def rating(self):
         return self._rating
+
+    def set_rating(self, rating):
+        self._rating = rating

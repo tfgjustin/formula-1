@@ -83,23 +83,26 @@ class TeamFactory(object):
     def reset_current_teams(self):
         self._current_teams = dict()
 
-    def create_team(self, team_type, event_id, team_id, team_name, other_event_id=None, other_team_id=None):
+    def create_team(self, team_type, event_id, team_id, team_name, other_event_id=None,
+                    other_team_id=None, team_uuid=None, rating=None):
         this_key = '%s:%s' % (event_id, team_id)
         self._teams_by_event[event_id].append(this_key)
         other_key = None
         if other_event_id is not None and other_team_id is not None:
             other_key = '%s:%s' % (other_event_id, other_team_id)
         if team_type == 'new':
-            uuid = 'Team%04d' % self._team_uuid_counter
-            self._all_teams[this_key] = Team(
-                uuid, team_id, team_name,
-                rating=EloRating(
+            uuid = team_uuid
+            if uuid is None:
+                uuid = self._create_uuid()
+            elo_rating = rating
+            if elo_rating is None:
+                elo_rating = EloRating(
                     self._args.team_elo_initial,
                     regress_rate=self._args.team_elo_regress,
                     k_factor_regress_rate=self._args.team_kfactor_regress
-                ))
+                )
+            self._all_teams[this_key] = Team(uuid, team_id, team_name, rating=elo_rating)
             self._all_team_ids.add(team_id)
-            self._team_uuid_counter += 1
         elif team_type == 'change':
             if other_key is not None:
                 self._is_change[this_key] = other_key
@@ -170,3 +173,8 @@ class TeamFactory(object):
             self._all_teams[alias_key] = Team(canonical_obj.uuid(), alias_id, None,
                                               rating=canonical_obj.rating(), is_alias=True)
         return self._success
+
+    def _create_uuid(self):
+        uuid = 'Team%04d' % self._team_uuid_counter
+        self._team_uuid_counter += 1
+        return uuid

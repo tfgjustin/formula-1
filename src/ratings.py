@@ -16,8 +16,8 @@ class KFactor(object):
     _MAX_FACTOR = 28
     _MIN_FACTOR = 12
 
-    def __init__(self, regress_rate=0.0):
-        self._num_events = 0
+    def __init__(self, regress_rate=0.0, num_events=0):
+        self._num_events = num_events
         self._regress_rate = regress_rate
 
     def factor(self):
@@ -45,11 +45,12 @@ class Reliability(object):
     DEFAULT_PROBABILITY = 0.7
     DEFAULT_KM_PER_RACE = 305.0
 
-    def __init__(self, default_decay_rate=0.98, other=None, regress_numerator=None, regress_percent=0.02):
+    def __init__(self, default_decay_rate=0.98, other=None, regress_numerator=None, regress_percent=0.02,
+                 km_success=0, km_failure=0):
         self._template = None
         if other is None:
-            self._km_success = 0
-            self._km_failure = 0
+            self._km_success = km_success
+            self._km_failure = km_failure
             self._default_decay_rate = default_decay_rate
             self._regress_numerator = regress_numerator
             self._regress_percent = regress_percent
@@ -144,25 +145,29 @@ class Reliability(object):
 class CarReliability(Reliability):
 
     def __init__(self, default_decay_rate=0.98, regress_numerator=(64 * Reliability.DEFAULT_KM_PER_RACE),
-                 regress_percent=0.03):
+                 regress_percent=0.03, km_success=0, km_failure=0):
         super().__init__(default_decay_rate=default_decay_rate, regress_numerator=regress_numerator,
-                         regress_percent=regress_percent)
+                         regress_percent=regress_percent, km_success=km_success, km_failure=km_failure)
 
 
 class DriverReliability(Reliability):
 
     def __init__(self, default_decay_rate=0.98, regress_numerator=(64 * Reliability.DEFAULT_KM_PER_RACE),
-                 regress_percent=0.01):
+                 regress_percent=0.01, km_success=0, km_failure=0):
         super().__init__(default_decay_rate=default_decay_rate, regress_numerator=regress_numerator,
-                         regress_percent=regress_percent)
+                         regress_percent=regress_percent, km_success=km_success, km_failure=km_failure)
 
 
 class EloRating(object):
 
-    def __init__(self, init_rating, regress_rate=0.0, k_factor_regress_rate=0.0, reliability=None, last_event_id=None):
+    def __init__(self, init_rating, regress_rate=0.0, k_factor_regress_rate=0.0, k_factor=None,
+                 reliability=None, last_event_id=None):
         self._default_rating = init_rating
         self._elo_rating = init_rating
-        self._k_factor = KFactor(regress_rate=k_factor_regress_rate)
+        if k_factor is None:
+            self._k_factor = KFactor(regress_rate=k_factor_regress_rate)
+        else:
+            self._k_factor = k_factor
         self._regress_rate = regress_rate
         self._reliability = reliability
         self._last_event_id = last_event_id
