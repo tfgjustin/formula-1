@@ -1,14 +1,36 @@
+import argparse
 import calculator
 import data_loader
 import math
-import multiprocessing
 import sys
 
-from args import ArgFactory, create_base_path
+from args import ArgFactory, add_common_args, create_base_path, print_args
+from parallel_worker import parallel_run
+
+
+def create_argparser():
+    parser = argparse.ArgumentParser(description='Formula 1 rating parameters', fromfile_prefix_chars='@')
+    parser.add_argument('drivers_tsv', help='TSV file with the list of drivers.',
+                        type=argparse.FileType('r'))
+    parser.add_argument('events_tsv', help='TSV file with the list of events.',
+                        type=argparse.FileType('r'))
+    parser.add_argument('results_tsv', help='TSV file with the list of results.',
+                        type=argparse.FileType('r'))
+    parser.add_argument('teams_tsv', help='TSV file with the history of F1 teams.',
+                        type=argparse.FileType('r'))
+    parser.add_argument('logfile',
+                        help='Write results to this logfile.')
+    parser.add_argument('--print_future_simulations',
+                        help='Print a file logging results of simulated future results.',
+                        default=False, action='store_true')
+    add_common_args(parser)
+    return parser
 
 
 def run_one_combination(args, task_queue):
     base_path = create_base_path(args)
+    if args.print_args:
+        print_args(args, base_path + '.args')
     precision = math.ceil(math.log10(args.run_max))
     print_str = '[ %%%dd / %%%dd ] %%s' % (precision, precision)
     print(print_str % (args.run_index, args.run_max, base_path))
@@ -23,65 +45,16 @@ def run_one_combination(args, task_queue):
         loader.load_results(args.results_tsv)
         rating_calculator = calculator.Calculator(args, base_path)
         rating_calculator.run_all_ratings(loader)
-        if args.print_future_simulations:
-            # We have to load the future simulation data after we run all the ratings, otherwise the deepcopy
-            # of the teams and drivers will just pull out their pre-calculated default ratings.
-            loader.load_future_simulation_data()
-            rating_calculator.simulate_future_events(loader)
     if task_queue is not None:
         task_queue.task_done()
     return True
 
 
-class Worker(multiprocessing.Process):
-    def __init__(self, task_queue):
-        multiprocessing.Process.__init__(self)
-        self._task_queue = task_queue
-
-    def run(self):
-        while True:
-            args = self._task_queue.get()
-            if args is None:
-                self._task_queue.task_done()
-                break
-            task_done = False
-            try:
-                task_done = run_one_combination(args, self._task_queue)
-            finally:
-                if not task_done:
-                    self._task_queue.task_done()
-
-
-def run_multiprocessor(factory):
-    _NUM_THREADS = 12
-    task_queue = multiprocessing.JoinableQueue()
-    workers = [Worker(task_queue) for _ in range(_NUM_THREADS)]
-    for w in workers:
-        w.start()
-    current_args = factory.next_config()
-    while current_args is not None:
-        task_queue.put(current_args)
-        current_args = factory.next_config()
-    for _ in range(_NUM_THREADS):
-        task_queue.put(None)
-    task_queue.join()
-
-
-def run_in_current_process(factory):
-    args = factory.next_config()
-    if args is None:
-        return
-    run_one_combination(args, None)
-
-
 def main():
-    factory = ArgFactory()
+    factory = ArgFactory(create_argparser())
     factory.parse_args()
     print('Running %d combination(s)' % factory.max_combinations())
-    if factory.max_combinations() > 1:
-        run_multiprocessor(factory)
-    else:
-        run_in_current_process(factory)
+    parallel_run(factory, run_one_combination)
     return 0
 
 

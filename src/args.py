@@ -6,7 +6,7 @@ from copy import deepcopy
 
 
 def is_path_arg(arg):
-    """Should we use the value of this variable in the file path name if logfile uses parameters."""
+    """Should we use the value of this variable in the file path name if logfile uses parameters?"""
     return not (arg.endswith('_tsv') or arg.startswith('_') or arg.startswith('logfile') or arg.startswith('print')
                 or arg.startswith('run'))
 
@@ -18,18 +18,17 @@ def create_base_path(args):
         return args.logfile
 
 
-def create_argparser():
-    parser = argparse.ArgumentParser(description='Formula 1 rating parameters')
-    parser.add_argument('drivers_tsv', help='TSV file with the list of drivers.',
-                        type=argparse.FileType('r'))
-    parser.add_argument('events_tsv', help='TSV file with the list of events.',
-                        type=argparse.FileType('r'))
-    parser.add_argument('results_tsv', help='TSV file with the list of results.',
-                        type=argparse.FileType('r'))
-    parser.add_argument('teams_tsv', help='TSV file with the history of F1 teams.',
-                        type=argparse.FileType('r'))
-    parser.add_argument('logfile',
-                        help='Write results to this logfile.')
+def print_args(args, filename):
+    with open(filename, 'w') as outfile:
+        for arg in dir(args):
+            if not is_path_arg(arg):
+                continue
+            print('--%s=%s' % (arg, str(getattr(args, arg))), file=outfile)
+
+
+def add_common_args(parser):
+    """These args are common to both the ratings calculator and the future simulator.
+    """
     parser.add_argument('--driver_elo_initial', help='Initial driver Elo rating.',
                         type=int, default=1400)
     parser.add_argument('--driver_elo_regress',
@@ -59,12 +58,6 @@ def create_argparser():
     parser.add_argument('--elo_exponent_denominator_race',
                         help='The denominator in the Elo probability exponent for races.',
                         type=int, default=250)
-    parser.add_argument('--future_events_tsv',
-                        help='TSV file containing list of future events.',
-                        type=str, default='')
-    parser.add_argument('--future_lineup_tsv',
-                        help='TSV file containing driver and team lineup for future events.',
-                        type=str, default='')
     parser.add_argument('--logfile_uses_parameters',
                         help='Append encoded parameters to the logfile output name.',
                         default=False, action='store_true')
@@ -80,11 +73,11 @@ def create_argparser():
     parser.add_argument('--position_base_factor',
                         help='Exponent for base Elo boost per starting position advantage.',
                         type=float, default=0.8)
+    parser.add_argument('--print_args',
+                        help='Print a file containing the command-line args used for this run.',
+                        default=False, action='store_true')
     parser.add_argument('--print_debug',
                         help='Print a file containing detailed debugging information (this will be large).',
-                        default=False, action='store_true')
-    parser.add_argument('--print_future_simulations',
-                        help='Print a file logging results of simulated future results.',
                         default=False, action='store_true')
     parser.add_argument('--print_predictions',
                         help='Print a file containing all the predictions, useful in calibrating the model.',
@@ -123,7 +116,6 @@ def create_argparser():
                         help='Fraction of the combined Elo rating belonging to the team.',
                         type=str, default='50_4_1')
 #                        type = calculator.validate_factors, default = '50_4_1')
-    return parser
 
 
 def csv_int(argument):
@@ -164,8 +156,8 @@ def csv_str(argument):
 
 class ArgFactory(object):
 
-    def __init__(self):
-        self._parser_template = create_argparser()
+    def __init__(self, parser_template):
+        self._parser_template = parser_template
         self._parser = self.create_argparser()
         self._lock = threading.Lock()
         # Arguments parsed from the command line, in list form
