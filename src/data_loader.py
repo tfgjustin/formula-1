@@ -2,11 +2,12 @@ import csv
 import functools
 import io
 
+from collections import defaultdict
 from copy import deepcopy
 from driver import Driver
 from entrant import Entrant
 from event import Qualifying, Race, SprintQualifying, compare_events
-from ratings import EloRating
+from ratings import EloRating, KFactor, Reliability
 from result import Result
 from season import Season
 from team import TeamFactory
@@ -105,59 +106,101 @@ class DataLoader(object):
     def load_results(self, content):
         _HEADERS = ['event_id', 'driver_id', 'end_position', 'num_racers', 'team_id', 'start_position', 'dnf_category',
                     'laps']
-        all_rows = list()
-        handle = io.StringIO(content)
-        reader = csv.DictReader(handle, delimiter='\t')
-        for row in reader:
-            if not _is_valid_row(row, _HEADERS):
-                continue
-            all_rows.append(row)
-        # Iterate over all rows sorted by event ID
+        all_rows = self._load_and_group_by_event(content, _HEADERS)
         self._team_factory.reset_current_teams()
         last_event_id = None
-        for row in sorted(all_rows, key=lambda r: r['event_id']):
-            event_id = row['event_id']
-            if event_id.startswith('#'):
-                continue
-            if last_event_id is None or event_id != last_event_id:
-                self._team_factory.update_for_event(event_id)
-                last_event_id = event_id
-            start_position = None
-            if 'start_position' in row and row['start_position']:
-                start_position = row['start_position']
-            team = self._team_factory.get_current_team(row['team_id'])
-            if team is None:
-                print('ERROR: Invalid team ID %s for event %s' % (row['team_id'], row['event_id']), file=self._outfile)
-                continue
-            if row['event_id'] not in self._events:
-                print('ERROR: Invalid event ID: %s' % row['event_id'], file=self._outfile)
-                continue
-            event = self._events[row['event_id']]
-            if row['driver_id'] not in self._drivers:
-                print('ERROR: Invalid driver ID %s in event %s' % (row['driver_id'], row['event_id']),
-                      file=self._outfile)
-                continue
-            driver = self._drivers[row['driver_id']]
-            entrant = Entrant(event, driver, team, start_position=start_position)
-            result = Result(event, entrant, row['end_position'],
-                            dnf_category=row['dnf_category'], laps_completed=row['laps'])
-            entrant.set_result(result)
-            self._results.append(result)
-            self._events[event.id()].add_entrant(entrant)
+        # Iterate over all rows sorted by event ID
+        for event_id in sorted(all_rows.keys(), key=functools.cmp_to_key(compare_events)):
+            for row in all_rows[event_id]:
+                event_id = row['event_id']
+                if event_id.startswith('#'):
+                    continue
+                if last_event_id is None or event_id != last_event_id:
+                    self._team_factory.update_for_event(event_id)
+                    last_event_id = event_id
+                self._process_one_result(row)
         self.identify_all_participants()
         print('Loaded %d results' % (len(self._results)), file=self._outfile)
 
+    def update_drivers_from_ratings(self, content):
+        """Load drivers from the log of a previous run.
+
+        We need to have loaded drivers from elsewhere already in order to get things like birthdays.
+        """
+        _HEADERS = ['RaceID', 'DriverID', 'EloPost', 'KFEventsPost', 'KmSuccessPost', 'KmFailurePost']
+        if not self._drivers:
+            print('ERROR: Have NOT already loaded drivers from previous source', file=self._outfile)
+            return False
+        all_rows = self._load_and_group_by_event(content, _HEADERS, event_id_tag='RaceID')
+        seen_drivers = set()
+        for event_id in sorted(all_rows.keys(), key=functools.cmp_to_key(compare_events), reverse=True):
+            for row in all_rows[event_id]:
+                event_id = row['RaceID'][1:]
+                if event_id.startswith('#'):
+                    continue
+                driver_id = row['DriverID']
+                if driver_id in seen_drivers:
+                    continue
+                seen_drivers.add(driver_id)
+                if driver_id not in self._drivers:
+                    print('ERROR: Driver %s is in ratings log but not database of drivers' % driver_id,
+                          file=self._outfile)
+                    continue
+                reliability = Reliability(km_success=float(row['KmSuccessPost']),
+                                          km_failure=float(row['KmFailurePost']))
+                k_factor = KFactor(num_events=float(row['KFEventsPost']))
+                rating = EloRating(init_rating=float(row['EloPost']), reliability=reliability, k_factor=k_factor,
+                                   last_event_id=event_id)
+                self._drivers[driver_id].set_rating(rating)
+        print('Loaded %d drivers from log' % (len(self._drivers)), file=self._outfile)
+        return True
+
+    def load_teams_from_ratings(self, content):
+        """Load teams from the log of a previous run.
+
+        Ensure that we haven't loaded teams from anywhere else first.
+        """
+        _HEADERS = ['RaceID', 'TeamUUID', 'TeamID', 'EloPost', 'KFEventsPost', 'KmSuccessPost', 'KmFailurePost']
+        if self._team_factory.teams():
+            print('ERROR: Already loaded teams from previous source', file=self._outfile)
+            return False
+        all_rows = self._load_and_group_by_event(content, _HEADERS, event_id_tag='RaceID')
+        seen_teams = set()
+        first_event_id = None
+        set_current_teams = False
+        for event_id in sorted(all_rows.keys(), key=functools.cmp_to_key(compare_events), reverse=True):
+            for row in all_rows[event_id]:
+                event_id = row['RaceID'][1:]
+                if event_id.startswith('#'):
+                    continue
+                if row['TeamUUID'] in seen_teams:
+                    continue
+                seen_teams.add(row['TeamUUID'])
+                reliability = Reliability(km_success=float(row['KmSuccessPost']),
+                                          km_failure=float(row['KmFailurePost']))
+                k_factor = KFactor(num_events=float(row['KFEventsPost']))
+                rating = EloRating(init_rating=float(row['EloPost']), reliability=reliability, k_factor=k_factor,
+                                   last_event_id=event_id)
+                team_id = row['TeamID']
+                team_name = team_id.replace('_', ' ')
+                self._team_factory.create_team('new', event_id, team_id, team_name, team_uuid=row['TeamUUID'],
+                                               rating=rating)
+                if first_event_id is None:
+                    first_event_id = event_id
+                elif not set_current_teams:
+                    if event_id != first_event_id:
+                        self._team_factory.update_for_event(first_event_id)
+                        set_current_teams = True
+        print('Loaded %d teams from log' % (len(self._team_factory.teams())), file=self._outfile)
+        return True
+
     def load_future_simulation_data(self):
-        if not self._args.print_future_simulations:
-            return
         self.load_future_events(self._args.future_events_tsv)
         self.load_future_lineup(self._args.future_lineup_tsv)
 
-    def load_future_events(self, filename):
-        if not filename:
+    def load_future_events(self, content):
+        if not content:
             return
-        with open(filename, 'r') as infile:
-            content = infile.read()
         self._load_events_internal(content, 'Future', self._future_events, self._future_seasons)
 
     def load_future_lineup(self, filename):
@@ -169,6 +212,43 @@ class DataLoader(object):
     def identify_all_participants(self):
         for season in self._seasons.values():
             season.identify_participants()
+
+    @staticmethod
+    def _load_and_group_by_event(content, headers, event_id_tag='event_id'):
+        all_rows = defaultdict(list)
+        handle = io.StringIO(content)
+        reader = csv.DictReader(handle, delimiter='\t')
+        for row in reader:
+            if not _is_valid_row(row, headers):
+                continue
+            if row[event_id_tag].startswith('#'):
+                continue
+            all_rows[row[event_id_tag]].append(row)
+        return all_rows
+
+    def _process_one_result(self, row):
+        start_position = None
+        if 'start_position' in row and row['start_position']:
+            start_position = row['start_position']
+        team = self._team_factory.get_current_team(row['team_id'])
+        if team is None:
+            print('ERROR: Invalid team ID %s for event %s' % (row['team_id'], row['event_id']), file=self._outfile)
+            return
+        if row['event_id'] not in self._events:
+            print('ERROR: Invalid event ID: %s' % row['event_id'], file=self._outfile)
+            return
+        event = self._events[row['event_id']]
+        if row['driver_id'] not in self._drivers:
+            print('ERROR: Invalid driver ID %s in event %s' % (row['driver_id'], row['event_id']),
+                  file=self._outfile)
+            return
+        driver = self._drivers[row['driver_id']]
+        entrant = Entrant(event, driver, team, start_position=start_position)
+        result = Result(event, entrant, row['end_position'],
+                        dnf_category=row['dnf_category'], laps_completed=row['laps'])
+        entrant.set_result(result)
+        self._results.append(result)
+        self._events[event.id()].add_entrant(entrant)
 
     def _load_events_internal(self, contents, tag, event_log, season_log):
         _HEADERS = ['season', 'stage', 'date', 'name', 'type', 'event_id', 'laps', 'lap_distance']
