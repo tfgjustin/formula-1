@@ -5,6 +5,19 @@ import _io
 from copy import deepcopy
 
 
+def is_path_arg(arg):
+    """Should we use the value of this variable in the file path name if logfile uses parameters."""
+    return not (arg.endswith('_tsv') or arg.startswith('_') or arg.startswith('logfile') or arg.startswith('print')
+                or arg.startswith('run'))
+
+
+def create_base_path(args):
+    if args.logfile_uses_parameters:
+        return '-'.join([args.logfile] + [str(getattr(args, arg)) for arg in dir(args) if is_path_arg(arg)])
+    else:
+        return args.logfile
+
+
 def create_argparser():
     parser = argparse.ArgumentParser(description='Formula 1 rating parameters')
     parser.add_argument('drivers_tsv', help='TSV file with the list of drivers.',

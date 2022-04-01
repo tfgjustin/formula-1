@@ -4,29 +4,11 @@ import math
 import multiprocessing
 import sys
 
-from args import ArgFactory
-
-
-def create_path(args):
-    path = args.logfile
-    if args.logfile_uses_parameters:
-        # TODO: Figure out a way to get all of these programmatically so new args get added automatically.
-        path = '-'.join([
-            args.logfile, str(args.driver_elo_initial), str(args.driver_elo_regress), str(args.driver_kfactor_regress),
-            str(args.driver_reliability_decay), str(args.driver_reliability_failure_constant),
-            str(args.driver_reliability_lookback), str(args.driver_reliability_regress), str(args.elo_compare_window),
-            str(args.elo_exponent_denominator_race), str(args.elo_exponent_denominator_qualifying),
-            str(args.num_iterations), str(args.qualifying_kfactor_multiplier), args.position_base_spec,
-            str(args.position_base_factor), str(args.team_elo_initial), str(args.team_elo_regress),
-            str(args.team_kfactor_regress), str(args.team_reliability_decay),
-            str(args.team_reliability_failure_constant), str(args.team_reliability_lookback),
-            str(args.team_reliability_new_events), str(args.team_reliability_regress), args.team_share_spec
-        ])
-    return path
+from args import ArgFactory, create_base_path
 
 
 def run_one_combination(args, task_queue):
-    base_path = create_path(args)
+    base_path = create_base_path(args)
     precision = math.ceil(math.log10(args.run_max))
     print_str = '[ %%%dd / %%%dd ] %%s' % (precision, precision)
     print(print_str % (args.run_index, args.run_max, base_path))
