@@ -2,7 +2,6 @@ def compare_events(e1, e2):
     left = e1.split('-')
     right = e2.split('-')
     if left[0] < right[0]:
-        print(left[0], right[0])
         return -1
     elif left[0] > right[0]:
         return 1
