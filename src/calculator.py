@@ -125,6 +125,7 @@ class Calculator(object):
         self._podium_odds_log = list()
         self._win_odds_log = list()
         self._finish_odds_log = {_ALL: list(), _CAR: list(), _DRIVER: list()}
+        self._fuzzer = None  # Fuzzer(self._args)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         """
@@ -139,6 +140,8 @@ class Calculator(object):
             self._debug_file.close()
         if self._predict_file is not None:
             self._predict_file.close()
+        if self._simulation_log_file is not None:
+            self._simulation_log_file.close()
 
     def create_team_share_dict(self):
         """
@@ -186,12 +189,12 @@ class Calculator(object):
         """
         Run the model for one year.
         """
-        events_dict = season.events()
+        events = season.events()
         if self._logfile is not None:
             print('Running %d' % year, file=self._logfile)
         self._base_new_car_reliability.regress()
-        for event_id in sorted(events_dict.keys(), key=functools.cmp_to_key(compare_events)):
-            event = events_dict[event_id]
+        for event_id in sorted(events.keys(), key=functools.cmp_to_key(compare_events)):
+            event = events[event_id]
             if self.should_skip_event(event):
                 if self._logfile is not None:
                     print('Skipping %s (%s)' % (event.id(), event.name()), file=self._logfile)
@@ -230,10 +233,12 @@ class Calculator(object):
         last_seen_event_id = sorted(loader.events().keys(), key=functools.cmp_to_key(compare_events))[-1]
         last_seen_event = loader.events()[last_seen_event_id]
         for year in sorted(loader.future_seasons().keys()):
-            self.simulate_one_future_year(last_seen_event, year, loader.future_seasons()[year])
+            self.simulate_one_future_year(last_seen_event, year, loader)
 
-    def simulate_one_future_year(self, last_seen_event, year, future_season):
-        events_dict = future_season.events()
+    def simulate_one_future_year(self, last_seen_event, year, loader):
+        events = loader.future_seasons()[year].events()
+        # drivers = loader.future_drivers()
+        # teams = loader.future_teams()
         if self._logfile is not None:
             print('Simulating future year %d' % year, file=self._logfile)
         # List of outcomes, with each item specifying the ordering of finishers by driver ID in a previous event. This
@@ -248,8 +253,9 @@ class Calculator(object):
             if last_seen_event.type() != 'R' and last_seen_event.has_results():
                 # We do need to carryover the results.
                 self.create_carryover_from_event(last_seen_event, carryover_starting_positions)
-        for event_id in sorted(events_dict.keys(), key=functools.cmp_to_key(compare_events)):
-            event = events_dict[event_id]
+        # self._fuzzer.generate_all_fuzz(year, events, drivers, teams)
+        for event_id in sorted(events.keys(), key=functools.cmp_to_key(compare_events)):
+            event = events[event_id]
             if self.should_skip_event(event):
                 if self._logfile is not None:
                     print('Skipping %s (%s)' % (event.id(), event.name()), file=self._logfile)
@@ -272,9 +278,10 @@ class Calculator(object):
         # Starting the updates will also regress the start-of-year back to the mean
         predictions.start_updates()
         predictions.maybe_force_regress()
-        # Only simulate the results, don't actually update the Elo and reliability ratings.
-        predictions.only_simulate_outcomes()
         predictions.commit_updates()
+        # Only simulate the results, don't actually update the Elo and reliability ratings.
+        # TODO: Replace with self._fuzzer.all_fuzz() when fuzz is implemented
+        predictions.only_simulate_outcomes(dict())
 
     @staticmethod
     def should_skip_event(event):
