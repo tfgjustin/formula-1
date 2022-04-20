@@ -1,7 +1,6 @@
 event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance
-2022-03-Q	2022	3	Q	2022-04-10	Rolex_Australian_Grand_Prix	Albert Park Grand Prix Circuit	20	10	5.303
-2022-03-R	2022	3	R	2022-04-10	Rolex_Australian_Grand_Prix	Albert Park Grand Prix Circuit	20	58	5.303
 2022-04-Q	2022	4	Q	2022-04-24	Pirelli_Emilia_Romagna_Grand_Prix	Autodromo Enzo Dino Ferrari	20	10	4.909
+2022-04-S	2022	4	S	2022-04-24	Pirelli_Emilia_Romagna_Grand_Prix	Autodromo Enzo Dino Ferrari	20	21	4.909
 2022-04-R	2022	4	R	2022-04-24	Pirelli_Emilia_Romagna_Grand_Prix	Autodromo Enzo Dino Ferrari	20	63	4.909
 2022-05-Q	2022	5	Q	2022-05-08	Grand_Prix_of_Miami	Miami International Autodrome	20	10	5.410
 2022-05-R	2022	5	R	2022-05-08	Grand_Prix_of_Miami	Miami International Autodrome	20	57	5.410
@@ -27,7 +26,6 @@ event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance
 2022-15-Q	2022	15	Q	2022-09-04	Heineken_Dutch_Grand_Prix	Circuit Zandvoort	20	10	4.259
 2022-15-R	2022	15	R	2022-09-04	Heineken_Dutch_Grand_Prix	Circuit Zandvoort	20	72	4.259
 2022-16-Q	2022	16	Q	2022-09-11	Heineken_Grand_Prix_of_Italy	Autodromo Nazionale di Monza	20	10	5.793
-2022-16-S	2022	16	S	2022-09-11	Heineken_Grand_Prix_of_Italy	Autodromo Nazionale di Monza	20	18	5.793
 2022-16-R	2022	16	R	2022-09-11	Heineken_Grand_Prix_of_Italy	Autodromo Nazionale di Monza	20	53	5.793
 2022-17-Q	2022	17	Q	2022-10-02	Singapore_Airlines_Singapore_Grand_Prix	Marina Bay Street Circuit	20	10	5.065
 2022-17-R	2022	17	R	2022-10-02	Singapore_Airlines_Singapore_Grand_Prix	Marina Bay Street Circuit	20	61	5.065

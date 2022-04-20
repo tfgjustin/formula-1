@@ -2120,3 +2120,5 @@ event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance
 2022-01-R	2022	1	R	2022-03-20	Gulf_Air_Bahrain_Grand_Prix	Bahrain International Circuit	20	57	5.412
 2022-02-Q	2022	2	Q	2022-03-27	STC_Saudi_Arabian_Grand_Prix	Jeddah Street Circuit	19	10	6.174
 2022-02-R	2022	2	R	2022-03-27	STC_Saudi_Arabian_Grand_Prix	Jeddah Street Circuit	19	50	6.174
+2022-03-Q	2022	3	Q	2022-04-10	Rolex_Australian_Grand_Prix	Albert Park Grand Prix Circuit	20	10	5.303
+2022-03-R	2022	3	R	2022-04-10	Rolex_Australian_Grand_Prix	Albert Park Grand Prix Circuit	20	58	5.303
