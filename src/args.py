@@ -118,6 +118,19 @@ def add_common_args(parser):
 #                        type = calculator.validate_factors, default = '50_4_1')
 
 
+def add_common_positional_args(parser):
+    parser.add_argument('logfile',
+                        help='Write results to this logfile.')
+    parser.add_argument('drivers_tsv', help='TSV file with the list of drivers.',
+                        type=argparse.FileType('r'))
+    parser.add_argument('events_tsv', help='TSV file with the list of events.',
+                        type=argparse.FileType('r'))
+    parser.add_argument('results_tsv', help='TSV file with the list of results.',
+                        type=argparse.FileType('r'))
+    parser.add_argument('teams_tsv', help='TSV file with the history of F1 teams.',
+                        type=argparse.FileType('r'))
+
+
 def csv_int(argument):
     args = list()
     for a in argument.split(','):
