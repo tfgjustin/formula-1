@@ -788,6 +788,7 @@ change	2019-01-Q	Renault_F1_Team	Renault F1 Team	2016-01-Q	Renault_Sport_F1_Team
 change	2019-01-Q	Rich_Energy_Haas_F1_Team	Rich Energy Haas F1 Team	2016-01-Q	Haas_F1_Team
 change	2019-01-Q	ROKiT_Williams_Racing	ROKiT Williams Racing	2014-01-Q	Williams_Martini_Racing
 change	2019-01-Q	SportPesa_Racing_Point_F1_Team	SportPesa Racing Point F1 Team	2018-13-Q	Racing_Point_Force_India_F1_Team
+change	2019-15-Q	Haas_F1_Team	Haas F1 Team	2019-01-Q	Rich_Energy_Haas_F1_Team
 change	2020-01-Q	BWT_Racing_Point_F1_Team	BWT Racing Point F1 Team	2019-01-Q	SportPesa_Racing_Point_F1_Team
 change	2020-01-Q	Mercedes_AMG_Petronas_F1_Team	Mercedes AMG Petronas F1 Team	2017-01-Q	Mercedes_AMG_Petronas_Motorsport
 change	2020-01-Q	Scuderia_AlphaTauri_Honda	Scuderia AlphaTauri Honda	2018-01-Q	Red_Bull_Toro_Rosso_Honda
@@ -798,7 +799,7 @@ change	2021-01-Q	Alpine_F1_Team	Alpine F1 Team	2019-01-Q	Renault_F1_Team
 change	2021-01-Q	Aston_Martin_Cognizant_F1_Team	Aston Martin Cognizant F1 Team	2020-01-Q	BWT_Racing_Point_F1_Team
 change	2021-01-Q	Red_Bull_Racing_Honda	Red Bull Racing Honda	2018-01-Q	Aston_Martin_Red_Bull_Racing
 change	2021-01-Q	Scuderia_Mission_Winnow_Ferrari	Scuderia Mission Winnow Ferrari	2020-01-Q	Scuderia_Ferrari_Mission_Winnow
-change	2021-01-Q	Uralkali_Haas_F1_Team	Uralkali Haas F1 Team	2019-01-Q	Rich_Energy_Haas_F1_Team
+change	2021-01-Q	Uralkali_Haas_F1_Team	Uralkali Haas F1 Team	2019-15-Q	Haas_F1_Team
 change	2022-01-Q	Aston_Martin_Aramco_Cognizant_F1_Team	Aston Martin Aramco Cognizant F1 Team	2021-01-Q	Aston_Martin_Cognizant_F1_Team
 change	2022-01-Q	BWT_Alpine_F1_Team	BWT Alpine F1 Team	2021-01-Q	Alpine_F1_Team
 change	2022-01-Q	Haas_F1_Team	Haas F1 Team	2021-01-Q	Uralkali_Haas_F1_Team
