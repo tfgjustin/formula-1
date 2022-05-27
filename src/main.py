@@ -17,6 +17,9 @@ def create_argparser():
     parser.add_argument('--print_ratings',
                         help='Print files logging ratings for teams and drivers.',
                         default=True, action='store_true')
+    parser.add_argument('--print_simulations',
+                        help='Print a file logging results of simulated past events.',
+                        default=False, action='store_true')
     args.add_common_args(parser)
     return parser
 
