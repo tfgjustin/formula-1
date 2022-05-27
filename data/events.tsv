@@ -2122,3 +2122,10 @@ event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance
 2022-02-R	2022	2	R	2022-03-27	STC_Saudi_Arabian_Grand_Prix	Jeddah Street Circuit	19	50	6.174
 2022-03-Q	2022	3	Q	2022-04-10	Rolex_Australian_Grand_Prix	Albert Park Grand Prix Circuit	20	10	5.303
 2022-03-R	2022	3	R	2022-04-10	Rolex_Australian_Grand_Prix	Albert Park Grand Prix Circuit	20	58	5.303
+2022-04-Q	2022	4	Q	2022-04-24	Pirelli_Emilia_Romagna_Grand_Prix	Autodromo Enzo Dino Ferrari	20	10	4.909
+2022-04-S	2022	4	S	2022-04-24	Pirelli_Emilia_Romagna_Grand_Prix	Autodromo Enzo Dino Ferrari	20	21	4.909
+2022-04-R	2022	4	R	2022-04-24	Pirelli_Emilia_Romagna_Grand_Prix	Autodromo Enzo Dino Ferrari	20	63	4.909
+2022-05-Q	2022	5	Q	2022-05-08	Grand_Prix_of_Miami	Miami International Autodrome	20	10	5.410
+2022-05-R	2022	5	R	2022-05-08	Grand_Prix_of_Miami	Miami International Autodrome	20	57	5.410
+2022-06-Q	2022	6	Q	2022-05-22	Aramco_Grand_Prix_of_Spain	Circuit de Catalunya	20	10	4.655
+2022-06-R	2022	6	R	2022-05-22	Aramco_Grand_Prix_of_Spain	Circuit de Catalunya	20	66	4.655
