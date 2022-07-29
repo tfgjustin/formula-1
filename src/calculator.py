@@ -89,9 +89,14 @@ class Calculator(object):
 
     def __init__(self, args, base_filename):
         self._args = args
-        self._driver_rating_file = open(base_filename + '.driver_ratings', 'w')
-        self._team_rating_file = open(base_filename + '.team_ratings', 'w')
-        self._summary_file = open(base_filename + '.summary', 'w')
+        if self._args.print_ratings:
+            self._driver_rating_file = open(base_filename + '.driver_ratings', 'w')
+            self._team_rating_file = open(base_filename + '.team_ratings', 'w')
+            self._summary_file = open(base_filename + '.summary', 'w')
+        else:
+            self._driver_rating_file = None
+            self._team_rating_file = None
+            self._summary_file = None
         self._logfile = None
         if self._args.print_progress:
             self._logfile = open(base_filename + '.log', 'w')
@@ -102,7 +107,8 @@ class Calculator(object):
         if self._args.print_predictions:
             self._predict_file = open(base_filename + '.predict', 'w')
         self._simulation_log_file = None
-        if self._args.print_future_simulations:
+        if getattr(self._args, 'print_future_simulations', False) or \
+            getattr(self._args, 'print_simulations', False):
             self._simulation_log_file = open(base_filename + '.simulations', 'w')
         self._position_base_dict = dict()
         self.create_position_base_dict()
@@ -132,9 +138,12 @@ class Calculator(object):
         """
         On exit of this class make sure we close all the opened files.
         """
-        self._driver_rating_file.close()
-        self._team_rating_file.close()
-        self._summary_file.close()
+        if self._driver_rating_file is not None:
+            self._driver_rating_file.close()
+        if self._team_rating_file is not None:
+            self._team_rating_file.close()
+        if self._summary_file is not None:
+            self._summary_file.close()
         if self._logfile is not None:
             self._logfile.close()
         if self._debug_file is not None:
@@ -171,17 +180,7 @@ class Calculator(object):
         """
         Run the ratings for each year and print the output to the relevant files.
         """
-        np.set_printoptions(precision=5, linewidth=300)
-        print(('RaceID\tDriverID\tPlaced\tNumDrivers\tDnfReason\tEloPre\tEloPost\tEloDiff\tEffectPre\tEffectPost'
-               + '\tKFEventsPre\tKFEventsPost\tKmSuccessPre\tKmSuccessPost\tKmFailurePre\tKmFailurePost'
-               + '\tSuccessPre\tSuccessPost'
-               ),
-              file=self._driver_rating_file)
-        print(('RaceID\tTeamUUID\tTeamID\tNumTeams\tEloPre\tEloPost\tEloDiff\tEffectPre\tEffectPost'
-               + '\tKFEventsPre\tKFEventsPost\tKmSuccessPre\tKmSuccessPost\tKmFailurePre\tKmFailurePost'
-               + '\tSuccessPre\tSuccessPost'
-               ),
-              file=self._team_rating_file)
+        self.log_rating_headers()
         for year in sorted(loader.seasons().keys()):
             self.run_one_year(year, loader.seasons()[year])
         self.log_summary_errors()
@@ -213,7 +212,8 @@ class Calculator(object):
                                       self._team_share_dict[event.season()], self._position_base_dict[event.season()],
                                       self._args.position_base_factor, self._base_car_reliability,
                                       self._base_new_car_reliability, self._base_driver_reliability,
-                                      self._args.team_reliability_new_events, self._debug_file)
+                                      self._args.team_reliability_new_events, self._debug_file,
+                                      simulation_log=self._simulation_log_file)
         predictions.cache_ratings()
         # Starting the updates will also regress the start-of-year back to the mean
         predictions.start_updates()
@@ -281,7 +281,12 @@ class Calculator(object):
         predictions.maybe_force_regress()
         predictions.commit_updates()
         # Only simulate the results, don't actually update the Elo and reliability ratings.
-        predictions.only_simulate_outcomes(self._fuzzer.all_fuzz())
+        grid_penalties = None
+        # TODO: Have this loaded from a file
+        if event.id() == '2022-XX-X':
+            grid_penalties = [
+                    ]
+        predictions.only_simulate_outcomes(self._fuzzer.all_fuzz(), grid_penalties=grid_penalties)
 
     @staticmethod
     def should_skip_event(event):
@@ -429,6 +434,20 @@ class Calculator(object):
                 driver_delta, car_delta, result.driver().id(), result.team().uuid()),
                   file=self._debug_file)
 
+    def log_rating_headers(self):
+        if self._driver_rating_file is not None:
+            print(('RaceID\tDriverID\tPlaced\tNumDrivers\tDnfReason\tEloPre\tEloPost\tEloDiff\tEffectPre\tEffectPost'
+                   + '\tKFEventsPre\tKFEventsPost\tKmSuccessPre\tKmSuccessPost\tKmFailurePre\tKmFailurePost'
+                   + '\tSuccessPre\tSuccessPost'
+                   ),
+                  file=self._driver_rating_file)
+        if self._team_rating_file is not None:
+            print(('RaceID\tTeamUUID\tTeamID\tNumTeams\tEloPre\tEloPost\tEloDiff\tEffectPre\tEffectPost'
+                   + '\tKFEventsPre\tKFEventsPost\tKmSuccessPre\tKmSuccessPost\tKmFailurePre\tKmFailurePost'
+                   + '\tSuccessPre\tSuccessPost'
+                   ),
+                  file=self._team_rating_file)
+
     def log_results(self, predictions):
         event = predictions.event()
         for team in sorted(event.teams(), key=lambda t: t.id()):
@@ -445,6 +464,8 @@ class Calculator(object):
                 self.log_podium_probabilities(event, predictions, driver_id, result)
 
     def log_team_results(self, event, predictions, team):
+        if self._team_rating_file is None:
+            return
         rating_before = predictions.team_before(team.id()).rating()
         rating_after = team.rating()
         elo_diff = rating_after.elo() - rating_before.elo()
@@ -467,6 +488,8 @@ class Calculator(object):
               file=self._team_rating_file)
 
     def log_average_team(self, event, predictions, base_reliability, base_name):
+        if self._team_rating_file is None:
+            return
         matching_teams = [t for t in event.teams()
                           if t.rating().reliability() is not None
                           and t.rating().reliability().template() == base_reliability]
@@ -489,9 +512,10 @@ class Calculator(object):
             0, base_reliability.probability_finishing()
         ),
               file=self._team_rating_file)
-        return
 
     def log_driver_results(self, event, predictions, num_drivers, result):
+        if self._driver_rating_file is None:
+            return
         driver = result.driver()
         placed = result.end_position()
         dnf = result.dnf_category()
@@ -517,7 +541,6 @@ class Calculator(object):
             rating_before.probability_finishing(), rating_after.probability_finishing()
         ),
               file=self._driver_rating_file)
-        return
 
     def log_finish_probabilities(self, event, predictions, driver_id, result):
         # Log this for sprint qualifying and races but not regular qualifying
@@ -536,7 +559,7 @@ class Calculator(object):
         distance_success_km = result.laps() * event.lap_distance_km()
         car_probability = result.team().rating().probability_finishing(race_distance_km=distance_success_km)
         driver_probability = result.driver().rating().probability_finishing(race_distance_km=distance_success_km)
-        all_probability = car_probability * driver_probability
+        all_probability = result.entrant().probability_complete_n_laps(event.num_laps())
         # The naive (baseline) odds that they got as far as they did
         team_num_events = result.team().rating().k_factor().num_events()
         if team_num_events >= self._args.team_reliability_new_events:
@@ -673,6 +696,8 @@ class Calculator(object):
             self.log_one_roc_auc('Fin' + mode, matching_errors, decade, None)
 
     def log_one_error_log(self, tag, error_log, decade, event_type):
+        if self._summary_file is None:
+            return
         squared_errors = [
             (error_array[-2] - error_array[-1]) ** 2 for error_array in error_log
         ]
@@ -701,6 +726,8 @@ class Calculator(object):
         return is_true, probs, naive, residuals
 
     def log_one_pr_auc(self, tag, error_log, decade, event_type):
+        if self._summary_file is None:
+            return
         is_true, probs, naive, residuals = self.get_true_probs_naive_residuals(error_log)
         precision, recall, _ = precision_recall_curve(is_true, probs)
         area_under_curve = auc(recall, precision)
@@ -728,6 +755,8 @@ class Calculator(object):
               file=self._summary_file)
 
     def log_one_roc_auc(self, tag, error_log, decade, event_type):
+        if self._summary_file is None:
+            return
         is_true, probs, naive, residuals = self.get_true_probs_naive_residuals(error_log)
         if decade:
             decade = decade + '0'
