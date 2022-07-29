@@ -48011,26 +48011,26 @@ event_id	driver_id	team_id	start_position	end_position	laps	status	dnf_category	
 2022-05-Q	Sergio_Perez	Oracle_Red_Bull_Racing	0	4	10	-	-	20
 2022-05-Q	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	0	5	10	-	-	20
 2022-05-Q	Yuki_Tsunoda	Scuderia_AlphaTauri	0	9	10	-	-	20
-2022-05-R	Alexander_Albon	Williams_Racing	16	10	57	-	-	20
-2022-05-R	Carlos_Sainz_Jr	Scuderia_Ferrari	2	3	57	-	-	20
-2022-05-R	Charles_Leclerc	Scuderia_Ferrari	1	2	57	-	-	20
-2022-05-R	Daniel_Ricciardo	McLaren_F1_Team	12	13	57	-	-	20
-2022-05-R	Esteban_Ocon	BWT_Alpine_F1_Team	18	8	57	-	-	20
-2022-05-R	Fernando_Alonso	BWT_Alpine_F1_Team	10	9	57	-	-	20
-2022-05-R	George_Russell	Mercedes_AMG_Petronas_F1_Team	11	5	57	-	-	20
-2022-05-R	Guanyu_Zhou	Alfa_Romeo_Racing_ORLEN	15	20	6	electrical	car	20
-2022-05-R	Kevin_Magnussen	Haas_F1_Team	14	16	56	-	-	20
-2022-05-R	Lance_Stroll	Aston_Martin_Aramco_Cognizant_F1_Team	19	11	57	-	-	20
-2022-05-R	Lando_Norris	McLaren_F1_Team	8	19	39	crash	driver	20
-2022-05-R	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	6	6	57	-	-	20
-2022-05-R	Max_Verstappen	Oracle_Red_Bull_Racing	3	1	57	-	-	20
-2022-05-R	Mick_Schumacher	Haas_F1_Team	13	15	56	-	-	20
-2022-05-R	Nicholas_Latifi	Williams_Racing	17	14	57	-	-	20
-2022-05-R	Pierre_Gasly	Scuderia_AlphaTauri	7	18	45	crash	driver	20
-2022-05-R	Sebastian_Vettel	Aston_Martin_Aramco_Cognizant_F1_Team	20	17	54	crash	driver	20
-2022-05-R	Sergio_Perez	Oracle_Red_Bull_Racing	4	4	57	-	-	20
-2022-05-R	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	5	7	57	-	-	20
-2022-05-R	Yuki_Tsunoda	Scuderia_AlphaTauri	9	12	57	-	-	20
+2022-05-R	Alexander_Albon	Williams_Racing	18	9	57	+32.365	-	20
+2022-05-R	Carlos_Sainz_Jr	Scuderia_Ferrari	 2	3	57	+8.229	-	20
+2022-05-R	Charles_Leclerc	Scuderia_Ferrari	 1	2	57	+3.786	-	20
+2022-05-R	Daniel_Ricciardo	McLaren_F1_Team	14	13	57	+40.902	-	20
+2022-05-R	Esteban_Ocon	BWT_Alpine_F1_Team	20	8	57	+28.386	-	20
+2022-05-R	Fernando_Alonso	BWT_Alpine_F1_Team	11	11	57	+37.128	-	20
+2022-05-R	George_Russell	Mercedes_AMG_Petronas_F1_Team	12	5	57	+18.582	-	20
+2022-05-R	Guanyu_Zhou	Alfa_Romeo_Racing_ORLEN	17	20	6	water leak	car	20
+2022-05-R	Kevin_Magnussen	Haas_F1_Team	16	16	56	wing	car	20
+2022-05-R	Lance_Stroll	Aston_Martin_Aramco_Cognizant_F1_Team	10	10	57	+37.026	-	20
+2022-05-R	Lando_Norris	McLaren_F1_Team	 8	19	39	crash	driver	20
+2022-05-R	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	 6	6	57	+21.368	-	20
+2022-05-R	Max_Verstappen	Oracle_Red_Bull_Racing	 3	1	57	1:34:24.258	-	20
+2022-05-R	Mick_Schumacher	Haas_F1_Team	15	15	57	+73.305	-	20
+2022-05-R	Nicholas_Latifi	Williams_Racing	19	14	57	+49.936	-	20
+2022-05-R	Pierre_Gasly	Scuderia_AlphaTauri	 7	18	45	crash damage	driver	20
+2022-05-R	Sebastian_Vettel	Aston_Martin_Aramco_Cognizant_F1_Team	13	17	54	crash	driver	20
+2022-05-R	Sergio_Perez	Oracle_Red_Bull_Racing	 4	4	57	+10.638	-	20
+2022-05-R	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	 5	7	57	+25.073	-	20
+2022-05-R	Yuki_Tsunoda	Scuderia_AlphaTauri	 9	12	57	+40.146	-	20
 2022-06-Q	Alexander_Albon	Williams_Racing	0	19	10	-	-	20
 2022-06-Q	Carlos_Sainz_Jr	Scuderia_Ferrari	0	3	10	-	-	20
 2022-06-Q	Charles_Leclerc	Scuderia_Ferrari	0	1	10	-	-	20
@@ -48051,26 +48051,26 @@ event_id	driver_id	team_id	start_position	end_position	laps	status	dnf_category	
 2022-06-Q	Sergio_Perez	Oracle_Red_Bull_Racing	0	5	10	-	-	20
 2022-06-Q	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	0	7	10	-	-	20
 2022-06-Q	Yuki_Tsunoda	Scuderia_AlphaTauri	0	13	10	-	-	20
-2022-06-R	Alexander_Albon	Williams_Racing	18	18	64	-	-	20
-2022-06-R	Carlos_Sainz_Jr	Scuderia_Ferrari	3	4	66	-	-	20
-2022-06-R	Charles_Leclerc	Scuderia_Ferrari	1	20	27	engine	car	20
-2022-06-R	Daniel_Ricciardo	McLaren_F1_Team	9	12	65	-	-	20
-2022-06-R	Esteban_Ocon	BWT_Alpine_F1_Team	12	7	66	-	-	20
-2022-06-R	Fernando_Alonso	BWT_Alpine_F1_Team	20	9	65	-	-	20
-2022-06-R	George_Russell	Mercedes_AMG_Petronas_F1_Team	4	3	66	-	-	20
-2022-06-R	Guanyu_Zhou	Alfa_Romeo_Racing_ORLEN	15	19	30	engine	car	20
-2022-06-R	Kevin_Magnussen	Haas_F1_Team	8	17	64	-	-	20
-2022-06-R	Lance_Stroll	Aston_Martin_Aramco_Cognizant_F1_Team	17	15	65	-	-	20
-2022-06-R	Lando_Norris	McLaren_F1_Team	11	8	66	-	-	20
-2022-06-R	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	6	5	66	-	-	20
-2022-06-R	Max_Verstappen	Oracle_Red_Bull_Racing	2	1	66	-	-	20
-2022-06-R	Mick_Schumacher	Haas_F1_Team	10	14	65	-	-	20
-2022-06-R	Nicholas_Latifi	Williams_Racing	19	16	64	-	-	20
-2022-06-R	Pierre_Gasly	Scuderia_AlphaTauri	14	13	65	-	-	20
-2022-06-R	Sebastian_Vettel	Aston_Martin_Aramco_Cognizant_F1_Team	16	11	65	-	-	20
-2022-06-R	Sergio_Perez	Oracle_Red_Bull_Racing	5	2	66	-	-	20
-2022-06-R	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	7	6	66	-	-	20
-2022-06-R	Yuki_Tsunoda	Scuderia_AlphaTauri	13	10	65	-	-	20
+2022-06-R	Alexander_Albon	Williams_Racing	18	18	64	+2 laps	-	20
+2022-06-R	Carlos_Sainz_Jr	Scuderia_Ferrari	 3	4	66	+45.208	-	20
+2022-06-R	Charles_Leclerc	Scuderia_Ferrari	 1	20	27	turbo	car	20
+2022-06-R	Daniel_Ricciardo	McLaren_F1_Team	 9	12	65	+1 lap	-	20
+2022-06-R	Esteban_Ocon	BWT_Alpine_F1_Team	12	7	66	+75.397	-	20
+2022-06-R	Fernando_Alonso	BWT_Alpine_F1_Team	20	9	65	+1 lap	-	20
+2022-06-R	George_Russell	Mercedes_AMG_Petronas_F1_Team	 4	3	66	+32.927	-	20
+2022-06-R	Guanyu_Zhou	Alfa_Romeo_Racing_ORLEN	15	19	28	engine	car	20
+2022-06-R	Kevin_Magnussen	Haas_F1_Team	 8	17	64	+2 laps	-	20
+2022-06-R	Lance_Stroll	Aston_Martin_Aramco_Cognizant_F1_Team	17	15	65	+1 lap	-	20
+2022-06-R	Lando_Norris	McLaren_F1_Team	11	8	66	+83.235	-	20
+2022-06-R	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	 6	5	66	+54.534	-	20
+2022-06-R	Max_Verstappen	Oracle_Red_Bull_Racing	 2	1	66	1:37:20.475	-	20
+2022-06-R	Mick_Schumacher	Haas_F1_Team	10	14	65	+1 lap	-	20
+2022-06-R	Nicholas_Latifi	Williams_Racing	19	16	64	+2 laps	-	20
+2022-06-R	Pierre_Gasly	Scuderia_AlphaTauri	14	13	65	+1 lap	-	20
+2022-06-R	Sebastian_Vettel	Aston_Martin_Aramco_Cognizant_F1_Team	16	11	65	+1 lap	-	20
+2022-06-R	Sergio_Perez	Oracle_Red_Bull_Racing	 5	2	66	+13.072	-	20
+2022-06-R	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	 7	6	66	+59.976	-	20
+2022-06-R	Yuki_Tsunoda	Scuderia_AlphaTauri	13	10	65	+1 lap	-	20
 2022-07-Q	Alexander_Albon	Williams_Racing	0	16	10	-	-	20
 2022-07-Q	Carlos_Sainz_Jr	Scuderia_Ferrari	0	2	10	-	-	20
 2022-07-Q	Charles_Leclerc	Scuderia_Ferrari	0	1	10	-	-	20
@@ -48091,26 +48091,26 @@ event_id	driver_id	team_id	start_position	end_position	laps	status	dnf_category	
 2022-07-Q	Sergio_Perez	Oracle_Red_Bull_Racing	0	3	10	-	-	20
 2022-07-Q	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	0	12	10	-	-	20
 2022-07-Q	Yuki_Tsunoda	Scuderia_AlphaTauri	0	11	10	-	-	20
-2022-07-R	Alexander_Albon	Williams_Racing	16	18	48	mechanical	car	20
-2022-07-R	Carlos_Sainz_Jr	Scuderia_Ferrari	2	2	64	-	-	20
-2022-07-R	Charles_Leclerc	Scuderia_Ferrari	1	4	64	-	-	20
-2022-07-R	Daniel_Ricciardo	McLaren_F1_Team	14	13	64	-	-	20
-2022-07-R	Esteban_Ocon	BWT_Alpine_F1_Team	10	12	64	-	-	20
-2022-07-R	Fernando_Alonso	BWT_Alpine_F1_Team	7	7	64	-	-	20
-2022-07-R	George_Russell	Mercedes_AMG_Petronas_F1_Team	6	5	64	-	-	20
-2022-07-R	Guanyu_Zhou	Alfa_Romeo_Racing_ORLEN	20	16	64	-	-	20
-2022-07-R	Kevin_Magnussen	Haas_F1_Team	13	20	29	mechanical	car	20
-2022-07-R	Lance_Stroll	Aston_Martin_Aramco_Cognizant_F1_Team	18	14	64	-	-	20
-2022-07-R	Lando_Norris	McLaren_F1_Team	5	6	64	-	-	20
-2022-07-R	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	8	8	64	-	-	20
-2022-07-R	Max_Verstappen	Oracle_Red_Bull_Racing	4	3	64	-	-	20
-2022-07-R	Mick_Schumacher	Haas_F1_Team	15	19	30	crash	driver	20
-2022-07-R	Nicholas_Latifi	Williams_Racing	19	15	64	-	-	20
-2022-07-R	Pierre_Gasly	Scuderia_AlphaTauri	17	11	64	-	-	20
-2022-07-R	Sebastian_Vettel	Aston_Martin_Aramco_Cognizant_F1_Team	9	10	64	-	-	20
-2022-07-R	Sergio_Perez	Oracle_Red_Bull_Racing	3	1	64	-	-	20
-2022-07-R	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	12	9	64	-	-	20
-2022-07-R	Yuki_Tsunoda	Scuderia_AlphaTauri	11	17	64	-	-	20
+2022-07-R	Alexander_Albon	Williams_Racing	16	18	48	undertray	car	20
+2022-07-R	Carlos_Sainz_Jr	Scuderia_Ferrari	 2	2	64	+1.154	-	20
+2022-07-R	Charles_Leclerc	Scuderia_Ferrari	 1	4	64	+2.922	-	20
+2022-07-R	Daniel_Ricciardo	McLaren_F1_Team	14	13	64	+57.635	-	20
+2022-07-R	Esteban_Ocon	BWT_Alpine_F1_Team	10	12	64	+55.644	-	20
+2022-07-R	Fernando_Alonso	BWT_Alpine_F1_Team	 7	7	64	+46.358	-	20
+2022-07-R	George_Russell	Mercedes_AMG_Petronas_F1_Team	 6	5	64	+11.968	-	20
+2022-07-R	Guanyu_Zhou	Alfa_Romeo_Racing_ORLEN	20	16	63	+1 lap	-	20
+2022-07-R	Kevin_Magnussen	Haas_F1_Team	13	20	19	water pressure	car	20
+2022-07-R	Lance_Stroll	Aston_Martin_Aramco_Cognizant_F1_Team	18	14	64	+60.802	-	20
+2022-07-R	Lando_Norris	McLaren_F1_Team	 5	6	64	+12.231	-	20
+2022-07-R	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	 8	8	64	+50.388	-	20
+2022-07-R	Max_Verstappen	Oracle_Red_Bull_Racing	 4	3	64	+1.491	-	20
+2022-07-R	Mick_Schumacher	Haas_F1_Team	15	19	24	crash	driver	20
+2022-07-R	Nicholas_Latifi	Williams_Racing	19	15	63	+1 lap	-	20
+2022-07-R	Pierre_Gasly	Scuderia_AlphaTauri	17	11	64	+54.289	-	20
+2022-07-R	Sebastian_Vettel	Aston_Martin_Aramco_Cognizant_F1_Team	 9	10	64	+53.536	-	20
+2022-07-R	Sergio_Perez	Oracle_Red_Bull_Racing	 3	1	64	1:56:30.265	-	20
+2022-07-R	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	12	9	64	+52.525	-	20
+2022-07-R	Yuki_Tsunoda	Scuderia_AlphaTauri	11	17	63	+1 lap	-	20
 2022-08-Q	Alexander_Albon	Williams_Racing	0	17	10	-	-	20
 2022-08-Q	Carlos_Sainz_Jr	Scuderia_Ferrari	0	4	10	-	-	20
 2022-08-Q	Charles_Leclerc	Scuderia_Ferrari	0	1	10	-	-	20
@@ -48131,26 +48131,26 @@ event_id	driver_id	team_id	start_position	end_position	laps	status	dnf_category	
 2022-08-Q	Sergio_Perez	Oracle_Red_Bull_Racing	0	2	10	-	-	20
 2022-08-Q	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	0	15	10	-	-	20
 2022-08-Q	Yuki_Tsunoda	Scuderia_AlphaTauri	0	8	10	-	-	20
-2022-08-R	Alexander_Albon	Williams_Racing	17	12	50	-	-	20
-2022-08-R	Carlos_Sainz_Jr	Scuderia_Ferrari	4	20	9	hydraulics	car	20
-2022-08-R	Charles_Leclerc	Scuderia_Ferrari	1	19	21	engine	car	20
-2022-08-R	Daniel_Ricciardo	McLaren_F1_Team	12	8	51	-	-	20
-2022-08-R	Esteban_Ocon	BWT_Alpine_F1_Team	13	10	51	-	-	20
-2022-08-R	Fernando_Alonso	BWT_Alpine_F1_Team	10	7	51	-	-	20
-2022-08-R	George_Russell	Mercedes_AMG_Petronas_F1_Team	5	3	51	-	-	20
-2022-08-R	Guanyu_Zhou	Alfa_Romeo_Racing_ORLEN	14	18	24	electrical	car	20
-2022-08-R	Kevin_Magnussen	Haas_F1_Team	16	17	33	engine	car	20
-2022-08-R	Lance_Stroll	Aston_Martin_Aramco_Cognizant_F1_Team	19	16	47	overheating	car	20
-2022-08-R	Lando_Norris	McLaren_F1_Team	11	9	51	-	-	20
-2022-08-R	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	7	4	51	-	-	20
-2022-08-R	Max_Verstappen	Oracle_Red_Bull_Racing	3	1	51	-	-	20
-2022-08-R	Mick_Schumacher	Haas_F1_Team	20	14	50	-	-	20
-2022-08-R	Nicholas_Latifi	Williams_Racing	18	15	50	-	-	20
-2022-08-R	Pierre_Gasly	Scuderia_AlphaTauri	6	5	51	-	-	20
-2022-08-R	Sebastian_Vettel	Aston_Martin_Aramco_Cognizant_F1_Team	9	6	51	-	-	20
-2022-08-R	Sergio_Perez	Oracle_Red_Bull_Racing	2	2	51	-	-	20
-2022-08-R	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	15	11	50	-	-	20
-2022-08-R	Yuki_Tsunoda	Scuderia_AlphaTauri	8	13	50	-	-	20
+2022-08-R	Alexander_Albon	Williams_Racing	17	12	50	+1 lap	-	20
+2022-08-R	Carlos_Sainz_Jr	Scuderia_Ferrari	 4	20	8	hydraulics	car	20
+2022-08-R	Charles_Leclerc	Scuderia_Ferrari	 1	19	21	engine	car	20
+2022-08-R	Daniel_Ricciardo	McLaren_F1_Team	12	8	51	+92.207	-	20
+2022-08-R	Esteban_Ocon	BWT_Alpine_F1_Team	13	10	51	+108.184	-	20
+2022-08-R	Fernando_Alonso	BWT_Alpine_F1_Team	10	7	51	+88.596	-	20
+2022-08-R	George_Russell	Mercedes_AMG_Petronas_F1_Team	 5	3	51	+45.995	-	20
+2022-08-R	Guanyu_Zhou	Alfa_Romeo_Racing_ORLEN	14	18	23	engine	car	20
+2022-08-R	Kevin_Magnussen	Haas_F1_Team	16	17	31	engine	car	20
+2022-08-R	Lance_Stroll	Aston_Martin_Aramco_Cognizant_F1_Team	19	16	46	vibration	car	20
+2022-08-R	Lando_Norris	McLaren_F1_Team	11	9	51	+92.556	-	20
+2022-08-R	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	 7	4	51	+71.679	-	20
+2022-08-R	Max_Verstappen	Oracle_Red_Bull_Racing	 3	1	51	1:34:05.941	-	20
+2022-08-R	Mick_Schumacher	Haas_F1_Team	20	14	50	+1 lap	-	20
+2022-08-R	Nicholas_Latifi	Williams_Racing	18	15	50	+1 lap	-	20
+2022-08-R	Pierre_Gasly	Scuderia_AlphaTauri	 6	5	51	+77.299	-	20
+2022-08-R	Sebastian_Vettel	Aston_Martin_Aramco_Cognizant_F1_Team	 9	6	51	+84.099	-	20
+2022-08-R	Sergio_Perez	Oracle_Red_Bull_Racing	 2	2	51	+20.823	-	20
+2022-08-R	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	15	11	50	+1 lap	-	20
+2022-08-R	Yuki_Tsunoda	Scuderia_AlphaTauri	 8	13	50	+1 lap	-	20
 2022-09-Q	Alexander_Albon	Williams_Racing	0	12	10	-	-	20
 2022-09-Q	Carlos_Sainz_Jr	Scuderia_Ferrari	0	3	10	-	-	20
 2022-09-Q	Charles_Leclerc	Scuderia_Ferrari	0	15	10	-	-	20
@@ -48171,26 +48171,26 @@ event_id	driver_id	team_id	start_position	end_position	laps	status	dnf_category	
 2022-09-Q	Sergio_Perez	Oracle_Red_Bull_Racing	0	13	10	-	-	20
 2022-09-Q	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	0	11	10	-	-	20
 2022-09-Q	Yuki_Tsunoda	Scuderia_AlphaTauri	0	20	10	-	-	20
-2022-09-R	Alexander_Albon	Williams_Racing	12	13	70	-	-	20
-2022-09-R	Carlos_Sainz_Jr	Scuderia_Ferrari	3	2	70	-	-	20
-2022-09-R	Charles_Leclerc	Scuderia_Ferrari	19	5	70	-	-	20
-2022-09-R	Daniel_Ricciardo	McLaren_F1_Team	9	11	70	-	-	20
-2022-09-R	Esteban_Ocon	BWT_Alpine_F1_Team	7	6	70	-	-	20
-2022-09-R	Fernando_Alonso	BWT_Alpine_F1_Team	2	9	70	-	-	20
-2022-09-R	George_Russell	Mercedes_AMG_Petronas_F1_Team	8	4	70	-	-	20
-2022-09-R	Guanyu_Zhou	Alfa_Romeo_Racing_ORLEN	10	8	70	-	-	20
-2022-09-R	Kevin_Magnussen	Haas_F1_Team	5	17	70	-	-	20
-2022-09-R	Lance_Stroll	Aston_Martin_Aramco_Cognizant_F1_Team	17	10	70	-	-	20
-2022-09-R	Lando_Norris	McLaren_F1_Team	14	15	70	-	-	20
-2022-09-R	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	4	3	70	-	-	20
-2022-09-R	Max_Verstappen	Oracle_Red_Bull_Racing	1	1	70	-	-	20
-2022-09-R	Mick_Schumacher	Haas_F1_Team	6	19	20	engine	car	20
-2022-09-R	Nicholas_Latifi	Williams_Racing	18	16	70	-	-	20
-2022-09-R	Pierre_Gasly	Scuderia_AlphaTauri	15	14	70	-	-	20
-2022-09-R	Sebastian_Vettel	Aston_Martin_Aramco_Cognizant_F1_Team	16	12	70	-	-	20
-2022-09-R	Sergio_Perez	Oracle_Red_Bull_Racing	13	20	9	engine	car	20
-2022-09-R	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	11	7	70	-	-	20
-2022-09-R	Yuki_Tsunoda	Scuderia_AlphaTauri	20	18	49	crash	driver	20
+2022-09-R	Alexander_Albon	Williams_Racing	12	13	70	+44.893	-	20
+2022-09-R	Carlos_Sainz_Jr	Scuderia_Ferrari	3	2	70	+0.993	-	20
+2022-09-R	Charles_Leclerc	Scuderia_Ferrari	19	5	70	+15.168	-	20
+2022-09-R	Daniel_Ricciardo	McLaren_F1_Team	9	11	70	+43.047	-	20
+2022-09-R	Esteban_Ocon	BWT_Alpine_F1_Team	7	6	70	+23.890	-	20
+2022-09-R	Fernando_Alonso	BWT_Alpine_F1_Team	2	9	70	+29.945	-	20
+2022-09-R	George_Russell	Mercedes_AMG_Petronas_F1_Team	8	4	70	+12.313	-	20
+2022-09-R	Guanyu_Zhou	Alfa_Romeo_Racing_ORLEN	10	8	70	+26.952	-	20
+2022-09-R	Kevin_Magnussen	Haas_F1_Team	5	17	70	+68.180	-	20
+2022-09-R	Lance_Stroll	Aston_Martin_Aramco_Cognizant_F1_Team	17	10	70	+38.222	-	20
+2022-09-R	Lando_Norris	McLaren_F1_Team	14	15	70	+52.145	-	20
+2022-09-R	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	4	3	70	+7.006	-	20
+2022-09-R	Max_Verstappen	Oracle_Red_Bull_Racing	1	1	70	1:36:21.757	-	20
+2022-09-R	Mick_Schumacher	Haas_F1_Team	6	19	18	engine	car	20
+2022-09-R	Nicholas_Latifi	Williams_Racing	18	16	70	+59.978	-	20
+2022-09-R	Pierre_Gasly	Scuderia_AlphaTauri	15	14	70	+45.183	-	20
+2022-09-R	Sebastian_Vettel	Aston_Martin_Aramco_Cognizant_F1_Team	16	12	70	+44.245	-	20
+2022-09-R	Sergio_Perez	Oracle_Red_Bull_Racing	13	20	7	gearbox	car	20
+2022-09-R	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	11	7	70	+25.247	-	20
+2022-09-R	Yuki_Tsunoda	Scuderia_AlphaTauri	20	18	47	crash	driver	20
 2022-10-Q	Alexander_Albon	Williams_Racing	0	16	10	-	-	20
 2022-10-Q	Carlos_Sainz_Jr	Scuderia_Ferrari	0	1	10	-	-	20
 2022-10-Q	Charles_Leclerc	Scuderia_Ferrari	0	3	10	-	-	20
@@ -48212,25 +48212,25 @@ event_id	driver_id	team_id	start_position	end_position	laps	status	dnf_category	
 2022-10-Q	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	0	12	10	-	-	20
 2022-10-Q	Yuki_Tsunoda	Scuderia_AlphaTauri	0	13	10	-	-	20
 2022-10-R	Alexander_Albon	Williams_Racing	16	20	0	crash	driver	20
-2022-10-R	Carlos_Sainz_Jr	Scuderia_Ferrari	1	1	52	-	-	20
-2022-10-R	Charles_Leclerc	Scuderia_Ferrari	3	4	52	-	-	20
-2022-10-R	Daniel_Ricciardo	McLaren_F1_Team	14	13	52	-	-	20
-2022-10-R	Esteban_Ocon	BWT_Alpine_F1_Team	15	15	40	mechanical	car	20
-2022-10-R	Fernando_Alonso	BWT_Alpine_F1_Team	7	5	52	-	-	20
+2022-10-R	Carlos_Sainz_Jr	Scuderia_Ferrari	1	1	52	2:17:50.311	-	20
+2022-10-R	Charles_Leclerc	Scuderia_Ferrari	3	4	52	+8.546	-	20
+2022-10-R	Daniel_Ricciardo	McLaren_F1_Team	14	13	52	+32.817	-	20
+2022-10-R	Esteban_Ocon	BWT_Alpine_F1_Team	15	15	37	fuel pump	car	20
+2022-10-R	Fernando_Alonso	BWT_Alpine_F1_Team	7	5	52	+9.571	-	20
 2022-10-R	George_Russell	Mercedes_AMG_Petronas_F1_Team	8	18	0	crash	driver	20
 2022-10-R	Guanyu_Zhou	Alfa_Romeo_Racing_ORLEN	9	19	0	crash	driver	20
-2022-10-R	Kevin_Magnussen	Haas_F1_Team	17	10	52	-	-	20
-2022-10-R	Lance_Stroll	Aston_Martin_Aramco_Cognizant_F1_Team	20	11	52	-	-	20
-2022-10-R	Lando_Norris	McLaren_F1_Team	6	6	52	-	-	20
-2022-10-R	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	5	3	52	-	-	20
-2022-10-R	Max_Verstappen	Oracle_Red_Bull_Racing	2	7	52	-	-	20
-2022-10-R	Mick_Schumacher	Haas_F1_Team	19	8	52	-	-	20
-2022-10-R	Nicholas_Latifi	Williams_Racing	10	12	52	-	-	20
-2022-10-R	Pierre_Gasly	Scuderia_AlphaTauri	11	16	29	wing	car	20
-2022-10-R	Sebastian_Vettel	Aston_Martin_Aramco_Cognizant_F1_Team	18	9	52	-	-	20
-2022-10-R	Sergio_Perez	Oracle_Red_Bull_Racing	4	2	52	-	-	20
-2022-10-R	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	12	17	21	electrical	car	20
-2022-10-R	Yuki_Tsunoda	Scuderia_AlphaTauri	13	14	52	-	-	20
+2022-10-R	Kevin_Magnussen	Haas_F1_Team	17	10	52	+24.590	-	20
+2022-10-R	Lance_Stroll	Aston_Martin_Aramco_Cognizant_F1_Team	20	11	52	+26.147	-	20
+2022-10-R	Lando_Norris	McLaren_F1_Team	6	6	52	+11.943	-	20
+2022-10-R	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	5	3	52	+6.225	-	20
+2022-10-R	Max_Verstappen	Oracle_Red_Bull_Racing	2	7	52	+18.777	-	20
+2022-10-R	Mick_Schumacher	Haas_F1_Team	19	8	52	+18.995	-	20
+2022-10-R	Nicholas_Latifi	Williams_Racing	10	12	52	+32.511	-	20
+2022-10-R	Pierre_Gasly	Scuderia_AlphaTauri	11	16	26	rear wing	car	20
+2022-10-R	Sebastian_Vettel	Aston_Martin_Aramco_Cognizant_F1_Team	18	9	52	+22.356	-	20
+2022-10-R	Sergio_Perez	Oracle_Red_Bull_Racing	4	2	52	+3.779	-	20
+2022-10-R	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	12	17	20	gearbox	car	20
+2022-10-R	Yuki_Tsunoda	Scuderia_AlphaTauri	13	14	52	+40.910	-	20
 2022-11-Q	Alexander_Albon	Williams_Racing	0	11	15	-	-	20
 2022-11-Q	Carlos_Sainz_Jr	Scuderia_Ferrari	0	3	20	-	-	20
 2022-11-Q	Charles_Leclerc	Scuderia_Ferrari	0	2	20	-	-	20
@@ -48271,26 +48271,26 @@ event_id	driver_id	team_id	start_position	end_position	laps	status	dnf_category	
 2022-11-S	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	12	10	24	-	-	20
 2022-11-S	Yuki_Tsunoda	Scuderia_AlphaTauri	14	17	24	-	-	20
 2022-11-S	Fernando_Alonso	BWT_Alpine_F1_Team	8	20	0	mechanical	car	20
-2022-11-R	Alexander_Albon	Williams_Racing	15	12	71	-	-	20
+2022-11-R	Alexander_Albon	Williams_Racing	15	12	70	+1 lap	-	20
 2022-11-R	Carlos_Sainz_Jr	Scuderia_Ferrari	3	18	56	engine	car	20
-2022-11-R	Charles_Leclerc	Scuderia_Ferrari	2	1	71	-	-	20
-2022-11-R	Daniel_Ricciardo	McLaren_F1_Team	11	9	71	-	-	20
-2022-11-R	Esteban_Ocon	BWT_Alpine_F1_Team	6	5	71	-	-	20
-2022-11-R	Fernando_Alonso	BWT_Alpine_F1_Team	19	10	71	-	-	20
-2022-11-R	George_Russell	Mercedes_AMG_Petronas_F1_Team	4	4	71	-	-	20
-2022-11-R	Guanyu_Zhou	Alfa_Romeo_Racing_ORLEN	13	14	71	-	-	20
-2022-11-R	Kevin_Magnussen	Haas_F1_Team	7	8	71	-	-	20
-2022-11-R	Lance_Stroll	Aston_Martin_Aramco_Cognizant_F1_Team	12	13	71	-	-	20
-2022-11-R	Lando_Norris	McLaren_F1_Team	10	7	71	-	-	20
-2022-11-R	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	8	3	71	-	-	20
-2022-11-R	Max_Verstappen	Oracle_Red_Bull_Racing	1	2	71	-	-	20
-2022-11-R	Mick_Schumacher	Haas_F1_Team	9	6	71	-	-	20
-2022-11-R	Nicholas_Latifi	Williams_Racing	17	19	48	mechanical	car	20
-2022-11-R	Pierre_Gasly	Scuderia_AlphaTauri	14	15	71	-	-	20
-2022-11-R	Sebastian_Vettel	Aston_Martin_Aramco_Cognizant_F1_Team	18	17	71	-	-	20
-2022-11-R	Sergio_Perez	Oracle_Red_Bull_Racing	5	20	24	crash damage	driver	20
-2022-11-R	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	20	11	71	-	-	20
-2022-11-R	Yuki_Tsunoda	Scuderia_AlphaTauri	16	16	71	-	-	20
+2022-11-R	Charles_Leclerc	Scuderia_Ferrari	2	1	71	1:24:24.312	-	20
+2022-11-R	Daniel_Ricciardo	McLaren_F1_Team	11	9	70	+1 lap	-	20
+2022-11-R	Esteban_Ocon	BWT_Alpine_F1_Team	6	5	71	+68.436	-	20
+2022-11-R	Fernando_Alonso	BWT_Alpine_F1_Team	19	10	70	+1 lap	-	20
+2022-11-R	George_Russell	Mercedes_AMG_Petronas_F1_Team	4	4	71	+58.972	-	20
+2022-11-R	Guanyu_Zhou	Alfa_Romeo_Racing_ORLEN	13	14	70	+1 lap	-	20
+2022-11-R	Kevin_Magnussen	Haas_F1_Team	7	8	70	+1 lap	-	20
+2022-11-R	Lance_Stroll	Aston_Martin_Aramco_Cognizant_F1_Team	12	13	70	+1 lap	-	20
+2022-11-R	Lando_Norris	McLaren_F1_Team	10	7	70	+1 lap	-	20
+2022-11-R	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	8	3	71	+41.217	-	20
+2022-11-R	Max_Verstappen	Oracle_Red_Bull_Racing	1	2	71	+1.532	-	20
+2022-11-R	Mick_Schumacher	Haas_F1_Team	9	6	70	+1 lap	-	20
+2022-11-R	Nicholas_Latifi	Williams_Racing	17	19	48	undertray	car	20
+2022-11-R	Pierre_Gasly	Scuderia_AlphaTauri	14	15	70	+1 lap	-	20
+2022-11-R	Sebastian_Vettel	Aston_Martin_Aramco_Cognizant_F1_Team	18	17	70	+1 lap	-	20
+2022-11-R	Sergio_Perez	Oracle_Red_Bull_Racing	5	20	24	damages	driver	20
+2022-11-R	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	20	11	70	+1 lap	-	20
+2022-11-R	Yuki_Tsunoda	Scuderia_AlphaTauri	16	16	70	+1 lap	-	20
 2022-12-Q	Alexander_Albon	Williams_Racing	0	15	20	-	-	20
 2022-12-Q	Carlos_Sainz_Jr	Scuderia_Ferrari	0	9	20	engine	car	20
 2022-12-Q	Charles_Leclerc	Scuderia_Ferrari	0	1	20	-	-	20
@@ -48311,23 +48311,23 @@ event_id	driver_id	team_id	start_position	end_position	laps	status	dnf_category	
 2022-12-Q	Sergio_Perez	Oracle_Red_Bull_Racing	0	3	20	-	-	20
 2022-12-Q	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	0	13	20	-	-	20
 2022-12-Q	Yuki_Tsunoda	Scuderia_AlphaTauri	0	8	20	-	-	20
-2022-12-R	Alexander_Albon	Williams_Racing	13	13	53	-	-	20
-2022-12-R	Carlos_Sainz_Jr	Scuderia_Ferrari	19	5	53	-	-	20
-2022-12-R	Charles_Leclerc	Scuderia_Ferrari	1	20	18	crash	driver	20
-2022-12-R	Daniel_Ricciardo	McLaren_F1_Team	9	9	53	-	-	20
-2022-12-R	Esteban_Ocon	BWT_Alpine_F1_Team	10	8	53	-	-	20
-2022-12-R	Fernando_Alonso	BWT_Alpine_F1_Team	7	6	53	-	-	20
-2022-12-R	George_Russell	Mercedes_AMG_Petronas_F1_Team	6	3	53	-	-	20
+2022-12-R	Alexander_Albon	Williams_Racing	13	13	53	+68.565	-	20
+2022-12-R	Carlos_Sainz_Jr	Scuderia_Ferrari	19	5	53	+28.872	-	20
+2022-12-R	Charles_Leclerc	Scuderia_Ferrari	1	19	17	crash	driver	20
+2022-12-R	Daniel_Ricciardo	McLaren_F1_Team	9	9	53	+60.372	-	20
+2022-12-R	Esteban_Ocon	BWT_Alpine_F1_Team	10	8	53	+56.959	-	20
+2022-12-R	Fernando_Alonso	BWT_Alpine_F1_Team	7	6	53	+42.879	-	20
+2022-12-R	George_Russell	Mercedes_AMG_Petronas_F1_Team	6	3	53	+16.495	-	20
 2022-12-R	Guanyu_Zhou	Alfa_Romeo_Racing_ORLEN	16	16	47	engine	car	20
-2022-12-R	Kevin_Magnussen	Haas_F1_Team	20	18	37	crash damage	driver	20
-2022-12-R	Lance_Stroll	Aston_Martin_Aramco_Cognizant_F1_Team	15	10	53	-	-	20
-2022-12-R	Lando_Norris	McLaren_F1_Team	5	7	53	-	-	20
-2022-12-R	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	4	2	53	-	-	20
-2022-12-R	Max_Verstappen	Oracle_Red_Bull_Racing	2	1	53	-	-	20
-2022-12-R	Mick_Schumacher	Haas_F1_Team	17	15	53	-	-	20
-2022-12-R	Nicholas_Latifi	Williams_Racing	18	17	40	crash damage	driver	20
-2022-12-R	Pierre_Gasly	Scuderia_AlphaTauri	14	12	53	-	-	20
-2022-12-R	Sebastian_Vettel	Aston_Martin_Aramco_Cognizant_F1_Team	12	11	53	-	-	20
-2022-12-R	Sergio_Perez	Oracle_Red_Bull_Racing	3	4	53	-	-	20
-2022-12-R	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	11	14	53	-	-	20
-2022-12-R	Yuki_Tsunoda	Scuderia_AlphaTauri	8	19	19	crash damage	driver	20
+2022-12-R	Kevin_Magnussen	Haas_F1_Team	20	18	37	crash	driver	20
+2022-12-R	Lance_Stroll	Aston_Martin_Aramco_Cognizant_F1_Team	15	10	53	+62.549	-	20
+2022-12-R	Lando_Norris	McLaren_F1_Team	5	7	53	+52.026	-	20
+2022-12-R	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	4	2	53	+10.587	-	20
+2022-12-R	Max_Verstappen	Oracle_Red_Bull_Racing	2	1	53	1:30:02.112	-	20
+2022-12-R	Mick_Schumacher	Haas_F1_Team	17	15	53	+80.394	-	20
+2022-12-R	Nicholas_Latifi	Williams_Racing	18	17	40	crash	driver	20
+2022-12-R	Pierre_Gasly	Scuderia_AlphaTauri	14	12	53	+65.448	-	20
+2022-12-R	Sebastian_Vettel	Aston_Martin_Aramco_Cognizant_F1_Team	12	11	53	+64.494	-	20
+2022-12-R	Sergio_Perez	Oracle_Red_Bull_Racing	3	4	53	+17.310	-	20
+2022-12-R	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	11	14	53	+76.666	-	20
+2022-12-R	Yuki_Tsunoda	Scuderia_AlphaTauri	8	20	17	crash	driver	20
