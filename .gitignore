@@ -21,8 +21,10 @@ sentiment/
 # Python profiling runs
 profiles/
 
-# Scratch working space before it's ready for use
+# Scratch working spaces before it's ready for use
 scratch/
+odds/
+fantasy/
 
 # Swap/backups
 [._]*.s[a-v][a-z]
