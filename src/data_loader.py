@@ -157,40 +157,28 @@ class DataLoader(object):
 
     def load_teams_from_ratings(self, content):
         """Load teams from the log of a previous run.
-
-        Ensure that we haven't loaded teams from anywhere else first.
         """
         _HEADERS = ['RaceID', 'TeamUUID', 'TeamID', 'EloPost', 'KFEventsPost', 'KmSuccessPost', 'KmFailurePost']
-        if self._team_factory.teams():
-            print('ERROR: Already loaded teams from previous source', file=self._outfile)
-            return False
         all_rows = self._load_and_group_by_event(content, _HEADERS, event_id_tag='RaceID')
         seen_teams = set()
-        first_event_id = None
-        set_current_teams = False
         for event_id in sorted(all_rows.keys(), key=functools.cmp_to_key(compare_events), reverse=True):
             for row in all_rows[event_id]:
                 event_id = row['RaceID'][1:]
                 if event_id.startswith('#'):
                     continue
-                if row['TeamUUID'] in seen_teams:
+                uuid = row['TeamUUID']
+                if uuid in seen_teams:
                     continue
-                seen_teams.add(row['TeamUUID'])
+                seen_teams.add(uuid)
+                canonical_team = self._team_factory.get_team_by_uuid(uuid)
+                if canonical_team is None:
+                    continue
                 reliability = Reliability(km_success=float(row['KmSuccessPost']),
                                           km_failure=float(row['KmFailurePost']))
                 k_factor = KFactor(num_events=float(row['KFEventsPost']))
                 rating = EloRating(init_rating=float(row['EloPost']), reliability=reliability, k_factor=k_factor,
                                    last_event_id=event_id)
-                team_id = row['TeamID']
-                team_name = team_id.replace('_', ' ')
-                self._team_factory.create_team('new', event_id, team_id, team_name, team_uuid=row['TeamUUID'],
-                                               rating=rating)
-                if first_event_id is None:
-                    first_event_id = event_id
-                elif not set_current_teams:
-                    if event_id != first_event_id:
-                        self._team_factory.update_for_event(first_event_id)
-                        set_current_teams = True
+                canonical_team.set_rating(rating)
         print('Loaded %d teams from log' % (len(self._team_factory.teams())), file=self._outfile)
         return True
 
@@ -333,4 +321,6 @@ class DataLoader(object):
 
     @staticmethod
     def _disable_reliability_decay(rating):
+        if rating.reliability() is None:
+            return
         rating.reliability().set_decay_rate(1.0)
