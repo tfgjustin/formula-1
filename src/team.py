@@ -36,6 +36,9 @@ class Team(object):
     def rating(self):
         return self._rating
 
+    def set_rating(self, rating):
+        self._rating = rating
+
 
 class TeamFactory(object):
 
@@ -44,6 +47,8 @@ class TeamFactory(object):
         self._args = args
         # Unique counter so we can track canonical teams through aliases etc
         self._team_uuid_counter = 0
+        # [uuid] ~> Team mapping
+        self._uuid_to_team = dict()
         # Set of valid team IDs, used for validation when loading results
         self._all_team_ids = set()
         # (event_id, team_id) ~> Team object
@@ -57,7 +62,7 @@ class TeamFactory(object):
         # String identifier (e.g., Team_Lotus) to the current Team object
         self._current_teams = dict()
         # Mapping of events to teams we have to handle
-        self._teams_by_event = defaultdict(list)
+        self._team_changes_by_event = defaultdict(list)
         # Overall flag if this operation succeeded or not.
         self._success = True
 
@@ -70,10 +75,13 @@ class TeamFactory(object):
     def get_current_team(self, team_id):
         return self._current_teams.get(team_id, None)
 
+    def get_team_by_uuid(self, uuid):
+        return self._uuid_to_team.get(uuid, None)
+
     def update_for_event(self, event_id):
-        if event_id not in self._teams_by_event:
+        if event_id not in self._team_changes_by_event:
             return
-        for team_key in self._teams_by_event[event_id]:
+        for team_key in self._team_changes_by_event[event_id]:
             if team_key not in self._all_teams:
                 print('ERROR: Event %s references invalid team %s' % (event_id, team_key))
                 continue
@@ -86,7 +94,7 @@ class TeamFactory(object):
     def create_team(self, team_type, event_id, team_id, team_name, other_event_id=None,
                     other_team_id=None, team_uuid=None, rating=None):
         this_key = '%s:%s' % (event_id, team_id)
-        self._teams_by_event[event_id].append(this_key)
+        self._team_changes_by_event[event_id].append(this_key)
         other_key = None
         if other_event_id is not None and other_team_id is not None:
             other_key = '%s:%s' % (other_event_id, other_team_id)
@@ -101,7 +109,9 @@ class TeamFactory(object):
                     regress_rate=self._args.team_elo_regress,
                     k_factor_regress_rate=self._args.team_kfactor_regress
                 )
-            self._all_teams[this_key] = Team(uuid, team_id, team_name, rating=elo_rating)
+            team = Team(uuid, team_id, team_name, rating=elo_rating)
+            self._all_teams[this_key] = team
+            self._uuid_to_team[uuid] = team
             self._all_team_ids.add(team_id)
         elif team_type == 'change':
             if other_key is not None:
@@ -159,7 +169,9 @@ class TeamFactory(object):
                 self._success = False
                 continue
             event_id, team_id = team_key.split(':', 1)
-            self._all_teams[team_key] = Team(prev_team_obj.uuid(), team_id, None, rating=prev_team_obj.rating())
+            team = Team(prev_team_obj.uuid(), team_id, None, rating=prev_team_obj.rating())
+            self._all_teams[team_key] = team
+            self._uuid_to_team[prev_team_obj.uuid()] = team
         # Now all the aliases
         for alias_key, canonical_key in self._is_alias.items():
             canonical_obj = self._all_teams.get(canonical_key, None)
