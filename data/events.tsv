@@ -1755,8 +1755,8 @@ event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance
 2012-19-R	2012	19	R	2012-11-18	United_States_Grand_Prix	Circuit of the Americas	24	56	5.513
 2012-20-Q	2012	20	Q	2012-11-25	Petrobras_Grand_Prix_of_Brazil	Autodromo Jose Carlos Pace	24	10	4.309
 2012-20-R	2012	20	R	2012-11-25	Petrobras_Grand_Prix_of_Brazil	Autodromo Jose Carlos Pace	24	71	4.309
-2013-01-Q	2013	1	Q	2013-03-17	Rolex_Australian_Grand_Prix	Albert Park Grand Prix Circuit	22	10	5.303
-2013-01-R	2013	1	R	2013-03-17	Rolex_Australian_Grand_Prix	Albert Park Grand Prix Circuit	22	58	5.303
+2013-01-Q	2013	1	Q	2013-03-17	Australian_Grand_Prix	Albert Park Grand Prix Circuit	22	10	5.303
+2013-01-R	2013	1	R	2013-03-17	Australian_Grand_Prix	Albert Park Grand Prix Circuit	22	58	5.303
 2013-02-Q	2013	2	Q	2013-03-24	Petronas_Malaysia_Grand_Prix	Sepang International Circuit	22	10	5.543
 2013-02-R	2013	2	R	2013-03-24	Petronas_Malaysia_Grand_Prix	Sepang International Circuit	22	56	5.543
 2013-03-Q	2013	3	Q	2013-04-14	UBS_Chinese_Grand_Prix	Shanghai International Circuit	22	10	5.451
@@ -1793,8 +1793,8 @@ event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance
 2013-18-R	2013	18	R	2013-11-17	United_States_Grand_Prix	Circuit of the Americas	22	56	5.513
 2013-19-Q	2013	19	Q	2013-11-24	Petrobras_Grand_Prix_of_Brazil	Autodromo Jose Carlos Pace	22	10	4.309
 2013-19-R	2013	19	R	2013-11-24	Petrobras_Grand_Prix_of_Brazil	Autodromo Jose Carlos Pace	22	71	4.309
-2014-01-Q	2014	1	Q	2014-03-16	Rolex_Australian_Grand_Prix	Albert Park Grand Prix Circuit	22	10	5.303
-2014-01-R	2014	1	R	2014-03-16	Rolex_Australian_Grand_Prix	Albert Park Grand Prix Circuit	22	57	5.303
+2014-01-Q	2014	1	Q	2014-03-16	Australian_Grand_Prix	Albert Park Grand Prix Circuit	22	10	5.303
+2014-01-R	2014	1	R	2014-03-16	Australian_Grand_Prix	Albert Park Grand Prix Circuit	22	57	5.303
 2014-02-Q	2014	2	Q	2014-03-30	Petronas_Malaysia_Grand_Prix	Sepang International Circuit	22	10	5.543
 2014-02-R	2014	2	R	2014-03-30	Petronas_Malaysia_Grand_Prix	Sepang International Circuit	22	56	5.543
 2014-03-Q	2014	3	Q	2014-04-06	Gulf_Air_Bahrain_Grand_Prix	Bahrain International Circuit	22	10	5.412
@@ -1831,8 +1831,8 @@ event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance
 2014-18-R	2014	18	R	2014-11-09	Petrobras_Grand_Prix_of_Brazil	Autodromo Jose Carlos Pace	18	71	4.309
 2014-19-Q	2014	19	Q	2014-11-23	Etihad_Airways_Abu_Dhabi_Grand_Prix	Yas Marina Circuit	20	10	5.554
 2014-19-R	2014	19	R	2014-11-23	Etihad_Airways_Abu_Dhabi_Grand_Prix	Yas Marina Circuit	20	55	5.554
-2015-01-Q	2015	1	Q	2015-03-15	Rolex_Australian_Grand_Prix	Albert Park Grand Prix Circuit	17	10	5.303
-2015-01-R	2015	1	R	2015-03-15	Rolex_Australian_Grand_Prix	Albert Park Grand Prix Circuit	17	58	5.303
+2015-01-Q	2015	1	Q	2015-03-15	Australian_Grand_Prix	Albert Park Grand Prix Circuit	17	10	5.303
+2015-01-R	2015	1	R	2015-03-15	Australian_Grand_Prix	Albert Park Grand Prix Circuit	17	58	5.303
 2015-02-Q	2015	2	Q	2015-03-29	Petronas_Malaysia_Grand_Prix	Sepang International Circuit	19	10	5.543
 2015-02-R	2015	2	R	2015-03-29	Petronas_Malaysia_Grand_Prix	Sepang International Circuit	19	56	5.543
 2015-03-Q	2015	3	Q	2015-04-12	Chinese_Grand_Prix	Shanghai International Circuit	20	10	5.451
@@ -1869,8 +1869,8 @@ event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance
 2015-18-R	2015	18	R	2015-11-15	Petrobras_Grand_Prix_of_Brazil	Autodromo Jose Carlos Pace	20	71	4.309
 2015-19-Q	2015	19	Q	2015-11-29	Etihad_Airways_Abu_Dhabi_Grand_Prix	Yas Marina Circuit	20	10	5.554
 2015-19-R	2015	19	R	2015-11-29	Etihad_Airways_Abu_Dhabi_Grand_Prix	Yas Marina Circuit	20	55	5.554
-2016-01-Q	2016	1	Q	2016-03-20	Rolex_Australian_Grand_Prix	Albert Park Grand Prix Circuit	22	10	5.303
-2016-01-R	2016	1	R	2016-03-20	Rolex_Australian_Grand_Prix	Albert Park Grand Prix Circuit	22	57	5.303
+2016-01-Q	2016	1	Q	2016-03-20	Australian_Grand_Prix	Albert Park Grand Prix Circuit	22	10	5.303
+2016-01-R	2016	1	R	2016-03-20	Australian_Grand_Prix	Albert Park Grand Prix Circuit	22	57	5.303
 2016-02-Q	2016	2	Q	2016-04-03	Gulf_Air_Bahrain_Grand_Prix	Bahrain International Circuit	22	10	5.412
 2016-02-R	2016	2	R	2016-04-03	Gulf_Air_Bahrain_Grand_Prix	Bahrain International Circuit	22	57	5.412
 2016-03-Q	2016	3	Q	2016-04-17	Pirelli_Chinese_Grand_Prix	Shanghai International Circuit	22	10	5.451
@@ -1911,8 +1911,8 @@ event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance
 2016-20-R	2016	20	R	2016-11-13	Grand_Prix_of_Brazil	Autodromo Jose Carlos Pace	22	71	4.309
 2016-21-Q	2016	21	Q	2016-11-27	Etihad_Airways_Abu_Dhabi_Grand_Prix	Yas Marina Circuit	22	10	5.554
 2016-21-R	2016	21	R	2016-11-27	Etihad_Airways_Abu_Dhabi_Grand_Prix	Yas Marina Circuit	22	55	5.554
-2017-01-Q	2017	1	Q	2017-03-26	Rolex_Australian_Grand_Prix	Albert Park Grand Prix Circuit	20	10	5.303
-2017-01-R	2017	1	R	2017-03-26	Rolex_Australian_Grand_Prix	Albert Park Grand Prix Circuit	20	57	5.303
+2017-01-Q	2017	1	Q	2017-03-26	Australian_Grand_Prix	Albert Park Grand Prix Circuit	20	10	5.303
+2017-01-R	2017	1	R	2017-03-26	Australian_Grand_Prix	Albert Park Grand Prix Circuit	20	57	5.303
 2017-02-Q	2017	2	Q	2017-04-09	Heineken_Chinese_Grand_Prix	Shanghai International Circuit	20	10	5.451
 2017-02-R	2017	2	R	2017-04-09	Heineken_Chinese_Grand_Prix	Shanghai International Circuit	20	56	5.451
 2017-03-Q	2017	3	Q	2017-04-16	Gulf_Air_Bahrain_Grand_Prix	Bahrain International Circuit	20	10	5.412
@@ -1929,8 +1929,8 @@ event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance
 2017-08-R	2017	8	R	2017-06-25	Azerbaijan_Grand_Prix	Baku City Circuit	20	51	6.003
 2017-09-Q	2017	9	Q	2017-07-09	Grand_Prix_of_Austria	Red Bull Ring	20	10	4.318
 2017-09-R	2017	9	R	2017-07-09	Grand_Prix_of_Austria	Red Bull Ring	20	71	4.318
-2017-10-Q	2017	10	Q	2017-07-16	Rolex_British_Grand_Prix	Silverstone Circuit	20	10	5.891
-2017-10-R	2017	10	R	2017-07-16	Rolex_British_Grand_Prix	Silverstone Circuit	20	51	5.891
+2017-10-Q	2017	10	Q	2017-07-16	British_Grand_Prix	Silverstone Circuit	20	10	5.891
+2017-10-R	2017	10	R	2017-07-16	British_Grand_Prix	Silverstone Circuit	20	51	5.891
 2017-11-Q	2017	11	Q	2017-07-30	Hungarian_Grand_Prix	Hungaroring	20	10	4.381
 2017-11-R	2017	11	R	2017-07-30	Hungarian_Grand_Prix	Hungaroring	20	70	4.381
 2017-12-Q	2017	12	Q	2017-08-27	Pirelli_Belgian_Grand_Prix	Circuit de Spa Francorchamps	20	10	7.004
@@ -1951,8 +1951,8 @@ event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance
 2017-19-R	2017	19	R	2017-11-12	Heineken_Grand_Prix_of_Brazil	Autodromo Jose Carlos Pace	20	71	4.309
 2017-20-Q	2017	20	Q	2017-11-26	Etihad_Airways_Abu_Dhabi_Grand_Prix	Yas Marina Circuit	20	10	5.554
 2017-20-R	2017	20	R	2017-11-26	Etihad_Airways_Abu_Dhabi_Grand_Prix	Yas Marina Circuit	20	55	5.554
-2018-01-Q	2018	1	Q	2018-03-25	Rolex_Australian_Grand_Prix	Albert Park Grand Prix Circuit	20	10	5.303
-2018-01-R	2018	1	R	2018-03-25	Rolex_Australian_Grand_Prix	Albert Park Grand Prix Circuit	20	58	5.303
+2018-01-Q	2018	1	Q	2018-03-25	Australian_Grand_Prix	Albert Park Grand Prix Circuit	20	10	5.303
+2018-01-R	2018	1	R	2018-03-25	Australian_Grand_Prix	Albert Park Grand Prix Circuit	20	58	5.303
 2018-02-Q	2018	2	Q	2018-04-08	Gulf_Air_Bahrain_Grand_Prix	Bahrain International Circuit	20	10	5.412
 2018-02-R	2018	2	R	2018-04-08	Gulf_Air_Bahrain_Grand_Prix	Bahrain International Circuit	20	57	5.412
 2018-03-Q	2018	3	Q	2018-04-15	Heineken_Chinese_Grand_Prix	Shanghai International Circuit	20	10	5.451
@@ -1969,12 +1969,12 @@ event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance
 2018-08-R	2018	8	R	2018-06-24	Pirelli_Grand_Prix_of_France	Circuit Paul Ricard	20	53	5.842
 2018-09-Q	2018	9	Q	2018-07-01	Eyetime_Grand_Prix_of_Austria	Red Bull Ring	20	10	4.318
 2018-09-R	2018	9	R	2018-07-01	Eyetime_Grand_Prix_of_Austria	Red Bull Ring	20	71	4.318
-2018-10-Q	2018	10	Q	2018-07-08	Rolex_British_Grand_Prix	Silverstone Circuit	20	10	5.891
-2018-10-R	2018	10	R	2018-07-08	Rolex_British_Grand_Prix	Silverstone Circuit	20	52	5.891
+2018-10-Q	2018	10	Q	2018-07-08	British_Grand_Prix	Silverstone Circuit	20	10	5.891
+2018-10-R	2018	10	R	2018-07-08	British_Grand_Prix	Silverstone Circuit	20	52	5.891
 2018-11-Q	2018	11	Q	2018-07-22	Emirates_Grand_Prix_of_Germany	Hockenheimring	20	10	4.574
 2018-11-R	2018	11	R	2018-07-22	Emirates_Grand_Prix_of_Germany	Hockenheimring	20	67	4.574
-2018-12-Q	2018	12	Q	2018-07-29	Rolex_Hungarian_Grand_Prix	Hungaroring	20	10	4.381
-2018-12-R	2018	12	R	2018-07-29	Rolex_Hungarian_Grand_Prix	Hungaroring	20	70	4.381
+2018-12-Q	2018	12	Q	2018-07-29	Hungarian_Grand_Prix	Hungaroring	20	10	4.381
+2018-12-R	2018	12	R	2018-07-29	Hungarian_Grand_Prix	Hungaroring	20	70	4.381
 2018-13-Q	2018	13	Q	2018-08-26	Johnnie_Walker_Belgian_Grand_Prix	Circuit de Spa Francorchamps	20	10	7.004
 2018-13-R	2018	13	R	2018-08-26	Johnnie_Walker_Belgian_Grand_Prix	Circuit de Spa Francorchamps	20	44	7.004
 2018-14-Q	2018	14	Q	2018-09-02	Heineken_Grand_Prix_of_Italy	Autodromo Nazionale di Monza	20	10	5.793
@@ -1993,8 +1993,8 @@ event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance
 2018-20-R	2018	20	R	2018-11-11	Heineken_Grand_Prix_of_Brazil	Autodromo Jose Carlos Pace	20	71	4.309
 2018-21-Q	2018	21	Q	2018-11-25	Etihad_Airways_Abu_Dhabi_Grand_Prix	Yas Marina Circuit	20	10	5.554
 2018-21-R	2018	21	R	2018-11-25	Etihad_Airways_Abu_Dhabi_Grand_Prix	Yas Marina Circuit	20	55	5.554
-2019-01-Q	2019	1	Q	2019-03-17	Rolex_Australian_Grand_Prix	Albert Park Grand Prix Circuit	20	10	5.303
-2019-01-R	2019	1	R	2019-03-17	Rolex_Australian_Grand_Prix	Albert Park Grand Prix Circuit	20	58	5.303
+2019-01-Q	2019	1	Q	2019-03-17	Australian_Grand_Prix	Albert Park Grand Prix Circuit	20	10	5.303
+2019-01-R	2019	1	R	2019-03-17	Australian_Grand_Prix	Albert Park Grand Prix Circuit	20	58	5.303
 2019-02-Q	2019	2	Q	2019-03-31	Gulf_Air_Bahrain_Grand_Prix	Bahrain International Circuit	20	10	5.412
 2019-02-R	2019	2	R	2019-03-31	Gulf_Air_Bahrain_Grand_Prix	Bahrain International Circuit	20	57	5.412
 2019-03-Q	2019	3	Q	2019-04-14	Heineken_Chinese_Grand_Prix	Shanghai International Circuit	20	10	5.451
@@ -2011,12 +2011,12 @@ event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance
 2019-08-R	2019	8	R	2019-06-23	Pirelli_Grand_Prix_of_France	Circuit Paul Ricard	20	53	5.842
 2019-09-Q	2019	9	Q	2019-06-30	MyWorld_Grand_Prix_of_Austria	Red Bull Ring	20	10	4.318
 2019-09-R	2019	9	R	2019-06-30	MyWorld_Grand_Prix_of_Austria	Red Bull Ring	20	71	4.318
-2019-10-Q	2019	10	Q	2019-07-14	Rolex_British_Grand_Prix	Silverstone Circuit	20	10	5.891
-2019-10-R	2019	10	R	2019-07-14	Rolex_British_Grand_Prix	Silverstone Circuit	20	52	5.891
+2019-10-Q	2019	10	Q	2019-07-14	British_Grand_Prix	Silverstone Circuit	20	10	5.891
+2019-10-R	2019	10	R	2019-07-14	British_Grand_Prix	Silverstone Circuit	20	52	5.891
 2019-11-Q	2019	11	Q	2019-07-28	Mercedes-Benz_Grand_Prix_of_Germany	Hockenheimring	20	10	4.574
 2019-11-R	2019	11	R	2019-07-28	Mercedes-Benz_Grand_Prix_of_Germany	Hockenheimring	20	64	4.574
-2019-12-Q	2019	12	Q	2019-08-04	Rolex_Hungarian_Grand_Prix	Hungaroring	20	10	4.381
-2019-12-R	2019	12	R	2019-08-04	Rolex_Hungarian_Grand_Prix	Hungaroring	20	70	4.381
+2019-12-Q	2019	12	Q	2019-08-04	Hungarian_Grand_Prix	Hungaroring	20	10	4.381
+2019-12-R	2019	12	R	2019-08-04	Hungarian_Grand_Prix	Hungaroring	20	70	4.381
 2019-13-Q	2019	13	Q	2019-09-01	Johnnie_Walker_Belgian_Grand_Prix	Circuit de Spa Francorchamps	20	10	7.004
 2019-13-R	2019	13	R	2019-09-01	Johnnie_Walker_Belgian_Grand_Prix	Circuit de Spa Francorchamps	20	44	7.004
 2019-14-Q	2019	14	Q	2019-09-08	Heineken_Grand_Prix_of_Italy	Autodromo Nazionale di Monza	20	10	5.793
@@ -2035,8 +2035,8 @@ event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance
 2019-20-R	2019	20	R	2019-11-17	Heineken_Grand_Prix_of_Brazil	Autodromo Jose Carlos Pace	20	71	4.309
 2019-21-Q	2019	21	Q	2019-12-01	Etihad_Airways_Abu_Dhabi_Grand_Prix	Yas Marina Circuit	20	10	5.554
 2019-21-R	2019	21	R	2019-12-01	Etihad_Airways_Abu_Dhabi_Grand_Prix	Yas Marina Circuit	20	55	5.554
-2020-01-Q	2020	1	Q	2020-07-05	Rolex_Grand_Prix_of_Austria	Red Bull Ring	20	10	4.318
-2020-01-R	2020	1	R	2020-07-05	Rolex_Grand_Prix_of_Austria	Red Bull Ring	20	71	4.318
+2020-01-Q	2020	1	Q	2020-07-05	Grand_Prix_of_Austria	Red Bull Ring	20	10	4.318
+2020-01-R	2020	1	R	2020-07-05	Grand_Prix_of_Austria	Red Bull Ring	20	71	4.318
 2020-02-Q	2020	2	Q	2020-07-12	Steiermark_Grand_Prix	Red Bull Ring	20	10	4.318
 2020-02-R	2020	2	R	2020-07-12	Steiermark_Grand_Prix	Red Bull Ring	20	71	4.318
 2020-03-Q	2020	3	Q	2020-07-19	Aramco_Hungarian_Grand_Prix	Hungaroring	20	10	4.381
@@ -2047,12 +2047,12 @@ event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance
 2020-05-R	2020	5	R	2020-08-09	Emirates_70th_Anniversary_Grand_Prix	Silverstone Circuit	20	52	5.891
 2020-06-Q	2020	6	Q	2020-08-16	Aramco_Grand_Prix_of_Spain	Circuit de Catalunya	20	10	4.655
 2020-06-R	2020	6	R	2020-08-16	Aramco_Grand_Prix_of_Spain	Circuit de Catalunya	20	66	4.655
-2020-07-Q	2020	7	Q	2020-08-30	Rolex_Belgian_Grand_Prix	Circuit de Spa Francorchamps	20	10	7.004
-2020-07-R	2020	7	R	2020-08-30	Rolex_Belgian_Grand_Prix	Circuit de Spa Francorchamps	20	44	7.004
+2020-07-Q	2020	7	Q	2020-08-30	Belgian_Grand_Prix	Circuit de Spa Francorchamps	20	10	7.004
+2020-07-R	2020	7	R	2020-08-30	Belgian_Grand_Prix	Circuit de Spa Francorchamps	20	44	7.004
 2020-08-Q	2020	8	Q	2020-09-06	Heineken_Grand_Prix_of_Italy	Autodromo Nazionale di Monza	20	10	5.793
 2020-08-R	2020	8	R	2020-09-06	Heineken_Grand_Prix_of_Italy	Autodromo Nazionale di Monza	20	53	5.793
-2020-09-Q	2020	9	Q	2020-09-13	Tuscan_Ferrari_Grand_Prix	Mugello Circuit	20	10	5.245
-2020-09-R	2020	9	R	2020-09-13	Tuscan_Ferrari_Grand_Prix	Mugello Circuit	20	59	5.245
+2020-09-Q	2020	9	Q	2020-09-13	Tuscan_Grand_Prix	Mugello Circuit	20	10	5.245
+2020-09-R	2020	9	R	2020-09-13	Tuscan_Grand_Prix	Mugello Circuit	20	59	5.245
 2020-10-Q	2020	10	Q	2020-09-27	VTB_Russian_Grand_Prix	Sochi Autodrome	20	10	5.848
 2020-10-R	2020	10	R	2020-09-27	VTB_Russian_Grand_Prix	Sochi Autodrome	20	53	5.848
 2020-11-Q	2020	11	Q	2020-10-11	Eifel_Grand_Prix	Nurburgring	20	10	5.148
@@ -2065,8 +2065,8 @@ event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance
 2020-14-R	2020	14	R	2020-11-15	DHL_Turkish_Grand_Prix	Intercity Istanbul Park	20	58	5.338
 2020-15-Q	2020	15	Q	2020-11-29	Gulf_Air_Bahrain_Grand_Prix	Bahrain International Circuit	20	10	5.412
 2020-15-R	2020	15	R	2020-11-29	Gulf_Air_Bahrain_Grand_Prix	Bahrain International Circuit	20	57	5.412
-2020-16-Q	2020	16	Q	2020-12-06	Rolex_Sakhir_Grand_Prix	Bahrain International Circuit	20	10	3.543
-2020-16-R	2020	16	R	2020-12-06	Rolex_Sakhir_Grand_Prix	Bahrain International Circuit	20	87	3.543
+2020-16-Q	2020	16	Q	2020-12-06	Sakhir_Grand_Prix	Bahrain International Circuit	20	10	3.543
+2020-16-R	2020	16	R	2020-12-06	Sakhir_Grand_Prix	Bahrain International Circuit	20	87	3.543
 2020-17-Q	2020	17	Q	2020-12-13	Etihad_Airways_Abu_Dhabi_Grand_Prix	Yas Marina Circuit	20	10	5.554
 2020-17-R	2020	17	R	2020-12-13	Etihad_Airways_Abu_Dhabi_Grand_Prix	Yas Marina Circuit	20	55	5.554
 2021-01-Q	2021	1	Q	2021-03-28	Gulf_Air_Bahrain_Grand_Prix	Bahrain International Circuit	20	10	5.412
@@ -2083,17 +2083,17 @@ event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance
 2021-06-R	2021	6	R	2021-06-06	Azerbaijan_Grand_Prix	Baku City Circuit	20	51	6.003
 2021-07-Q	2021	7	Q	2021-06-20	Emirates_Grand_Prix_of_France	Circuit Paul Ricard	20	10	5.842
 2021-07-R	2021	7	R	2021-06-20	Emirates_Grand_Prix_of_France	Circuit Paul Ricard	20	53	5.842
-2021-08-Q	2021	8	Q	2021-06-27	Steiermark_Grand_Prix	Red Bull Ring	20	10	4.318
-2021-08-R	2021	8	R	2021-06-27	Steiermark_Grand_Prix	Red Bull Ring	20	71	4.318
+2021-08-Q	2021	8	Q	2021-06-27	Styrian_Grand_Prix	Red Bull Ring	20	10	4.318
+2021-08-R	2021	8	R	2021-06-27	Styrian_Grand_Prix	Red Bull Ring	20	71	4.318
 2021-09-Q	2021	9	Q	2021-07-04	BWT_Grand_Prix_of_Austria	Red Bull Ring	20	10	4.318
 2021-09-R	2021	9	R	2021-07-04	BWT_Grand_Prix_of_Austria	Red Bull Ring	20	71	4.318
 2021-10-Q	2021	10	Q	2021-07-18	Pirelli_British_Grand_Prix	Silverstone Circuit	20	10	5.891
 2021-10-S	2021	10	S	2021-07-18	Pirelli_British_Grand_Prix	Silverstone Circuit	20	17	5.891
 2021-10-R	2021	10	R	2021-07-18	Pirelli_British_Grand_Prix	Silverstone Circuit	20	52	5.891
-2021-11-Q	2021	11	Q	2021-08-01	Rolex_Hungarian_Grand_Prix	Hungaroring	20	10	4.381
-2021-11-R	2021	11	R	2021-08-01	Rolex_Hungarian_Grand_Prix	Hungaroring	20	70	4.381
-2021-12-Q	2021	12	Q	2021-08-29	Rolex_Belgian_Grand_Prix	Circuit de Spa Francorchamps	20	10	7.004
-2021-12-R	2021	12	R	2021-08-29	Rolex_Belgian_Grand_Prix	Circuit de Spa Francorchamps	20	1	7.004
+2021-11-Q	2021	11	Q	2021-08-01	Hungarian_Grand_Prix	Hungaroring	20	10	4.381
+2021-11-R	2021	11	R	2021-08-01	Hungarian_Grand_Prix	Hungaroring	20	70	4.381
+2021-12-Q	2021	12	Q	2021-08-29	Belgian_Grand_Prix	Circuit de Spa Francorchamps	20	10	7.004
+2021-12-R	2021	12	R	2021-08-29	Belgian_Grand_Prix	Circuit de Spa Francorchamps	20	1	7.004
 2021-13-Q	2021	13	Q	2021-09-05	Heineken_Dutch_Grand_Prix	Circuit Zandvoort	20	10	4.259
 2021-13-R	2021	13	R	2021-09-05	Heineken_Dutch_Grand_Prix	Circuit Zandvoort	20	72	4.259
 2021-14-Q	2021	14	Q	2021-09-12	Heineken_Grand_Prix_of_Italy	Autodromo Nazionale di Monza	20	10	5.793
@@ -2101,8 +2101,8 @@ event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance
 2021-14-R	2021	14	R	2021-09-12	Heineken_Grand_Prix_of_Italy	Autodromo Nazionale di Monza	20	53	5.793
 2021-15-Q	2021	15	Q	2021-09-26	VTB_Russian_Grand_Prix	Sochi Autodrome	20	10	5.848
 2021-15-R	2021	15	R	2021-09-26	VTB_Russian_Grand_Prix	Sochi Autodrome	20	53	5.848
-2021-16-Q	2021	16	Q	2021-10-10	Rolex_Turkish_Grand_Prix	Otodrom Istanbul Park	20	10	5.338
-2021-16-R	2021	16	R	2021-10-10	Rolex_Turkish_Grand_Prix	Otodrom Istanbul Park	20	58	5.338
+2021-16-Q	2021	16	Q	2021-10-10	Turkish_Grand_Prix	Otodrom Istanbul Park	20	10	5.338
+2021-16-R	2021	16	R	2021-10-10	Turkish_Grand_Prix	Otodrom Istanbul Park	20	58	5.338
 2021-17-Q	2021	17	Q	2021-10-24	Aramco_United_States_Grand_Prix	Circuit of the Americas	20	10	5.513
 2021-17-R	2021	17	R	2021-10-24	Aramco_United_States_Grand_Prix	Circuit of the Americas	20	56	5.513
 2021-18-Q	2021	18	Q	2021-11-07	Grand_Prix_of_Mexico_+City	Autodromo Hermanos Rodriguez	20	10	4.304
@@ -2120,8 +2120,8 @@ event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance
 2022-01-R	2022	1	R	2022-03-20	Gulf_Air_Bahrain_Grand_Prix	Bahrain International Circuit	20	57	5.412
 2022-02-Q	2022	2	Q	2022-03-27	STC_Saudi_Arabian_Grand_Prix	Jeddah Street Circuit	19	10	6.174
 2022-02-R	2022	2	R	2022-03-27	STC_Saudi_Arabian_Grand_Prix	Jeddah Street Circuit	19	50	6.174
-2022-03-Q	2022	3	Q	2022-04-10	Rolex_Australian_Grand_Prix	Albert Park Grand Prix Circuit	20	10	5.303
-2022-03-R	2022	3	R	2022-04-10	Rolex_Australian_Grand_Prix	Albert Park Grand Prix Circuit	20	58	5.303
+2022-03-Q	2022	3	Q	2022-04-10	Australian_Grand_Prix	Albert Park Grand Prix Circuit	20	10	5.303
+2022-03-R	2022	3	R	2022-04-10	Australian_Grand_Prix	Albert Park Grand Prix Circuit	20	58	5.303
 2022-04-Q	2022	4	Q	2022-04-24	Pirelli_Emilia_Romagna_Grand_Prix	Autodromo Enzo Dino Ferrari	20	10	4.909
 2022-04-S	2022	4	S	2022-04-24	Pirelli_Emilia_Romagna_Grand_Prix	Autodromo Enzo Dino Ferrari	20	21	4.909
 2022-04-R	2022	4	R	2022-04-24	Pirelli_Emilia_Romagna_Grand_Prix	Autodromo Enzo Dino Ferrari	20	63	4.909
@@ -2129,3 +2129,16 @@ event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance
 2022-05-R	2022	5	R	2022-05-08	Grand_Prix_of_Miami	Miami International Autodrome	20	57	5.410
 2022-06-Q	2022	6	Q	2022-05-22	Aramco_Grand_Prix_of_Spain	Circuit de Catalunya	20	10	4.655
 2022-06-R	2022	6	R	2022-05-22	Aramco_Grand_Prix_of_Spain	Circuit de Catalunya	20	66	4.655
+2022-07-Q	2022	7	Q	2022-05-29	Grand_Prix_of_Monaco	Circuit de Monaco	20	10	3.337
+2022-07-R	2022	7	R	2022-05-29	Grand_Prix_of_Monaco	Circuit de Monaco	20	64	3.337
+2022-08-Q	2022	8	Q	2022-06-12	Azerbaijan_Grand_Prix	Baku City Circuit	20	10	6.003
+2022-08-R	2022	8	R	2022-06-12	Azerbaijan_Grand_Prix	Baku City Circuit	20	51	6.003
+2022-09-Q	2022	9	Q	2022-06-19	Pirelli_Grand_Prix_of_Canada	Circuit Gilles Villeneuve	20	10	4.361
+2022-09-R	2022	9	R	2022-06-19	Pirelli_Grand_Prix_of_Canada	Circuit Gilles Villeneuve	20	70	4.361
+2022-10-Q	2022	10	Q	2022-07-03	Pirelli_British_Grand_Prix	Silverstone Circuit	20	10	5.891
+2022-10-R	2022	10	R	2022-07-03	Pirelli_British_Grand_Prix	Silverstone Circuit	20	52	5.891
+2022-11-Q	2022	11	Q	2022-07-10	BWT_Grand_Prix_of_Austria	Red Bull Ring	20	10	4.318
+2022-11-S	2022	11	S	2022-07-10	BWT_Grand_Prix_of_Austria	Red Bull Ring	20	24	4.318
+2022-11-R	2022	11	R	2022-07-10	BWT_Grand_Prix_of_Austria	Red Bull Ring	20	71	4.318
+2022-12-Q	2022	12	Q	2022-07-24	Emirates_Grand_Prix_of_France	Circuit Paul Ricard	20	10	5.842
+2022-12-R	2022	12	R	2022-07-24	Emirates_Grand_Prix_of_France	Circuit Paul Ricard	20	53	5.842
