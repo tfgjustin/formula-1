@@ -65,7 +65,8 @@ fi
 
 mkdir -p "${log_dir}"
 python "${MAIN_PY}" "${log_dir}/${current_git_tag}" "${DRIVERS_TSV}" "${EVENTS_TSV}" "${RESULTS_TSV}" \
-	"${TEAM_HISTORY_TSV}" --logfile_uses_parameters --print_args
+	"${TEAM_HISTORY_TSV}" --logfile_uses_parameters --print_args --num_iterations=100000
+#	--print_predictions --num_iterations 50000 --print_simulations
 if [[ $? -ne 0 ]]
 then
   echo "Run did not complete successfully."
