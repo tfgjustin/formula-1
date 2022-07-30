@@ -8,7 +8,9 @@ import re
 import sys
 
 _DRIVERS_HEADERS = ['driver_id', 'driver_name']
-_EVENTS_HEADERS = ['event_id', 'season', 'stage', 'type', 'date', 'name', 'site', 'num_drivers', 'laps', 'lap_distance']
+_EVENTS_HEADERS = ['event_id', 'season', 'stage', 'type', 'date', 'name', 'site', 'num_drivers',
+        'laps', 'lap_distance', 'course_type'
+        ]
 _RESULTS_HEADERS = [
     'event_id', 'driver_id', 'team_id', 'start_position', 'end_position', 'laps', 'status', 'dnf_category', 'num_racers'
 ]
@@ -78,6 +80,7 @@ class RaceParser(HTMLParser):
         self._date = None
         self._race_id = None
         self._lap_distance = -1
+        self._course_type = 'unknown'
         self._num_laps = 0
         self._site = 'TODO'
         self._in_title = False
@@ -164,7 +167,7 @@ class RaceParser(HTMLParser):
         elif self._in_driver_row:
             self.maybe_get_driver_fact(data)
         elif self._maybe_in_laps:
-            self.maybe_get_lap_distance(data)
+            self.maybe_get_lap_distance_and_course_type(data)
 
     def reset_driver_data(self):
         self._start = None
@@ -318,11 +321,12 @@ class RaceParser(HTMLParser):
             if extract:
                 self._site = extract.group(1).replace('_', ' ')
 
-    def maybe_get_lap_distance(self, data):
+    def maybe_get_lap_distance_and_course_type(self, data):
         # This is still good
-        extract = re.match('.* laps.*on a (.*) kilometer \\w+ (?:course|track).*', data)
+        extract = re.match('.* laps.*on a (.*) kilometer (road|street) (?:course|track).*', data)
         if not extract:
             return
+        self._course_type = extract.group(2)
         self._lap_distance = float(extract.group(1))
 
     def print_data(self):
@@ -335,13 +339,13 @@ class RaceParser(HTMLParser):
         # Qualifying
         event_id = '%d-%02d-Q' % (self._year, self._stage)
         data = [event_id, self._year, self._stage, 'Q', self._date, self._race_id, self._site, self._driver_count,
-                num_qualifying_laps(self._year), self._lap_distance
+                num_qualifying_laps(self._year), self._lap_distance, self._course_type
                 ]
         self._events_tsv.writerow(data)
         # Race
         event_id = '%d-%02d-R' % (self._year, self._stage)
         data = [event_id, self._year, self._stage, 'R', self._date, self._race_id, self._site, self._driver_count,
-                self._num_laps, self._lap_distance
+                self._num_laps, self._lap_distance, self._course_type
                 ]
         self._events_tsv.writerow(data)
 
