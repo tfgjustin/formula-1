@@ -108,7 +108,7 @@ class Calculator(object):
             self._predict_file = open(base_filename + '.predict', 'w')
         self._simulation_log_file = None
         if getattr(self._args, 'print_future_simulations', False) or \
-            getattr(self._args, 'print_simulations', False):
+           getattr(self._args, 'print_simulations', False):
             self._simulation_log_file = open(base_filename + '.simulations', 'w')
         self._position_base_dict = dict()
         self.create_position_base_dict()
@@ -456,6 +456,7 @@ class Calculator(object):
         self.log_average_team(event, predictions, self._base_new_car_reliability, 'TeamNew')
         driver_results = {result.driver().id(): result for result in event.results()}
         num_drivers = len(driver_results)
+        # We use the driver ID as the key so the output in the logs will be sorted.
         for driver_id, result in sorted(driver_results.items()):
             self.log_driver_results(event, predictions, num_drivers, result)
             self.log_finish_probabilities(event, predictions, driver_id, result)
@@ -547,40 +548,46 @@ class Calculator(object):
         if event.type() == 'Q':
             return
         # Identifiers for the entrant, team (car), and driver
-        full_identifier = '%s:%s' % (result.team().uuid(), result.driver().id())
         identifiers = {
-            _ALL: full_identifier, _CAR: result.team().uuid(), _DRIVER: result.driver().id()
+            _ALL: result.entrant().id(), _CAR: result.team().uuid(), _DRIVER: result.driver().id()
         }
         # The probabilities that the average entrant will finish and that this entrant will finish
-        naive_full_probabilities = predictions.naive_finish_probabilities()
-        full_probabilities = predictions.finish_probabilities().get(driver_id)
+        # NOTE: The naive full probability from the predictions does NOT take into account starting position.
+        probability_full_naive = predictions.naive_finish_probabilities()
+        probability_full_naive_all = probability_full_naive[_ALL] * result.entrant().probability_survive_opening()
+        probability_full_entrant = predictions.finish_probabilities().get(driver_id)
         # Regardless of whether they finished the race or not this is the probability that they got as far as they
         # did in the race.
         distance_success_km = result.laps() * event.lap_distance_km()
-        car_probability = result.team().rating().probability_finishing(race_distance_km=distance_success_km)
-        driver_probability = result.driver().rating().probability_finishing(race_distance_km=distance_success_km)
-        all_probability = result.entrant().probability_complete_n_laps(event.num_laps())
+        probability_completed_entrant_car = result.team().rating().probability_finishing(
+            race_distance_km=distance_success_km)
+        probability_completed_entrant_driver = result.driver().rating().probability_finishing(
+            race_distance_km=distance_success_km)
+        # NOTE: We don't just multiply these two together because there's the opening lap survival odds.
+        probability_completed_entrant_all = result.entrant().probability_complete_n_laps(event.num_laps())
         # The naive (baseline) odds that they got as far as they did
         team_num_events = result.team().rating().k_factor().num_events()
         if team_num_events >= self._args.team_reliability_new_events:
-            naive_car_probability = self._base_car_reliability.probability_finishing(
+            probability_completed_naive_car = self._base_car_reliability.probability_finishing(
                 race_distance_km=distance_success_km)
         else:
-            naive_car_probability = self._base_new_car_reliability.probability_finishing(
+            probability_completed_naive_car = self._base_new_car_reliability.probability_finishing(
                 race_distance_km=distance_success_km)
-        naive_driver_probability = self._base_driver_reliability.probability_finishing(
+        probability_completed_naive_driver = self._base_driver_reliability.probability_finishing(
             race_distance_km=distance_success_km)
-        naive_all_probability = naive_driver_probability * naive_car_probability
+        probability_completed_naive_all = probability_completed_naive_driver * probability_completed_naive_car
+        # The only entrant-specific probability we use is for the starting grid
+        probability_completed_naive_all *= result.entrant().probability_survive_opening()
         completed_error_arrays = {
-            _ALL: [event.id(), naive_all_probability, all_probability, 1],
-            _CAR: [event.id(), naive_car_probability, car_probability, 1],
-            _DRIVER: [event.id(), naive_driver_probability, driver_probability, 1]
+            _ALL: [event.id(), probability_completed_naive_all, probability_completed_entrant_all, 1],
+            _CAR: [event.id(), probability_completed_naive_car, probability_completed_entrant_car, 1],
+            _DRIVER: [event.id(), probability_completed_naive_driver, probability_completed_entrant_driver, 1]
         }
         # These are in case the entrant fails to get the full distance
         failed_error_arrays = {
-            _ALL: [event.id(), naive_full_probabilities[_ALL], full_probabilities[_ALL], 0],
-            _CAR: [event.id(), naive_full_probabilities[_CAR], full_probabilities[_CAR], 0],
-            _DRIVER: [event.id(), naive_full_probabilities[_DRIVER], full_probabilities[_DRIVER], 0]
+            _ALL: [event.id(), probability_full_naive_all, probability_full_entrant[_ALL], 0],
+            _CAR: [event.id(), probability_full_naive[_CAR], probability_full_entrant[_CAR], 0],
+            _DRIVER: [event.id(), probability_full_naive[_DRIVER], probability_full_entrant[_DRIVER], 0]
         }
         for _ in range(self.get_oversample_rate(event.type(), event.id())):
             for mode in [_ALL, _CAR, _DRIVER]:
