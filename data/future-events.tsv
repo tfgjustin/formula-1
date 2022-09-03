@@ -1,8 +1,4 @@
 event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance
-2022-13-R	2022	13	R	2022-07-31	Rolex_Hungarian_Grand_Prix	Hungaroring	20	70	4.381
-2022-14-Q	2022	14	Q	2022-08-28	Rolex_Belgian_Grand_Prix	Circuit de Spa Francorchamps	20	10	7.004
-2022-14-R	2022	14	R	2022-08-28	Rolex_Belgian_Grand_Prix	Circuit de Spa Francorchamps	20	44	7.004
-2022-15-Q	2022	15	Q	2022-09-04	Heineken_Dutch_Grand_Prix	Circuit Zandvoort	20	10	4.259
 2022-15-R	2022	15	R	2022-09-04	Heineken_Dutch_Grand_Prix	Circuit Zandvoort	20	72	4.259
 2022-16-Q	2022	16	Q	2022-09-11	Heineken_Grand_Prix_of_Italy	Autodromo Nazionale di Monza	20	10	5.793
 2022-16-R	2022	16	R	2022-09-11	Heineken_Grand_Prix_of_Italy	Autodromo Nazionale di Monza	20	53	5.793
