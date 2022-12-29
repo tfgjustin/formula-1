@@ -85,6 +85,12 @@ def add_common_args(parser):
     parser.add_argument('--print_progress',
                         help='Print a file logging the progress of the calculations.',
                         default=False, action='store_true')
+    parser.add_argument('--reliability_km_multiplier_street',
+                        help='Per-KM driver reliability multiplier for street races.',
+                        type=float, default=0.99971)
+    parser.add_argument('--reliability_km_multiplier_wet',
+                        help='Per-KM driver reliability multiplier for wet races.',
+                        type=float, default=0.99961)
     parser.add_argument('--run_index', help='Which run is this.',
                         type=int, default=1)
     parser.add_argument('--run_max', help='Maximum number of runs.',
@@ -102,7 +108,7 @@ def add_common_args(parser):
                         type=float, default=0.95)
     parser.add_argument('--team_reliability_failure_constant',
                         help='Number of "failure" KM we add on a car failure when calculating the per-KM failure odds.',
-                        type=float, default=0.75)
+                        type=float, default=0.575)
     parser.add_argument('--team_reliability_lookback',
                         help='Lookback window in races for team reliability data.',
                         type=int, default=64)
@@ -116,6 +122,15 @@ def add_common_args(parser):
                         help='Fraction of the combined Elo rating belonging to the team.',
                         type=str, default='50_4_1')
 #                        type = calculator.validate_factors, default = '50_4_1')
+    parser.add_argument('--wear_reliability_percent',
+                        help='Percent of the wear reliability ratio to use when calculating failure rates.',
+                        type=float, default=0.5625)
+    parser.add_argument('--wet_multiplier_elo_denominator',
+                        help='Amount by which we multiple the Elo denominator during a wet event.',
+                        type=float, default=1.15)
+    parser.add_argument('--wet_multiplier_k_factor',
+                        help='Amount by which we multiple the K-Factor during a wet event.',
+                        type=float, default=0.75)
 
 
 def add_common_positional_args(parser):

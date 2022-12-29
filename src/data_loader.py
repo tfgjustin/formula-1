@@ -127,7 +127,8 @@ class DataLoader(object):
 
         We need to have loaded drivers from elsewhere already in order to get things like birthdays.
         """
-        _HEADERS = ['RaceID', 'DriverID', 'EloPost', 'KFEventsPost', 'KmSuccessPost', 'KmFailurePost']
+        _HEADERS = ['RaceID', 'DriverID', 'EloPost', 'KFEventsPost', 'KmSuccessPost', 'KmFailurePost',
+                    'WearSuccessPost', 'WearFailurePost']
         if not self._drivers:
             print('ERROR: Have NOT already loaded drivers from previous source', file=self._outfile)
             return False
@@ -147,7 +148,9 @@ class DataLoader(object):
                           file=self._outfile)
                     continue
                 reliability = Reliability(km_success=float(row['KmSuccessPost']),
-                                          km_failure=float(row['KmFailurePost']))
+                                          km_failure=float(row['KmFailurePost']),
+                                          wear_success=float(row['WearSuccessPost']),
+                                          wear_failure=float(row['WearFailurePost']))
                 k_factor = KFactor(num_events=float(row['KFEventsPost']))
                 rating = EloRating(init_rating=float(row['EloPost']), reliability=reliability, k_factor=k_factor,
                                    last_event_id=event_id)
@@ -158,7 +161,8 @@ class DataLoader(object):
     def load_teams_from_ratings(self, content):
         """Load teams from the log of a previous run.
         """
-        _HEADERS = ['RaceID', 'TeamUUID', 'TeamID', 'EloPost', 'KFEventsPost', 'KmSuccessPost', 'KmFailurePost']
+        _HEADERS = ['RaceID', 'TeamUUID', 'TeamID', 'EloPost', 'KFEventsPost', 'KmSuccessPost', 'KmFailurePost',
+                    'WearSuccessPost', 'WearFailurePost']
         all_rows = self._load_and_group_by_event(content, _HEADERS, event_id_tag='RaceID')
         seen_teams = set()
         for event_id in sorted(all_rows.keys(), key=functools.cmp_to_key(compare_events), reverse=True):
@@ -174,7 +178,10 @@ class DataLoader(object):
                 if canonical_team is None:
                     continue
                 reliability = Reliability(km_success=float(row['KmSuccessPost']),
-                                          km_failure=float(row['KmFailurePost']))
+                                          km_failure=float(row['KmFailurePost']),
+                                          wear_success=float(row['WearSuccessPost']),
+                                          wear_failure=float(row['WearFailurePost']),
+                                          wear_percent=self._args.wear_reliability_percent)
                 k_factor = KFactor(num_events=float(row['KFEventsPost']))
                 rating = EloRating(init_rating=float(row['EloPost']), reliability=reliability, k_factor=k_factor,
                                    last_event_id=event_id)
@@ -239,7 +246,7 @@ class DataLoader(object):
         self._events[event.id()].add_entrant(entrant)
 
     def _load_events_internal(self, contents, tag, event_log, season_log):
-        _HEADERS = ['season', 'stage', 'date', 'name', 'type', 'event_id', 'laps', 'lap_distance']
+        _HEADERS = ['season', 'stage', 'date', 'name', 'type', 'event_id', 'laps', 'lap_distance', 'course_type', 'weather']
         handle = io.StringIO(contents)
         reader = csv.DictReader(handle, delimiter='\t')
         for row in reader:
@@ -247,18 +254,19 @@ class DataLoader(object):
                 continue
             if row['event_id'].startswith('#'):
                 continue
+            is_street_course = row['course_type'] == 'street'
             if row['type'] == 'Q':
                 event = Qualifying(
                     row['event_id'], row['name'], row['season'], row['stage'], row['date'], row['laps'],
-                    row['lap_distance'])
+                    row['lap_distance'], is_street_course, row['weather'])
             elif row['type'] == 'S':
                 event = SprintQualifying(
                     row['event_id'], row['name'], row['season'], row['stage'], row['date'], row['laps'],
-                    row['lap_distance'])
+                    row['lap_distance'], is_street_course, row['weather'])
             elif row['type'] == 'R':
                 event = Race(
                     row['event_id'], row['name'], row['season'], row['stage'], row['date'], row['laps'],
-                    row['lap_distance'])
+                    row['lap_distance'], is_street_course, row['weather'])
             else:
                 continue
             event_log[event.id()] = event

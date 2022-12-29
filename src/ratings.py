@@ -1,4 +1,9 @@
 import math
+import sys
+
+
+def triangle(number):
+    return (number * (number + 1)) / 2
 
 
 def event_to_year(event_id):
@@ -46,11 +51,14 @@ class Reliability(object):
     DEFAULT_KM_PER_RACE = 305.0
 
     def __init__(self, default_decay_rate=0.98, other=None, regress_numerator=None, regress_percent=0.02,
-                 km_success=0, km_failure=0):
+                 km_success=0, km_failure=0, wear_success=0, wear_failure=0, wear_percent=0):
         self._template = None
         if other is None:
             self._km_success = km_success
             self._km_failure = km_failure
+            self._wear_success = wear_success
+            self._wear_failure = wear_failure
+            self._wear_percent = wear_percent
             self._default_decay_rate = default_decay_rate
             self._regress_numerator = regress_numerator
             self._regress_percent = regress_percent
@@ -60,6 +68,9 @@ class Reliability(object):
             self._default_decay_rate = other.decay_rate()
             self._km_success = other.km_success()
             self._km_failure = other.km_failure()
+            self._wear_success = other.wear_success()
+            self._wear_failure = other.wear_failure()
+            self._wear_percent = other.wear_percent()
             self._regress_numerator = other.regress_numerator()
             self._regress_percent = other.regress_percent()
             self.regress()
@@ -72,30 +83,44 @@ class Reliability(object):
         if ratio < 1.0:
             self._km_success *= ratio
             self._km_failure *= ratio
+            self._wear_success *= ratio
+            self._wear_failure *= ratio
         self.regress_to_template()
 
     def regress_to_template(self):
         if self._template is None:
             return
-        template_km_success = self._template.km_success()
-        template_km_failure = self._template.km_failure()
-        template_total = template_km_failure + template_km_success
-        if not template_total:
+        if not self._template.km_failure() and not self._template.km_success():
             return
-        ratio = (self._km_success + self._km_failure) / template_km_success
-        template_km_success *= (ratio * self._regress_percent)
-        self._km_success *= (1 - self._regress_percent)
-        self._km_success += template_km_success
-        template_km_failure *= (ratio * self._regress_percent)
-        self._km_failure *= (1 - self._regress_percent)
-        self._km_failure += template_km_failure
+        ratio = (self._km_success + self._km_failure) / self._template.km_success()
+        for km_or_wear in ['km', 'wear']:
+            for outcome in ['success', 'failure']:
+                self.internal_regress_one_variable(ratio, km_or_wear, outcome)
+
+    def internal_regress_one_variable(self, ratio, km_or_wear, outcome):
+        fn_name = '%s_%s' % (km_or_wear, outcome)
+        attr_name = '_%s' % fn_name
+        template_fn = getattr(self._template, fn_name)
+        if template_fn is None:
+            return
+        self_value = getattr(self, attr_name)
+        if self_value is None:
+            return
+        self_value *= (1 - self._regress_percent)
+        self_value += (template_fn() * ratio * self._regress_percent)
+        setattr(self, attr_name, self_value)
 
     def start_update(self):
         self.decay()
 
-    def update(self, km_success, km_failure):
+    def update(self, km_success, km_failure, wear_failure=None):
         self._km_failure += km_failure
         self._km_success += km_success
+        self._wear_success += triangle(km_success)
+        if wear_failure is None:
+            self._wear_failure += km_failure
+        else:
+            self._wear_failure += wear_failure
 
     def commit_update(self):
         # A no-op for right now
@@ -105,13 +130,41 @@ class Reliability(object):
         decay_rate = self.decay_rate()
         self._km_failure *= decay_rate
         self._km_success *= decay_rate
+        self._wear_failure *= decay_rate
+        self._wear_success *= decay_rate
 
-    def probability_finishing(self, race_distance_km=DEFAULT_KM_PER_RACE):
-        denominator = self._km_failure + self._km_success
-        if not denominator:
+    def probability_finishing(self, start_km=0, race_distance_km=DEFAULT_KM_PER_RACE):
+        km_denominator = self._km_failure + self._km_success
+        if not km_denominator:
             return self.DEFAULT_PROBABILITY
-        per_km_success_rate = self._km_success / denominator
-        return math.pow(per_km_success_rate, race_distance_km)
+        wear_denominator = self._wear_failure + self._wear_success
+        if not wear_denominator:
+            print('%8.2f\t%8.2f' % (self._km_failure, self._km_success))
+            sys.exit(1)
+        per_km_failure_rate = self._km_failure / km_denominator
+        per_km_wear_rate = self._wear_failure / wear_denominator
+        success_probability = 1
+        for km in range(math.floor(start_km), math.floor(race_distance_km)):
+            success_probability *= self.probability_success_at(km, per_km_failure_rate, per_km_wear_rate)
+        return success_probability
+
+    def probability_success_at(self, km, base_fail_per_km, wear_per_km):
+        return 1 - (base_fail_per_km + (self._wear_percent * wear_per_km * km))
+
+    def wear_success(self):
+        if self._wear_success is not None:
+            return self._wear_success
+        return 0
+
+    def wear_failure(self):
+        if self._wear_failure is not None:
+            return self._wear_failure
+        return 0
+
+    def wear_percent(self):
+        if self._wear_percent is not None:
+            return self._wear_percent
+        return 0
 
     def km_success(self):
         if self._km_success is not None:
@@ -145,17 +198,19 @@ class Reliability(object):
 class CarReliability(Reliability):
 
     def __init__(self, default_decay_rate=0.98, regress_numerator=(64 * Reliability.DEFAULT_KM_PER_RACE),
-                 regress_percent=0.03, km_success=0, km_failure=0):
+                 regress_percent=0.03, km_success=0, km_failure=0, wear_success=0, wear_failure=0, wear_percent=0.45):
         super().__init__(default_decay_rate=default_decay_rate, regress_numerator=regress_numerator,
-                         regress_percent=regress_percent, km_success=km_success, km_failure=km_failure)
+                         regress_percent=regress_percent, km_success=km_success, km_failure=km_failure,
+                         wear_success=wear_success, wear_failure=wear_failure, wear_percent=wear_percent)
 
 
 class DriverReliability(Reliability):
 
     def __init__(self, default_decay_rate=0.98, regress_numerator=(64 * Reliability.DEFAULT_KM_PER_RACE),
-                 regress_percent=0.01, km_success=0, km_failure=0):
+                 regress_percent=0.01, km_success=0, km_failure=0, wear_success=0, wear_failure=0):
         super().__init__(default_decay_rate=default_decay_rate, regress_numerator=regress_numerator,
-                         regress_percent=regress_percent, km_success=km_success, km_failure=km_failure)
+                         regress_percent=regress_percent, km_success=km_success, km_failure=km_failure,
+                         wear_success=wear_success, wear_failure=wear_failure)
 
 
 class EloRating(object):
@@ -216,10 +271,10 @@ class EloRating(object):
         self.deferred_start_update()
         self._reliability.update(km_success, km_failure)
 
-    def probability_finishing(self, race_distance_km=Reliability.DEFAULT_KM_PER_RACE):
+    def probability_finishing(self, start_km=0, race_distance_km=Reliability.DEFAULT_KM_PER_RACE):
         if self._reliability is None:
             return Reliability.DEFAULT_PROBABILITY
-        return self._reliability.probability_finishing(race_distance_km=race_distance_km)
+        return self._reliability.probability_finishing(start_km=start_km, race_distance_km=race_distance_km)
 
     def commit_update(self):
         if self._commit_complete:

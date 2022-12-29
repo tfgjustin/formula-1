@@ -48,6 +48,15 @@ class HeadToHeadPrediction(object):
         self._double_dnf_probability = None
         self._debug_file = debug_file
 
+    def reset_predictions(self):
+        # Reset the predictions but not the ratings
+        self._rating_this = None
+        self._rating_other = None
+        self._this_elo_start_position_advantage = None
+        self._this_win_probability = None
+        self._this_elo_probability = None
+        self._tie_probability = None
+
     def this_won(self):
         return 1 if self._entrant_this.result().end_position() < self._entrant_other.result().end_position() else 0
 
@@ -125,7 +134,8 @@ class HeadToHeadPrediction(object):
             delta_all_this *= -1
         if self.same_team():
             delta_car_this = 0
-            delta_driver_this = delta_all_this
+            # TODO: Parameterize this
+            delta_driver_this = delta_all_this * 0.8
         else:
             delta_car_this = self._car_factor * delta_all_this
             delta_driver_this = delta_all_this - delta_car_this
@@ -367,25 +377,33 @@ class EventSimulator(object):
 
     def simulation_log_string(self, idx):
         entrant = self._tmp_one_simulation_ordering[idx]
-        return '%s:%d:%d' % (entrant.id(), entrant.start_position(), self._tmp_one_simulation_num_laps[idx])
+        return 'P%02d:%s:%d:%d' % (idx + 1, entrant.id(), entrant.start_position(),
+                                   self._tmp_one_simulation_num_laps[idx])
 
 
 class EventPrediction(object):
 
-    def __init__(self, event, num_iterations, elo_denominator, k_factor_adjust, car_factor, base_points_per_position,
-                 position_base_factor, base_car_reliability, base_new_car_reliability, base_driver_reliability,
-                 team_reliability_new_events, debug_file, starting_positions=None, simulation_log=None):
+    def __init__(self, event, args, elo_denominator, k_factor_adjust, car_factor, base_points_per_position,
+                 base_car_reliability, base_new_car_reliability, base_driver_reliability,
+                 debug_file, starting_positions=None, simulation_log=None):
+        self._args = args
         self._event = event
-        self._num_iterations = num_iterations
+        self._sorted_entrants = sorted(self._event.entrants(), key=lambda e: e.driver().id())
+        self._num_iterations = self._args.num_iterations
         self._elo_denominator = elo_denominator
         self._k_factor_adjust = k_factor_adjust
         self._car_factor = car_factor
         self._base_points_per_position = base_points_per_position
-        self._position_base_factor = position_base_factor
+        # TODO: Remove this/make it empirical
+        if 'Monaco' in event.name():
+            self._base_points_per_position *= 1.5
+        elif event.is_street_course():
+            self._base_points_per_position *= 1.1
+        self._position_base_factor = self._args.position_base_factor
         self._base_car_reliability = base_car_reliability
         self._base_new_car_reliability = base_new_car_reliability
         self._base_driver_reliability = base_driver_reliability
-        self._team_reliability_new_events = team_reliability_new_events
+        self._team_reliability_new_events = self._args.team_reliability_new_events
         self._win_probabilities = dict()
         self._podium_probabilities = dict()
         self._finish_probabilities = dict()
@@ -412,6 +430,15 @@ class EventPrediction(object):
         return self._team_cache.get(team_id)
 
     def start_updates(self):
+        driver_reliability_multiplier_km = 1
+        if 'Monaco' in self._event.name():
+            driver_reliability_multiplier_km = 0.9995
+        if self._event.weather() == 'wet':
+            driver_reliability_multiplier_km *= self._args.reliability_km_multiplier_wet
+        if self._event.is_street_course():
+            driver_reliability_multiplier_km *= self._args.reliability_km_multiplier_street
+        for entrant in self._sorted_entrants:
+            entrant.set_condition_multiplier_km(driver_reliability_multiplier_km)
         for driver in sorted(self._event.drivers(), key=lambda d: d.id()):
             driver.start_update(self._event.id(), self._base_driver_reliability)
         for team in sorted(self._event.teams(), key=lambda t: t.id()):
@@ -431,6 +458,8 @@ class EventPrediction(object):
             team.maybe_regress()
 
     def commit_updates(self):
+        for entrant in self._sorted_entrants:
+            entrant.reset_condition_multiplier_km()
         for driver in self._event.drivers():
             driver.commit_update()
         for team in self._event.teams():
@@ -458,7 +487,7 @@ class EventPrediction(object):
             driver_id = entrant.driver().id()
             driver_finish = entrant.driver().rating().probability_finishing(race_distance_km=distance_km)
             car_finish = entrant.team().rating().probability_finishing(race_distance_km=distance_km)
-            finish_probability = driver_finish * car_finish
+            finish_probability = entrant.probability_complete_n_laps(self._event.num_laps())
             self.finish_probabilities()[driver_id] = {
                 'All': finish_probability, 'Car': car_finish, 'Driver': driver_finish
             }
@@ -503,35 +532,76 @@ class EventPrediction(object):
 
     def _fuzz_internal(self, fuzz, idx, multiplier):
         for driver in self._event.drivers():
-            if driver.id() not in fuzz:
+            driver_fuzz = fuzz.get(driver.id())
+            if driver_fuzz is None:
                 continue
-            e_fuzz = fuzz[driver.id()]
-            total_fuzz = 0
-            if self._event.id() in e_fuzz:
-                total_fuzz += e_fuzz[self._event.id()][idx]
-            if '__BASE__' in e_fuzz:
-                total_fuzz += e_fuzz['__BASE__'][idx]
+            event_fuzz = driver_fuzz.get(self._event.id())
+            if event_fuzz is None:
+                continue
+            total_fuzz = event_fuzz[idx]
             if not total_fuzz:
                 continue
             driver.start_update(self._event.id(), None)
             driver.rating().update(total_fuzz * multiplier)
             driver.commit_update()
         for team in self._event.teams():
-            if team.id() not in fuzz:
+            team_fuzz = fuzz.get(team.id())
+            if team_fuzz is None:
                 continue
-            e_fuzz = fuzz[team.id()]
-            total_fuzz = 0
-            if self._event.id() in e_fuzz:
-                total_fuzz += e_fuzz[self._event.id()][idx]
-            if '__BASE__' in e_fuzz:
-                total_fuzz += e_fuzz['__BASE__'][idx]
+            event_fuzz = team_fuzz.get(self._event.id())
+            if event_fuzz is None:
+                continue
+            total_fuzz = event_fuzz[idx]
             if not total_fuzz:
                 continue
             team.start_update(self._event.id(), None)
             team.rating().update(total_fuzz * multiplier)
             team.commit_update()
 
-    def only_simulate_outcomes(self, fuzz):
+    @staticmethod
+    def apply_grid_penalties(starting_positions, grid_penalties):
+        if grid_penalties is None or not grid_penalties:
+            return
+        # The raw temporary grid, with collisions allowed
+        temporary_grid_0 = defaultdict(set)
+        penalized = set()
+        for penalty in grid_penalties:
+            driver_id = penalty[0]
+            penalized.add(driver_id)
+            new_place = penalty[1] + starting_positions[driver_id]
+            temporary_grid_0[new_place].add(driver_id)
+        unpenalized_order = [driver_id for driver_id in sorted(starting_positions.keys(), key=lambda x: starting_positions[x])
+                if driver_id not in penalized]
+        # The updated temporary grid, with no collisions allowed
+        # [position] = driver_id
+        temporary_grid_1 = dict()
+        for place in sorted(temporary_grid_0.keys(), reverse=True):
+            curr_place = place
+            for driver_id in sorted(temporary_grid_0[place], key=lambda d_id: starting_positions[d_id], reverse=True):
+                while curr_place in temporary_grid_1:
+                    curr_place -= 1
+                temporary_grid_1[curr_place] = driver_id
+        # Now start at the front of the grid and work our way back.
+        # If the current spot is taken by a penalized driver, use that.
+        # Otherwise pull the next unpenalized driver
+        # [driver_id] = position
+        updated_starting_positions = dict()
+        for position in range(1, len(starting_positions) + 1):
+            if position in temporary_grid_1:
+                updated_starting_positions[temporary_grid_1[position]] = position
+                del temporary_grid_1[position]
+            elif unpenalized_order:
+                updated_starting_positions[unpenalized_order[0]] = position
+                del unpenalized_order[0]
+            # There are no unpenalized drivers to move in front of the penalized drivers.
+            # Just fill them in
+        current_position = len(updated_starting_positions) + 1
+        for _, driver_id in sorted(temporary_grid_1.items()):
+            updated_starting_positions[driver_id] = current_position
+            current_position += 1
+        starting_positions.update(updated_starting_positions)
+
+    def only_simulate_outcomes(self, fuzz, grid_penalties=None):
         if self._starting_positions is None:
             # This is a function call signature mismatch
             print('ERROR: Starting positions is None in simulation-only mode.', file=self._debug_file)
@@ -561,7 +631,7 @@ class EventPrediction(object):
             simulation_outcomes = list()
             simulator = EventSimulator(self)
             for idx in range(self._num_iterations):
-                self.set_starting_positions(self._starting_positions[idx])
+                self.set_starting_positions(self._starting_positions[idx], grid_penalties=grid_penalties)
                 self.apply_fuzz(fuzz, idx)
                 self.predict_all_head_to_head()
                 simulator.simulate(num_iterations=1, idx_offset=idx)
@@ -573,31 +643,34 @@ class EventPrediction(object):
                 # We don't carry race results over but otherwise (qualifying and sprint) carry them over.
                 self._starting_positions.extend(simulation_outcomes)
 
-    def set_starting_positions(self, starting_order):
+    def set_starting_positions(self, starting_order, grid_penalties=None):
         driver_to_start_position = dict()
         if starting_order is not None:
             p = 1
             for driver_id in starting_order.split('|'):
                 driver_to_start_position[driver_id] = p
                 p += 1
-        for entrant in self._event.entrants():
+        self.apply_grid_penalties(driver_to_start_position, grid_penalties)
+        for entrant in self._sorted_entrants:
             start_position = driver_to_start_position.get(entrant.driver().id(), 0)
             entrant.set_start_position(start_position)
 
     def predict_all_head_to_head(self):
-        self._head_to_head.clear()
-        for entrant_a in self._event.entrants():
-            for entrant_b in self._event.entrants():
+        for idx_a in range(len(self._sorted_entrants) - 1):
+            entrant_a = self._sorted_entrants[idx_a]
+            for idx_b in range(idx_a, len(self._sorted_entrants)):
+                entrant_b = self._sorted_entrants[idx_b]
                 # Allow us to calculate the odds of an entrant against themselves. When calculating win probability we
                 # need to calculate the odds of a person against themselves (it should be 50/50) so don't skip over
                 # that one.
-                if entrant_a.driver().id() >= entrant_b.driver().id():
-                    continue
-                head_to_head = HeadToHeadPrediction(self._event, entrant_a, entrant_b, self._elo_denominator,
-                                                    self._k_factor_adjust, self._car_factor,
-                                                    self._base_points_per_position, self._position_base_factor,
-                                                    self._debug_file)
-                self._head_to_head[entrant_a][entrant_b] = head_to_head
+                if entrant_a in self._head_to_head and entrant_b in self._head_to_head[entrant_a]:
+                    self._head_to_head[entrant_a][entrant_b].reset_predictions()
+                else:
+                    head_to_head = HeadToHeadPrediction(self._event, entrant_a, entrant_b, self._elo_denominator,
+                                                        self._k_factor_adjust, self._car_factor,
+                                                        self._base_points_per_position, self._position_base_factor,
+                                                        self._debug_file)
+                    self._head_to_head[entrant_a][entrant_b] = head_to_head
 
     def get_win_probability(self, entrant_a, entrant_b):
         if entrant_a in self._head_to_head:

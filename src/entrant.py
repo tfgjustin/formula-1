@@ -1,3 +1,6 @@
+import math
+
+
 class Entrant(object):
     def __init__(self, event, driver, team, start_position=0, num_racers=0):
         self._event = event
@@ -9,6 +12,7 @@ class Entrant(object):
         self._probability_fail_at_n = None
         self._probability_fail_after_n = None
         self._probability_succeed_through_n = None
+        self._condition_multiplier_km = 1
         self._id = self._create_id()
 
     def set_result(self, result):
@@ -53,6 +57,12 @@ class Entrant(object):
             return self._result.dnf_category()
         return None
 
+    def set_condition_multiplier_km(self, condition_multiplier_km):
+        self._condition_multiplier_km = condition_multiplier_km
+
+    def reset_condition_multiplier_km(self):
+        self._condition_multiplier_km = 1
+
     def calculate_lap_reliability(self, num_laps, lap_distance_km):
         if self._probability_fail_at_n is not None:
             return
@@ -61,15 +71,18 @@ class Entrant(object):
         self._probability_succeed_through_n = [1] * (num_laps + 1)
         self._probability_fail_at_n[0] = 1 - self.probability_survive_opening()
         self._probability_succeed_through_n[0] = self.probability_survive_opening()
-        per_lap_success_probability = self._driver.rating().probability_finishing(race_distance_km=lap_distance_km)
-        per_lap_success_probability *= self._team.rating().probability_finishing(race_distance_km=lap_distance_km)
-        per_lap_failure_probability = 1 - per_lap_success_probability
         current_success_probability = self._probability_succeed_through_n[0]
         for n in range(1, num_laps + 1):
+            this_lap_success = self._driver.rating().probability_finishing(start_km=(lap_distance_km * (n - 1)),
+                                                                           race_distance_km=(lap_distance_km * n))
+            this_lap_success *= self._team.rating().probability_finishing(start_km=(lap_distance_km * (n - 1)),
+                                                                          race_distance_km=(lap_distance_km * n))
+            this_lap_success *= self._condition_multiplier_km
+            this_lap_failure = 1 - this_lap_success
             # Odds of completing N-1 laps and then failing at lap N
-            self._probability_fail_at_n[n] = current_success_probability * per_lap_failure_probability
+            self._probability_fail_at_n[n] = current_success_probability * this_lap_failure
             # Odds of completing N laps
-            current_success_probability *= per_lap_success_probability
+            current_success_probability *= this_lap_success
             self._probability_succeed_through_n[n] = current_success_probability
         # The probability they fail after N laps is:
         #   The probability they fail by the end
@@ -82,12 +95,20 @@ class Entrant(object):
             self._probability_fail_after_n[n] = self._probability_succeed_through_n[n] - current_success_probability
 
     def probability_survive_opening(self):
+        # TODO: Remove this hack.
         if self._event.type() == 'Q':
             return 1.0
-        if self._start_position <= 10:
-            return 0.982 - (0.0024 * self._start_position)
+        grid_row = math.floor(self._start_position / 2) + 1
+        if self._event.season() >= 2000:
+            if grid_row <= 8:
+                return 0.989 - (0.0035 * grid_row)
+            else:
+                return 0.965
         else:
-            return 0.95
+            if grid_row <= 6:
+                return 0.973 - (0.0052 * grid_row)
+            else:
+                return 0.919
 
     def probability_complete_n_laps(self, num_laps):
         if self._probability_fail_at_n is None:

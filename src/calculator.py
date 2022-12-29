@@ -121,7 +121,8 @@ class Calculator(object):
         self._base_car_reliability = CarReliability(
             default_decay_rate=self._args.team_reliability_decay,
             regress_percent=self._args.team_reliability_regress,
-            regress_numerator=(self._args.team_reliability_lookback * Reliability.DEFAULT_KM_PER_RACE))
+            regress_numerator=(self._args.team_reliability_lookback * Reliability.DEFAULT_KM_PER_RACE),
+            wear_percent=self._args.wear_reliability_percent)
         self._base_new_car_reliability = Reliability(other=self._base_car_reliability)
         self._base_driver_reliability = DriverReliability(
             default_decay_rate=self._args.driver_reliability_decay,
@@ -208,11 +209,10 @@ class Calculator(object):
         if self._logfile is not None:
             print('  Event %s' % (event.id()), file=self._logfile)
         elo_denominator, k_factor_adjust = self.get_elo_and_k_factor_parameters(event)
-        predictions = EventPrediction(event, self._args.num_iterations, elo_denominator, k_factor_adjust,
+        predictions = EventPrediction(event, self._args, elo_denominator, k_factor_adjust,
                                       self._team_share_dict[event.season()], self._position_base_dict[event.season()],
-                                      self._args.position_base_factor, self._base_car_reliability,
-                                      self._base_new_car_reliability, self._base_driver_reliability,
-                                      self._args.team_reliability_new_events, self._debug_file,
+                                      self._base_car_reliability, self._base_new_car_reliability,
+                                      self._base_driver_reliability, self._debug_file,
                                       simulation_log=self._simulation_log_file)
         predictions.cache_ratings()
         # Starting the updates will also regress the start-of-year back to the mean
@@ -269,11 +269,10 @@ class Calculator(object):
         if self._logfile is not None:
             print('  Future Event %s' % (event.id()), file=self._logfile)
         elo_denominator, k_factor_adjust = self.get_elo_and_k_factor_parameters(event)
-        predictions = EventPrediction(event, self._args.num_iterations, elo_denominator, k_factor_adjust,
+        predictions = EventPrediction(event, self._args, elo_denominator, k_factor_adjust,
                                       self._team_share_dict[event.season()], self._position_base_dict[event.season()],
-                                      self._args.position_base_factor, self._base_car_reliability,
-                                      self._base_new_car_reliability, self._base_driver_reliability,
-                                      self._args.team_reliability_new_events, self._debug_file,
+                                      self._base_car_reliability, self._base_new_car_reliability,
+                                      self._base_driver_reliability, self._debug_file,
                                       simulation_log=self._simulation_log_file,
                                       starting_positions=carryover_starting_positions)
         # Starting the updates will also regress the start-of-year back to the mean
@@ -285,7 +284,7 @@ class Calculator(object):
         # TODO: Have this loaded from a file
         if event.id() == '2022-XX-X':
             grid_penalties = [
-                    ]
+                ]
         predictions.only_simulate_outcomes(self._fuzzer.all_fuzz(), grid_penalties=grid_penalties)
 
     @staticmethod
@@ -311,6 +310,9 @@ class Calculator(object):
         else:
             k_factor_adjust = self.race_distance_multiplier(event)
             elo_denominator = self._args.elo_exponent_denominator_race
+        if event.weather() == 'wet':
+            elo_denominator *= self._args.wet_multiplier_elo_denominator
+            k_factor_adjust *= self._args.wet_multiplier_k_factor
         return elo_denominator, k_factor_adjust
 
     @staticmethod
@@ -322,6 +324,13 @@ class Calculator(object):
     def update_all_reliability(self, event):
         if event.type() == 'Q':
             return
+        driver_condition_multiplier_km = 1
+        if 'Monaco' in event.name():
+            driver_condition_multiplier_km = 0.9996
+        if event.weather() == 'wet':
+            driver_condition_multiplier_km *= self._args.reliability_km_multiplier_wet
+        if event.is_street_course():
+            driver_condition_multiplier_km *= self._args.reliability_km_multiplier_street
         # For races and sprint qualifying, keep going.
         driver_crash_laps = [
             result.laps() for result in event.results() if result.dnf_category() == 'driver' and result.laps() >= 1
@@ -337,6 +346,7 @@ class Calculator(object):
                 km_car_failure = self._args.team_reliability_failure_constant
             elif result.dnf_category() == 'driver':
                 km_driver_failure = self._args.driver_reliability_failure_constant / crash_laps[result.laps()]
+                km_driver_failure *= (driver_condition_multiplier_km ** km_success)
             if self._debug_file is not None:
                 print(('Event %s Laps: %3d KmPerLap: %5.2f Driver: %s ThisKmSuccess: %5.1f ThisKmFailure: %5.1f '
                        + 'TotalKmSuccess: %8.1f TotalKmFailure: %8.3f ProbFinish: %.4f') % (
@@ -438,13 +448,13 @@ class Calculator(object):
         if self._driver_rating_file is not None:
             print(('RaceID\tDriverID\tPlaced\tNumDrivers\tDnfReason\tEloPre\tEloPost\tEloDiff\tEffectPre\tEffectPost'
                    + '\tKFEventsPre\tKFEventsPost\tKmSuccessPre\tKmSuccessPost\tKmFailurePre\tKmFailurePost'
-                   + '\tSuccessPre\tSuccessPost'
+                   + '\tWearSuccessPre\tWearSuccessPost\tWearFailurePre\tWearFailurePost\tSuccessPre\tSuccessPost'
                    ),
                   file=self._driver_rating_file)
         if self._team_rating_file is not None:
             print(('RaceID\tTeamUUID\tTeamID\tNumTeams\tEloPre\tEloPost\tEloDiff\tEffectPre\tEffectPost'
                    + '\tKFEventsPre\tKFEventsPost\tKmSuccessPre\tKmSuccessPost\tKmFailurePre\tKmFailurePost'
-                   + '\tSuccessPre\tSuccessPost'
+                   + '\tWearSuccessPre\tWearSuccessPost\tWearFailurePre\tWearFailurePost\tSuccessPre\tSuccessPost'
                    ),
                   file=self._team_rating_file)
 
@@ -479,11 +489,13 @@ class Calculator(object):
         if reliability_after is None:
             reliability_after = Reliability()
         print(('S%s\t%s\t%s\t%d\t%6.1f\t%6.1f\t%6.1f\t%6.1f\t%6.1f\t%5.1f\t%5.1f\t%8.2f\t%8.2f'
-               + '\t%8.4f\t%8.4f\t%.6f\t%.6f') % (
+               + '\t%8.2f\t%8.2f\t%8.4f\t%8.4f\t%8.4f\t%8.4f\t%.6f\t%.6f') % (
             event.id(), team.uuid(), team.id(), len(event.teams()), rating_before.elo(), rating_after.elo(), elo_diff,
             before_effect, after_effect, rating_before.k_factor().num_events(), rating_after.k_factor().num_events(),
             reliability_before.km_success(), reliability_after.km_success(),
             reliability_before.km_failure(), reliability_after.km_failure(),
+            reliability_before.wear_success(), reliability_after.wear_success(),
+            reliability_before.wear_failure(), reliability_after.wear_failure(),
             rating_before.probability_finishing(), rating_after.probability_finishing()
         ),
               file=self._team_rating_file)
@@ -505,11 +517,13 @@ class Calculator(object):
             after_effect = (rating_after - self._args.team_elo_initial) * self._team_share_dict[event.season()]
         elo_diff = rating_after - rating_before
         print(('S%s\t%s\t%s\t%d\t%6.1f\t%6.1f\t%6.1f\t%6.1f\t%6.1f\t%5.1f\t%5.1f\t%8.2f\t%8.2f'
-               + '\t%8.4f\t%8.4f\t%.6f\t%.6f') % (
+               + '\t%8.2f\t%8.2f\t%8.4f\t%8.4f\t%8.4f\t%8.4f\t%.6f\t%.6f') % (
             event.id(), base_name, base_name, len(matching_teams), rating_before, rating_after, elo_diff,
             before_effect, after_effect, 0, 0,
             0, base_reliability.km_success(),
             0, base_reliability.km_failure(),
+            0, base_reliability.wear_success(),
+            0, base_reliability.wear_failure(),
             0, base_reliability.probability_finishing()
         ),
               file=self._team_rating_file)
@@ -534,11 +548,13 @@ class Calculator(object):
         if reliability_after is None:
             reliability_after = Reliability()
         print(('S%s\t%s\t%d\t%d\t%s\t%6.1f\t%6.1f\t%6.1f\t%6.1f\t%6.1f\t%5.1f\t%5.1f\t%8.2f\t%8.2f'
-               + '\t%8.4f\t%8.4f\t%.6f\t%.6f') % (
+               + '\t%8.2f\t%8.2f\t%8.4f\t%8.4f\t%8.4f\t%8.4f\t%.6f\t%.6f') % (
             event.id(), driver.id(), placed, num_drivers, dnf, rating_before.elo(), rating_after.elo(), elo_diff,
             before_effect, after_effect, rating_before.k_factor().num_events(), rating_after.k_factor().num_events(),
             reliability_before.km_success(), reliability_after.km_success(),
             reliability_before.km_failure(), reliability_after.km_failure(),
+            reliability_before.wear_success(), reliability_after.wear_success(),
+            reliability_before.wear_failure(), reliability_after.wear_failure(),
             rating_before.probability_finishing(), rating_after.probability_finishing()
         ),
               file=self._driver_rating_file)
@@ -597,7 +613,12 @@ class Calculator(object):
             # If they didn't finish the race, then either the car succeeded up until it crapped out and the driver
             # succeeded until they didn't, or vice versa.
             failed_modes = []
-            if result.dnf_category() == 'car':
+            if result.laps() <= 1 and result.dnf_category() != '-':
+                # If they crashed out or the car failed on the first or second lap, only tag that
+                # against the overall reliability. The car and driver reliability should only take
+                # into account post-infancy failure.
+                failed_modes = [_ALL]
+            elif result.dnf_category() == 'car':
                 # The car didn't make it to the end.
                 failed_modes = [_ALL, _CAR]
             elif result.dnf_category() == 'driver':
