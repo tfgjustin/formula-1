@@ -1,17 +1,1 @@
-event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance
-2022-15-R	2022	15	R	2022-09-04	Heineken_Dutch_Grand_Prix	Circuit Zandvoort	20	72	4.259
-2022-16-Q	2022	16	Q	2022-09-11	Heineken_Grand_Prix_of_Italy	Autodromo Nazionale di Monza	20	10	5.793
-2022-16-R	2022	16	R	2022-09-11	Heineken_Grand_Prix_of_Italy	Autodromo Nazionale di Monza	20	53	5.793
-2022-17-Q	2022	17	Q	2022-10-02	Singapore_Airlines_Singapore_Grand_Prix	Marina Bay Street Circuit	20	10	5.065
-2022-17-R	2022	17	R	2022-10-02	Singapore_Airlines_Singapore_Grand_Prix	Marina Bay Street Circuit	20	61	5.065
-2022-18-Q	2022	18	Q	2022-10-09	Japanese_Grand_Prix	Suzuka Circuitland	20	10	5.807
-2022-18-R	2022	18	R	2022-10-09	Japanese_Grand_Prix	Suzuka Circuitland	20	52	5.807
-2022-19-Q	2022	19	Q	2022-10-23	Aramco_United_States_Grand_Prix	Circuit of the Americas	20	10	5.513
-2022-19-R	2022	19	R	2022-10-23	Aramco_United_States_Grand_Prix	Circuit of the Americas	20	56	5.513
-2022-20-Q	2022	20	Q	2022-10-30	Grand_Prix_of_Mexico_+City	Autodromo Hermanos Rodriguez	20	10	4.304
-2022-20-R	2022	20	R	2022-10-30	Grand_Prix_of_Mexico_+City	Autodromo Hermanos Rodriguez	20	71	4.304
-2022-21-Q	2022	21	Q	2022-11-13	Heineken_Grand_Prix_of_Sao_Paulo	Autodromo Jose Carlos Pace	20	10	4.309
-2022-21-S	2022	21	S	2022-11-13	Heineken_Grand_Prix_of_Sao_Paulo	Autodromo Jose Carlos Pace	20	24	4.309
-2022-21-R	2022	21	R	2022-11-13	Heineken_Grand_Prix_of_Sao_Paulo	Autodromo Jose Carlos Pace	20	71	4.309
-2022-22-Q	2022	22	Q	2022-11-20	Etihad_Airways_Abu_Dhabi_Grand_Prix	Yas Marina Circuit	20	10	5.281
-2022-22-R	2022	22	R	2022-11-20	Etihad_Airways_Abu_Dhabi_Grand_Prix	Yas Marina Circuit	20	58	5.281
+event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance	course_type	weather

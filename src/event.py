@@ -30,7 +30,7 @@ def compare_events(e1, e2):
 
 class Event(object):
 
-    def __init__(self, event_id, name, season, stage, date, event_type, num_laps, lap_distance_km):
+    def __init__(self, event_id, name, season, stage, date, event_type, num_laps, lap_distance_km, is_street_course, weather):
         self._id = event_id
         self._name = name
         self._season = int(season)
@@ -43,6 +43,8 @@ class Event(object):
         self._results = list()
         self._drivers = set()
         self._teams = set()
+        self._is_street_course = is_street_course
+        self._weather = weather
 
     def add_entrant(self, entrant):
         if entrant.event().id() == self._id:
@@ -89,6 +91,12 @@ class Event(object):
     def type(self):
         return self._type
 
+    def is_street_course(self):
+        return self._is_street_course
+
+    def weather(self):
+        return self._weather
+
     def num_laps(self):
         return self._num_laps
 
@@ -100,15 +108,15 @@ class Event(object):
 
 
 class Qualifying(Event):
-    def __init__(self, event_id, name, season, stage, date, num_laps, lap_distance_km):
-        super().__init__(event_id, name, season, stage, date, 'Q', num_laps, lap_distance_km)
+    def __init__(self, event_id, name, season, stage, date, num_laps, lap_distance_km, is_street_course, weather):
+        super().__init__(event_id, name, season, stage, date, 'Q', num_laps, lap_distance_km, is_street_course, weather)
 
 
 class SprintQualifying(Event):
-    def __init__(self, event_id, name, season, stage, date, num_laps, lap_distance_km):
-        super().__init__(event_id, name, season, stage, date, 'S', num_laps, lap_distance_km)
+    def __init__(self, event_id, name, season, stage, date, num_laps, lap_distance_km, is_street_course, weather):
+        super().__init__(event_id, name, season, stage, date, 'S', num_laps, lap_distance_km, is_street_course, weather)
 
 
 class Race(Event):
-    def __init__(self, event_id, name, season, stage, date, num_laps, lap_distance_km):
-        super().__init__(event_id, name, season, stage, date, 'R', num_laps, lap_distance_km)
+    def __init__(self, event_id, name, season, stage, date, num_laps, lap_distance_km, is_street_course, weather):
+        super().__init__(event_id, name, season, stage, date, 'R', num_laps, lap_distance_km, is_street_course, weather)
