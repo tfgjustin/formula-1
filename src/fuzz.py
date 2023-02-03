@@ -1,4 +1,5 @@
 import functools
+import numpy as np
 import random
 
 from collections import defaultdict
@@ -26,19 +27,19 @@ class Fuzzer(object):
         return self._all_fuzz
 
     def generate_all_fuzz(self, year, events, drivers, teams):
-        if self._logfile is not None or True:
-            print('Generating fuzz: start')  # , file=self._logfile)
+        if self._logfile is not None:
+            print('Generating fuzz: start', file=self._logfile)
         event_ids = sorted(events.keys(),  key=functools.cmp_to_key(compare_events))
         min_stage = events[event_ids[0]].stage()
         num_stages = events[event_ids[-1]].stage()
-        self.generate_driver_age_fuzz(year, events, num_stages, drivers)
-        self.generate_driver_event_fuzz(events, drivers)
-        self.generate_team_estimate_fuzz(events, min_stage, num_stages)
-        self.generate_team_event_fuzz(events, teams)
-        if self._logfile is not None or True:
-            print('Generating fuzz: finish')  # , file=self._logfile)
+        self.generate_fuzz_driver_age(year, events, num_stages, drivers)
+        self.generate_fuzz_driver_event(events, drivers)
+        self.generate_fuzz_team_estimate(events, min_stage, num_stages)
+        self.generate_fuzz_team_event(events, teams)
+        if self._logfile is not None:
+            print('Generating fuzz: finish', file=self._logfile)
 
-    def generate_driver_age_fuzz(self, year, events, num_stages, drivers):
+    def generate_fuzz_driver_age(self, year, events, num_stages, drivers):
         for driver in drivers.values():
             seasons = driver.seasons()
             birth_year = driver.birth_year()
@@ -59,7 +60,8 @@ class Fuzzer(object):
                 previous_year = seasons[non_current_idx]
                 current_fuzz -= avg_elo_age_experience(previous_year - birth_year, current_exp - 1)
             if self._logfile is not None:
-                print('%d %d %d %s %6.2f' % (year, birth_year, year - birth_year, driver.id(), current_fuzz), file=self._logfile)
+                print('%d %d %d %s %6.2f' % (year, birth_year, year - birth_year, driver.id(), current_fuzz),
+                      file=self._logfile)
             # The fuzz represents the change in the average rating from year to year.
             # We'll assume the change is linear, so the delta at race=1 is 0 and race=N is 2*fuzz
             # For each simulation we'll pick a number with mean=fuzz and stddev=12
@@ -73,9 +75,9 @@ class Fuzzer(object):
                     driver_fuzz[event.id()].append(event_diff)
             self._all_fuzz[driver.id()] = driver_fuzz
 
-    def generate_driver_event_fuzz(self, events, drivers):
-        driver_qualifying_fuzz = dict({})
-        driver_race_fuzz = dict({})
+    def generate_fuzz_driver_event(self, events, drivers):
+        driver_qualifying_fuzz = self.generate_fuzz_entity_event_type(drivers, 'Q')
+        driver_race_fuzz = self.generate_fuzz_entity_event_type(drivers, 'R')
         # All fuzz for the simulations (if any)
         # [entity_id][event_id][sim_id] = diff_amount
         for driver_id in drivers.keys():
@@ -90,7 +92,8 @@ class Fuzzer(object):
                     fuzz_list.append(random.gauss(dist[0], dist[1]))
                 self._all_fuzz[driver_id][event.id()] = fuzz_list
 
-    def generate_team_estimate_fuzz(self, events, min_stage, num_stages):
+    def generate_fuzz_team_estimate(self, events, min_stage, num_stages):
+        # TODO: Calculate this team estimate
         team_fuzz = dict({})
         stages_left = num_stages - min_stage + 1
         for team_id, base_elo_diff in team_fuzz.items():
@@ -103,9 +106,9 @@ class Fuzzer(object):
                     team_fuzz[event.id()].append(event_diff)
             self._all_fuzz[team_id] = team_fuzz
 
-    def generate_team_event_fuzz(self, events, teams):
-        team_qualifying_fuzz = dict({})
-        team_race_fuzz = dict({})
+    def generate_fuzz_team_event(self, events, teams):
+        team_qualifying_fuzz = self.generate_fuzz_entity_event_type(teams, 'Q')
+        team_race_fuzz = self.generate_fuzz_entity_event_type(teams, 'R')
         # All fuzz for the simulations (if any)
         # [entity_id][event_id][sim_id] = diff_amount
         for team_id in teams.keys():
@@ -119,3 +122,20 @@ class Fuzzer(object):
                     dist = fuzz_dict.get(team_id, default_dist)
                     fuzz_list.append(random.gauss(dist[0], dist[1]))
                 self._all_fuzz[team_id][event.id()] = fuzz_list
+
+    def generate_fuzz_entity_event_type(self, entities, event_type):
+        recent_fuzz = dict()
+        for entity in entities.values():
+            lookback_deltas = entity.rating().lookback_deltas(event_type)
+            if lookback_deltas is None or not lookback_deltas and self._logfile is not None:
+                print('No lookback delta for %s' % entity.id(), file=self._logfile)
+                continue
+            deltas = [delta for delta in lookback_deltas if delta is not None]
+            if len(deltas) < 2 and self._logfile is not None:
+                print('Insufficient lookback data for %s: %d' % (entity.id(), len(deltas)), file=self._logfile)
+                continue
+            delta_avg = np.mean(deltas)
+            delta_dev = np.std(deltas)
+            # print('%s\t%s\t%f\t%f' % (event_type, entity.id(), delta_avg[0], delta_dev[0]))
+            recent_fuzz[entity.id()] = [delta_avg[0], delta_dev[0]]
+        return recent_fuzz
