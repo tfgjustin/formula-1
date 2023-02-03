@@ -141,6 +141,7 @@ class DataLoader(object):
                     continue
                 driver_id = row['DriverID']
                 if driver_id in seen_drivers:
+                    # TODO: Add lookback data
                     continue
                 seen_drivers.add(driver_id)
                 if driver_id not in self._drivers:
@@ -172,6 +173,7 @@ class DataLoader(object):
                     continue
                 uuid = row['TeamUUID']
                 if uuid in seen_teams:
+                    # TODO: Add lookback data
                     continue
                 seen_teams.add(uuid)
                 canonical_team = self._team_factory.get_team_by_uuid(uuid)
@@ -291,19 +293,10 @@ class DataLoader(object):
             for row in reader:
                 if not _is_valid_row(row, _HEADERS):
                     continue
-                team = self._team_factory.get_current_team(row['team_id'])
-                if team is None:
-                    print('ERROR: Invalid team ID %s for future lineup' % (row['team_id']), file=self._outfile)
+                driver = self._add_driver_to_future_lineup_by_id(row['driver_id'])
+                team = self._add_team_to_future_lineup_by_id(row['team_id'])
+                if driver is None or team is None:
                     continue
-                team = deepcopy(team)
-                if row['driver_id'] not in self._drivers:
-                    print('ERROR: Invalid driver ID %s for future lineup' % (row['driver_id']), file=self._outfile)
-                    continue
-                driver = deepcopy(self._drivers[row['driver_id']])
-                self._disable_reliability_decay(driver.rating())
-                self._disable_reliability_decay(team.rating())
-                self._future_teams[team.id()] = team
-                self._future_drivers[driver.id()] = driver
                 for event in self._future_events.values():
                     entrant = Entrant(event, driver, team)
                     event.add_entrant(entrant)
@@ -315,17 +308,34 @@ class DataLoader(object):
         last_event = self._events[last_event_id]
         count = 0
         for entrant in last_event.entrants():
-            driver = deepcopy(entrant.driver())
-            team = deepcopy(entrant.team())
-            self._disable_reliability_decay(driver.rating())
-            self._disable_reliability_decay(team.rating())
-            self._future_drivers[driver.id()] = driver
-            self._future_teams[team.id()] = team
+            driver = self._add_driver_to_future_lineup_by_id(entrant.driver().id())
+            team = self._add_team_to_future_lineup_by_id(entrant.team().id())
+            if driver is None or team is None:
+                continue
             for event in self._future_events.values():
                 entrant = Entrant(event, driver, team)
                 event.add_entrant(entrant)
             count += 1
         print('Reused %d future entrants from %s' % (count, last_event.id()), file=self._outfile)
+
+    def _add_driver_to_future_lineup_by_id(self, driver_id):
+        if driver_id not in self._drivers:
+            print('ERROR: Invalid driver ID %s for future lineup' % (driver_id), file=self._outfile)
+            return None
+        driver = deepcopy(self._drivers[driver_id])
+        self._disable_reliability_decay(driver.rating())
+        self._future_drivers[driver_id] = driver
+        return driver
+
+    def _add_team_to_future_lineup_by_id(self, team_id):
+        team = self._team_factory.get_current_team(team_id)
+        if team is None:
+            print('ERROR: Invalid team ID %s for future lineup' % (team_id), file=self._outfile)
+            return None
+        team = deepcopy(team)
+        self._disable_reliability_decay(team.rating())
+        self._future_teams[team.id()] = team
+        return team
 
     @staticmethod
     def _disable_reliability_decay(rating):
