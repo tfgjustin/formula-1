@@ -1,6 +1,8 @@
 import math
 import sys
 
+from collections import deque
+
 
 def triangle(number):
     return (number * (number + 1)) / 2
@@ -216,7 +218,7 @@ class DriverReliability(Reliability):
 class EloRating(object):
 
     def __init__(self, init_rating, regress_rate=0.0, k_factor_regress_rate=0.0, k_factor=None,
-                 reliability=None, last_event_id=None):
+                 reliability=None, last_event_id=None, lookback_length=10):
         self._default_rating = init_rating
         self._elo_rating = init_rating
         if k_factor is None:
@@ -232,6 +234,9 @@ class EloRating(object):
         self._temp_elo_rating = None
         self._current_event_id = None
         self._commit_complete = False
+        self._lookback_length = lookback_length
+        self._current_delta = None
+        self._recent_lookback = {'Q': deque(list(), self._lookback_length), 'R': deque(list(), self._lookback_length)}
 
     def start_update(self, event_id, caller_id, is_alias=False, base_reliability=None):
         self._commit_complete = False
@@ -261,11 +266,13 @@ class EloRating(object):
         # The reliability has to have its update happen after we regress in case we need to regress it, too.
         if self._reliability is not None:
             self._reliability.start_update()
+        self._current_delta = 0
         self._deferred_complete = True
 
     def update(self, delta):
         self.deferred_start_update()
         self._temp_elo_rating += delta
+        self._current_delta += delta
 
     def update_reliability(self, km_success, km_failure):
         self.deferred_start_update()
@@ -284,14 +291,25 @@ class EloRating(object):
         if self._temp_elo_rating is None:
             self.deferred_start_update()
         self._elo_rating = self._temp_elo_rating
+        # This has to be called before we reset the event ID and the current delta
+        self.update_lookback()
         self._temp_elo_rating = None
         self._k_factor.increment_events()
         self._deferred_complete = False
         self._current_event_id = None
+        self._current_delta = None
         self.reset_lists()
         self._commit_complete = True
         if self._reliability is not None:
             self._reliability.commit_update()
+
+    def update_lookback(self):
+        if self._current_event_id is None:
+            return
+        lookback_queue = self._recent_lookback.get(self._current_event_id[-1])
+        if lookback_queue is None:
+            return
+        lookback_queue.append(self._current_delta)
 
     def elo(self):
         return self._elo_rating
@@ -301,6 +319,11 @@ class EloRating(object):
 
     def reliability(self):
         return self._reliability
+
+    def lookback_deltas(self, event_type):
+        if event_type is None:
+            return None
+        return self._recent_lookback.get(event_type)
 
     def reset_lists(self):
         self._alias_callers.clear()
@@ -316,6 +339,7 @@ class EloRating(object):
             self._reliability.regress()
         self.regress_internal(gap)
         self._k_factor.regress(gap)
+        self.reset_lookback()
 
     def regress_internal(self, gap):
         regress_factor = (1 - self._regress_rate) ** gap
@@ -325,3 +349,7 @@ class EloRating(object):
         #        ))
         self._elo_rating *= regress_factor
         self._elo_rating += ((1 - regress_factor) * self._default_rating)
+
+    def reset_lookback(self):
+        for lookback in self._recent_lookback.values():
+            lookback.clear()
