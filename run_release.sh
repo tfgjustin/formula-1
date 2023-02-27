@@ -73,8 +73,8 @@ then
   exit 1
 fi
 
-driver_ratings=$( find ${log_dir} -name '*.driver_ratings')
-team_ratings=$( find ${log_dir} -name '*.team_ratings')
+driver_ratings=$( find "${log_dir}" -name '*.driver_ratings')
+team_ratings=$( find "${log_dir}" -name '*.team_ratings')
 if [[ -z "${driver_ratings}" || -z "${team_ratings}" ]]
 then
   echo "Cannot find driver or team ratings"
