@@ -60,7 +60,7 @@ class Fuzzer(object):
                 previous_year = seasons[non_current_idx]
                 current_fuzz -= avg_elo_age_experience(previous_year - birth_year, current_exp - 1)
             if self._logfile is not None:
-                print('%d %d %d %s %6.2f' % (year, birth_year, year - birth_year, driver.id(), current_fuzz),
+                print('DriverFuzz %d %d %d %s %6.2f' % (year, birth_year, year - birth_year, driver.id(), current_fuzz),
                       file=self._logfile)
             # The fuzz represents the change in the average rating from year to year.
             # We'll assume the change is linear, so the delta at race=1 is 0 and race=N is 2*fuzz
