@@ -27,7 +27,7 @@ do
   fi
 done
 
-ratings_dir=$(find logs -type d -name '????????T??????' | sort -n -t / -k 3,3 | tail -1)
+ratings_dir=$(find logs -type d -name '????????T??????' | sort -t / -k 3,3 | tail -1)
 if [[ $# -ge 1 ]]
 then
   ratings_dir=$(find logs -type d -name "$1" | sort -n -t / -k 3,3 | tail -1)
