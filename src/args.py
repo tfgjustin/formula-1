@@ -42,22 +42,22 @@ def add_common_args(parser):
                         type=float, default=0.98)
     parser.add_argument('--driver_reliability_failure_constant',
                         help='Number of "failure" KM we add on a crash when calculating the per-KM failure odds.',
-                        type=float, default=0.95)
+                        type=float, default=0.80)
     parser.add_argument('--driver_reliability_lookback',
                         help='Lookback window in races for driver reliability data.',
-                        type=int, default=96)
+                        type=int, default=128)
     parser.add_argument('--driver_reliability_regress',
                         help='Percent by which we shade driver reliability data to the field average each year.',
-                        type=float, default=0.2)
+                        type=float, default=0.3)
     parser.add_argument('--elo_compare_window',
                         help='Compare two results only if their Elo scores are within this difference.',
                         type=float, default=2.0)
     parser.add_argument('--elo_exponent_denominator_qualifying',
                         help='The denominator in the Elo probability exponent for races.',
-                        type=int, default=120)
+                        type=int, default=180)
     parser.add_argument('--elo_exponent_denominator_race',
                         help='The denominator in the Elo probability exponent for races.',
-                        type=int, default=250)
+                        type=int, default=270)
     parser.add_argument('--logfile_uses_parameters',
                         help='Append encoded parameters to the logfile output name.',
                         default=False, action='store_true')
@@ -66,13 +66,13 @@ def add_common_args(parser):
                         type=int, default=20000)
     parser.add_argument('--qualifying_kfactor_multiplier',
                         help='Value by which to multiply K-Factors during qualifying.',
-                        type=float, default=0.15)
+                        type=float, default=0.40)
     parser.add_argument('--position_base_spec', help='Base Elo boost per starting position advantage.',
-                        type=str, default='10_4_1')
+                        type=str, default='20_0_0')
 #                        type = calculator.validate_factors, default = '10_4_1')
     parser.add_argument('--position_base_factor',
                         help='Exponent for base Elo boost per starting position advantage.',
-                        type=float, default=0.8)
+                        type=float, default=0.85)
     parser.add_argument('--print_args',
                         help='Print a file containing the command-line args used for this run.',
                         default=False, action='store_true')
@@ -87,44 +87,49 @@ def add_common_args(parser):
                         default=False, action='store_true')
     parser.add_argument('--reliability_km_multiplier_street',
                         help='Per-KM driver reliability multiplier for street races.',
-                        type=float, default=0.99971)
+                        type=float, default=0.9995)
     parser.add_argument('--reliability_km_multiplier_wet',
                         help='Per-KM driver reliability multiplier for wet races.',
-                        type=float, default=0.99961)
+                        type=float, default=0.99945)
     parser.add_argument('--run_index', help='Which run is this.',
                         type=int, default=1)
     parser.add_argument('--run_max', help='Maximum number of runs.',
                         type=int, default=1)
+    parser.add_argument('--start_year', help='First year for which we calculate ratings.',
+                        type=int, default=1996)
     parser.add_argument('--team_elo_initial', help='Initial team Elo rating.',
                         type=int, default=1200)
     parser.add_argument('--team_elo_regress',
                         help='Team new season Elo regression multiplier.',
-                        type=float, default=0.25)
+                        type=float, default=0.15)
     parser.add_argument('--team_kfactor_regress',
                         help='Team new season K-Factor regression multiplier.',
                         type=float, default=0.10)
     parser.add_argument('--team_reliability_decay',
                         help='Rate at which we decay old reliability data for teams.',
-                        type=float, default=0.95)
+                        type=float, default=0.995)
     parser.add_argument('--team_reliability_failure_constant',
                         help='Number of "failure" KM we add on a car failure when calculating the per-KM failure odds.',
-                        type=float, default=0.575)
+                        type=float, default=0.56)
     parser.add_argument('--team_reliability_lookback',
                         help='Lookback window in races for team reliability data.',
-                        type=int, default=64)
+                        type=int, default=48)
     parser.add_argument('--team_reliability_new_events',
                         help='Number of events during which a new team is still considered "new".',
                         type=int, default=16)
     parser.add_argument('--team_reliability_regress',
                         help='Percent by which we shade team reliability data to the field average each year.',
-                        type=float, default=0.25)
+                        type=float, default=0.50)
     parser.add_argument('--team_share_spec',
                         help='Fraction of the combined Elo rating belonging to the team.',
-                        type=str, default='50_4_1')
+                        type=str, default='65_0_0')
 #                        type = calculator.validate_factors, default = '50_4_1')
+    parser.add_argument('--teammate_kfactor_multiplier',
+                        help='Factor by which we multiply teammate K-Factors to increase/decrease points swapped.',
+                        type=float, default=0.85)
     parser.add_argument('--wear_reliability_percent',
                         help='Percent of the wear reliability ratio to use when calculating failure rates.',
-                        type=float, default=0.5625)
+                        type=float, default=0.638)
     parser.add_argument('--wet_multiplier_elo_denominator',
                         help='Amount by which we multiple the Elo denominator during a wet event.',
                         type=float, default=1.15)

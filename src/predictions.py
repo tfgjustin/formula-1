@@ -27,13 +27,14 @@ def elo_win_probability(r_a, r_b, denominator):
 
 class HeadToHeadPrediction(object):
 
-    def __init__(self, event, entrant_this, entrant_other, elo_denominator, k_factor_adjust, car_factor,
-                 base_points_per_position, position_base_factor, debug_file):
+    def __init__(self, event, entrant_this, entrant_other, elo_denominator, k_factor_adjust,
+                 teammate_kfactor_multiplier, car_factor, base_points_per_position, position_base_factor, debug_file):
         self._event = event
         self._entrant_this = entrant_this
         self._entrant_other = entrant_other
         self._elo_denominator = elo_denominator
         self._k_factor_adjust = k_factor_adjust
+        self._teammate_kfactor_multiplier = teammate_kfactor_multiplier
         self._car_factor = car_factor
         self._base_points_per_position = base_points_per_position
         self._position_base_factor = position_base_factor
@@ -134,8 +135,7 @@ class HeadToHeadPrediction(object):
             delta_all_this *= -1
         if self.same_team():
             delta_car_this = 0
-            # TODO: Parameterize this
-            delta_driver_this = delta_all_this * 0.8
+            delta_driver_this = delta_all_this * self._teammate_kfactor_multiplier
         else:
             delta_car_this = self._car_factor * delta_all_this
             delta_driver_this = delta_all_this - delta_car_this
@@ -392,6 +392,7 @@ class EventPrediction(object):
         self._num_iterations = self._args.num_iterations
         self._elo_denominator = elo_denominator
         self._k_factor_adjust = k_factor_adjust
+        self._teammate_kfactor_multiplier = self._args.teammate_kfactor_multiplier
         self._car_factor = car_factor
         self._base_points_per_position = base_points_per_position
         # TODO: Remove this/make it empirical
@@ -431,14 +432,17 @@ class EventPrediction(object):
 
     def start_updates(self):
         driver_reliability_multiplier_km = 1
+        car_reliability_multiplier_km = 1
         if 'Monaco' in self._event.name():
-            driver_reliability_multiplier_km = 0.9995
+            driver_reliability_multiplier_km *= 0.9994
+        if self._event.stage() == 1:
+            car_reliability_multiplier_km *= 0.9991
         if self._event.weather() == 'wet':
             driver_reliability_multiplier_km *= self._args.reliability_km_multiplier_wet
         if self._event.is_street_course():
             driver_reliability_multiplier_km *= self._args.reliability_km_multiplier_street
         for entrant in self._sorted_entrants:
-            entrant.set_condition_multiplier_km(driver_reliability_multiplier_km)
+            entrant.set_condition_multiplier_km(driver_reliability_multiplier_km * car_reliability_multiplier_km)
         for driver in sorted(self._event.drivers(), key=lambda d: d.id()):
             driver.start_update(self._event.id(), self._base_driver_reliability)
         for team in sorted(self._event.teams(), key=lambda t: t.id()):
@@ -667,9 +671,9 @@ class EventPrediction(object):
                     self._head_to_head[entrant_a][entrant_b].reset_predictions()
                 else:
                     head_to_head = HeadToHeadPrediction(self._event, entrant_a, entrant_b, self._elo_denominator,
-                                                        self._k_factor_adjust, self._car_factor,
-                                                        self._base_points_per_position, self._position_base_factor,
-                                                        self._debug_file)
+                                                        self._k_factor_adjust, self._teammate_kfactor_multiplier,
+                                                        self._car_factor, self._base_points_per_position,
+                                                        self._position_base_factor, self._debug_file)
                     self._head_to_head[entrant_a][entrant_b] = head_to_head
 
     def get_win_probability(self, entrant_a, entrant_b):

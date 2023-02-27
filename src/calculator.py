@@ -183,6 +183,8 @@ class Calculator(object):
         """
         self.log_rating_headers()
         for year in sorted(loader.seasons().keys()):
+            if year < self._args.start_year:
+                continue
             self.run_one_year(year, loader.seasons()[year])
         self.log_summary_errors()
 
@@ -282,7 +284,7 @@ class Calculator(object):
         # Only simulate the results, don't actually update the Elo and reliability ratings.
         grid_penalties = None
         # TODO: Have this loaded from a file
-        if event.id() == '2022-XX-X':
+        if event.id() == '2023-XX-X':
             grid_penalties = [
                 ]
         predictions.only_simulate_outcomes(self._fuzzer.all_fuzz(), grid_penalties=grid_penalties)
@@ -325,8 +327,11 @@ class Calculator(object):
         if event.type() == 'Q':
             return
         driver_condition_multiplier_km = 1
+        car_condition_multiplier_km = 1
         if 'Monaco' in event.name():
-            driver_condition_multiplier_km = 0.9996
+            driver_condition_multiplier_km = 0.9994
+        if event.stage() == 1:
+            car_condition_multiplier_km *= 0.9991
         if event.weather() == 'wet':
             driver_condition_multiplier_km *= self._args.reliability_km_multiplier_wet
         if event.is_street_course():
@@ -344,6 +349,7 @@ class Calculator(object):
             km_driver_failure = 0
             if result.dnf_category() == 'car':
                 km_car_failure = self._args.team_reliability_failure_constant
+                km_car_failure *= (car_condition_multiplier_km ** km_success)
             elif result.dnf_category() == 'driver':
                 km_driver_failure = self._args.driver_reliability_failure_constant / crash_laps[result.laps()]
                 km_driver_failure *= (driver_condition_multiplier_km ** km_success)
@@ -399,6 +405,21 @@ class Calculator(object):
             if self._debug_file is not None:
                 print('      Skip: SC', file=self._debug_file)
             return
+        if self._debug_file is not None and event.type() == 'R':
+            if result_a.start_position() > result_b.start_position():
+                # If 'a' started behind 'b', but finished ahead of 'b', then they passed 'b'
+                print('H2HPass %d %s %d %s %d %.4f %d' % (
+                    event.season(), entrant_a.driver().id(), result_a.start_position(),
+                    entrant_b.driver().id(), result_b.start_position(), elo_win_prob_a,
+                    result_a.end_position() < result_b.end_position()),
+                      file=self._debug_file)
+            else:
+                # But if 'b' started behind 'a', but finished ahead of 'a', then they passed 'a'
+                print('H2HPass %d %s %d %s %d %.4f %d' % (
+                    event.season(), entrant_b.driver().id(), result_b.start_position(),
+                    entrant_a.driver().id(), result_a.start_position(), 1 - elo_win_prob_a,
+                    result_b.end_position() < result_a.end_position()),
+                      file=self._debug_file)
         self.update_ratings(result_a, car_delta, driver_delta)
         self.update_ratings(result_b, -car_delta, -driver_delta)
 
@@ -670,7 +691,8 @@ class Calculator(object):
                   file=self._predict_file)
 
     def log_summary_errors(self):
-        for decade in range(195, 203):
+        start_decade = int(math.floor(self._args.start_year / 10))
+        for decade in range(start_decade, 203):
             self.log_summary_errors_for_decade(decade=str(decade))
         self.log_summary_errors_for_decade()
 

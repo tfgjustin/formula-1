@@ -33,7 +33,7 @@ def create_argparser():
                         default=False, action='store_true')
     parser.add_argument('--simulate_season',
                         help='Season to simulate.',
-                        type=str, default='2022')
+                        type=str, default='2023')
     parser.add_argument('--simulate_start_round',
                         help='The first round in the season we will simulate; if "XX" start with the final real event.',
                         type=str, default='XX')
