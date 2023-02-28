@@ -548,7 +548,11 @@ class EventPrediction(object):
             driver.start_update(self._event.id(), None)
             driver.rating().update(total_fuzz * multiplier)
             driver.commit_update()
+        seen_teams = set()
         for team in self._event.teams():
+            if team.id() in seen_teams:
+                continue
+            seen_teams.add(team.id())
             team_fuzz = fuzz.get(team.id())
             if team_fuzz is None:
                 continue
