@@ -115,10 +115,13 @@ class Reliability(object):
     def start_update(self):
         self.decay()
 
-    def update(self, km_success, km_failure, wear_failure=None):
+    def update(self, km_success, km_failure, wear_success=None, wear_failure=None):
         self._km_failure += km_failure
         self._km_success += km_success
-        self._wear_success += triangle(km_success)
+        if wear_success is None:
+            self._wear_success += triangle(km_success)
+        else:
+            self._wear_success += wear_success
         if wear_failure is None:
             self._wear_failure += km_failure
         else:
@@ -199,8 +202,8 @@ class Reliability(object):
 
 class CarReliability(Reliability):
 
-    def __init__(self, default_decay_rate=0.98, regress_numerator=(64 * Reliability.DEFAULT_KM_PER_RACE),
-                 regress_percent=0.03, km_success=0, km_failure=0, wear_success=0, wear_failure=0, wear_percent=0.45):
+    def __init__(self, default_decay_rate=0.995, regress_numerator=(48 * Reliability.DEFAULT_KM_PER_RACE),
+                 regress_percent=0.03, km_success=0, km_failure=0, wear_success=0, wear_failure=0, wear_percent=0.638):
         super().__init__(default_decay_rate=default_decay_rate, regress_numerator=regress_numerator,
                          regress_percent=regress_percent, km_success=km_success, km_failure=km_failure,
                          wear_success=wear_success, wear_failure=wear_failure, wear_percent=wear_percent)
@@ -310,6 +313,9 @@ class EloRating(object):
         if lookback_queue is None:
             return
         lookback_queue.append(self._current_delta)
+
+    def set_reliability(self, reliability):
+        self._reliability = reliability
 
     def elo(self):
         return self._elo_rating
