@@ -7,7 +7,7 @@ from copy import deepcopy
 from driver import Driver
 from entrant import Entrant
 from event import Qualifying, Race, SprintQualifying, compare_events
-from ratings import EloRating, KFactor, Reliability
+from ratings import DriverReliability, EloRating, KFactor, Reliability
 from result import Result
 from season import Season
 from team import TeamFactory
@@ -134,20 +134,29 @@ class DataLoader(object):
             return False
         all_rows = self._load_and_group_by_event(content, _HEADERS, event_id_tag='RaceID')
         seen_drivers = set()
+        unseen_drivers = set(self._drivers.keys())
+        set_reliability_metrics = False
+        base_driver_reliability = DriverReliability()
         for event_id in sorted(all_rows.keys(), key=functools.cmp_to_key(compare_events), reverse=True):
             for row in all_rows[event_id]:
                 event_id = row['RaceID'][1:]
                 if event_id.startswith('#'):
                     continue
                 driver_id = row['DriverID']
-                if driver_id in seen_drivers:
-                    # TODO: Add lookback data
-                    continue
-                seen_drivers.add(driver_id)
                 if driver_id not in self._drivers:
                     print('ERROR: Driver %s is in ratings log but not database of drivers' % driver_id,
                           file=self._outfile)
                     continue
+                if driver_id in seen_drivers:
+                    # TODO: Add lookback data
+                    self._drivers[driver_id].add_year_participation(event_id)
+                    continue
+                else:
+                    unseen_drivers.remove(driver_id)
+                seen_drivers.add(driver_id)
+                if not set_reliability_metrics:
+                    base_driver_reliability.update(float(row['KmSuccessPost']), float(row['KmFailurePost']),
+                                                   float(row['WearSuccessPost']), float(row['WearFailurePost']))
                 reliability = Reliability(km_success=float(row['KmSuccessPost']),
                                           km_failure=float(row['KmFailurePost']),
                                           wear_success=float(row['WearSuccessPost']),
@@ -156,6 +165,10 @@ class DataLoader(object):
                 rating = EloRating(init_rating=float(row['EloPost']), reliability=reliability, k_factor=k_factor,
                                    last_event_id=event_id)
                 self._drivers[driver_id].set_rating(rating)
+            set_reliability_metrics = True
+        if base_driver_reliability.km_success() > 0:
+            for driver_id in unseen_drivers:
+                self._drivers[driver_id].rating().set_reliability(deepcopy(base_driver_reliability))
         print('Loaded %d drivers from log' % (len(self._drivers)), file=self._outfile)
         return True
 
