@@ -2,11 +2,11 @@
 
 BASE_DIR=$(pwd)
 DATA_DIR="${BASE_DIR}/data"
-MAIN_LOG_DIR="${BASE_DIR}/logs"
 SRC_DIR="${BASE_DIR}/src"
 DRIVERS_TSV="${DATA_DIR}/drivers.tsv"
 EVENTS_TSV="${DATA_DIR}/events.tsv"
 RESULTS_TSV="${DATA_DIR}/results.tsv"
+TEAM_ADJUST_TSV="${DATA_DIR}/team-adjust.tsv"
 TEAM_HISTORY_TSV="${DATA_DIR}/team-history.tsv"
 FUTURE_EVENTS_TSV="${DATA_DIR}/future-events.tsv"
 FUTURE_LINEUP_TSV="${DATA_DIR}/future-lineup.tsv"
@@ -18,7 +18,7 @@ then
   exit 1
 fi
 
-for datafile in "${DRIVERS_TSV}" "${EVENTS_TSV}" "${RESULTS_TSV}" "${TEAM_HISTORY_TSV}"
+for datafile in "${DRIVERS_TSV}" "${EVENTS_TSV}" "${RESULTS_TSV}" "${TEAM_ADJUST_TSV}" "${TEAM_HISTORY_TSV}"
 do
   if [[ ! -f "${datafile}" ]]
   then
@@ -30,7 +30,7 @@ done
 ratings_dir=$(find logs -type d -name '????????T??????' | sort -t / -k 3,3 | tail -1)
 if [[ $# -ge 1 ]]
 then
-  ratings_dir=$(find logs -type d -name "$1" | sort -n -t / -k 3,3 | tail -1)
+  ratings_dir=$(find logs -type d -name "$1" | sort -t / -k 3,3 | tail -1)
 elif [[ $# -ne 0 ]]
 then
   echo "Invalid usage" > /dev/stderr
@@ -45,7 +45,7 @@ then
   exit 1
 fi
 
-args_file=$( find ${ratings_dir} -name '*.args')
+args_file=$( find "${ratings_dir}" -name '*.args')
 if [[ -z "${args_file}" ]]
 then
   echo "Cannot find args file"
@@ -53,11 +53,11 @@ then
 fi
 if [[ ! -s "${args_file}" ]]
 then
-  echo "Args file is empty"
+  echo "Args file is empty: ${args_file}"
   exit 1
 fi
-driver_ratings=$( find ${ratings_dir} -name '*.driver_ratings')
-team_ratings=$( find ${ratings_dir} -name '*.team_ratings')
+driver_ratings=$( find "${ratings_dir}" -name '*.driver_ratings')
+team_ratings=$( find "${ratings_dir}" -name '*.team_ratings')
 if [[ -z "${driver_ratings}" || -z "${team_ratings}" ]]
 then
   echo "Cannot find driver or team ratings"
@@ -88,6 +88,7 @@ fi
 #   events_tsv            TSV file with the list of events.
 #   results_tsv           TSV file with the list of results.
 #   teams_tsv             TSV file with the history of F1 teams.
+#   team_adjustments_tsv  TSV file with adjustments for team ratings (current and EOY)
 #   future_events_tsv     TSV file containing list of future events.
 #   driver_ratings_tsv    TSV file with the log of driver ratings.
 #   team_ratings_tsv      TSV file with the log of team ratings.
@@ -99,9 +100,9 @@ fi
 #                         Season to simulate.
 #   --simulate_start_round SIMULATE_START_ROUND
 #                         The first round in the season we will simulate; if "XX" start with the final real event.
-python -m cProfile -o profiles/simulate.profile.${current_time}.dat "${MAIN_PY}" "${ratings_dir}/${tag}" \
+python -m cProfile -o "profiles/simulate.profile.${current_time}.dat" "${MAIN_PY}" "${ratings_dir}/${tag}" \
   "${DRIVERS_TSV}" "${EVENTS_TSV}" "${RESULTS_TSV}" "${TEAM_HISTORY_TSV}" "${FUTURE_EVENTS_TSV}" \
-  "${driver_ratings}" "${team_ratings}" @${args_file} --logfile_uses_parameters \
+  "${TEAM_ADJUST_TSV}" "${driver_ratings}" "${team_ratings}" "@${args_file}" --logfile_uses_parameters \
   --future_lineup_tsv "${FUTURE_LINEUP_TSV}"
 
 if [[ $? -ne 0 ]]

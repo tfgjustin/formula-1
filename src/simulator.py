@@ -14,6 +14,8 @@ def create_argparser():
     parser.add_argument('future_events_tsv',
                         help='TSV file containing list of future events.',
                         type=argparse.FileType('r'), default='')
+    parser.add_argument('team_adjust_tsv', help='TSV file with per-team rating adjustments.',
+                        type=argparse.FileType('r'))
     parser.add_argument('driver_ratings_tsv', help='TSV file with the log of driver ratings.',
                         type=argparse.FileType('r'))
     parser.add_argument('team_ratings_tsv', help='TSV file with the log of team ratings.',
