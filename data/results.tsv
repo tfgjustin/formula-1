@@ -47931,26 +47931,26 @@ event_id	driver_id	team_id	start_position	end_position	laps	status	dnf_category	
 2022-03-R	Sergio_Perez	Oracle_Red_Bull_Racing	 3	2	58	+20.524	-	20
 2022-03-R	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	12	8	58	+68.439	-	20
 2022-03-R	Yuki_Tsunoda	Scuderia_AlphaTauri	13	15	57	+1 lap	-	20
-2022-04-Q	Alexander_Albon	Williams_Racing	0	20	10	-	-	20	
-2022-04-Q	Carlos_Sainz_Jr	Scuderia_Ferrari	0	10	10	-	-	20	
-2022-04-Q	Charles_Leclerc	Scuderia_Ferrari	0	2	10	-	-	20	
-2022-04-Q	Daniel_Ricciardo	McLaren_F1_Team	0	6	10	-	-	20	
-2022-04-Q	Esteban_Ocon	BWT_Alpine_F1_Team	0	19	10	-	-	20	
-2022-04-Q	Fernando_Alonso	BWT_Alpine_F1_Team	0	5	10	-	-	20	
-2022-04-Q	George_Russell	Mercedes_AMG_Petronas_F1_Team	0	11	10	-	-	20	
-2022-04-Q	Guanyu_Zhou	Alfa_Romeo_Racing_ORLEN	0	14	10	-	-	20	
-2022-04-Q	Kevin_Magnussen	Haas_F1_Team	0	4	10	-	-	20	
-2022-04-Q	Lance_Stroll	Aston_Martin_Aramco_Cognizant_F1_Team	0	15	10	-	-	20	
-2022-04-Q	Lando_Norris	McLaren_F1_Team	0	3	10	-	-	20	
-2022-04-Q	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	0	13	10	-	-	20	
-2022-04-Q	Max_Verstappen	Oracle_Red_Bull_Racing	0	1	10	-	-	20	
-2022-04-Q	Mick_Schumacher	Haas_F1_Team	0	12	10	-	-	20	
-2022-04-Q	Nicholas_Latifi	Williams_Racing	0	18	10	-	-	20	
-2022-04-Q	Pierre_Gasly	Scuderia_AlphaTauri	0	17	10	-	-	20	
-2022-04-Q	Sebastian_Vettel	Aston_Martin_Aramco_Cognizant_F1_Team	0	9	10	-	-	20	
-2022-04-Q	Sergio_Perez	Oracle_Red_Bull_Racing	0	7	10	-	-	20	
-2022-04-Q	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	0	8	10	-	-	20	
-2022-04-Q	Yuki_Tsunoda	Scuderia_AlphaTauri	0	16	10	-	-	20	
+2022-04-Q	Alexander_Albon	Williams_Racing	0	20	10	-	-	20
+2022-04-Q	Carlos_Sainz_Jr	Scuderia_Ferrari	0	10	10	-	-	20
+2022-04-Q	Charles_Leclerc	Scuderia_Ferrari	0	2	10	-	-	20
+2022-04-Q	Daniel_Ricciardo	McLaren_F1_Team	0	6	10	-	-	20
+2022-04-Q	Esteban_Ocon	BWT_Alpine_F1_Team	0	19	10	-	-	20
+2022-04-Q	Fernando_Alonso	BWT_Alpine_F1_Team	0	5	10	-	-	20
+2022-04-Q	George_Russell	Mercedes_AMG_Petronas_F1_Team	0	11	10	-	-	20
+2022-04-Q	Guanyu_Zhou	Alfa_Romeo_Racing_ORLEN	0	14	10	-	-	20
+2022-04-Q	Kevin_Magnussen	Haas_F1_Team	0	4	10	-	-	20
+2022-04-Q	Lance_Stroll	Aston_Martin_Aramco_Cognizant_F1_Team	0	15	10	-	-	20
+2022-04-Q	Lando_Norris	McLaren_F1_Team	0	3	10	-	-	20
+2022-04-Q	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	0	13	10	-	-	20
+2022-04-Q	Max_Verstappen	Oracle_Red_Bull_Racing	0	1	10	-	-	20
+2022-04-Q	Mick_Schumacher	Haas_F1_Team	0	12	10	-	-	20
+2022-04-Q	Nicholas_Latifi	Williams_Racing	0	18	10	-	-	20
+2022-04-Q	Pierre_Gasly	Scuderia_AlphaTauri	0	17	10	-	-	20
+2022-04-Q	Sebastian_Vettel	Aston_Martin_Aramco_Cognizant_F1_Team	0	9	10	-	-	20
+2022-04-Q	Sergio_Perez	Oracle_Red_Bull_Racing	0	7	10	-	-	20
+2022-04-Q	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	0	8	10	-	-	20
+2022-04-Q	Yuki_Tsunoda	Scuderia_AlphaTauri	0	16	10	-	-	20
 2022-04-S	Alexander_Albon	Williams_Racing	20	18	21	-	-	20
 2022-04-S	Carlos_Sainz_Jr	Scuderia_Ferrari	10	4	21	-	-	20
 2022-04-S	Charles_Leclerc	Scuderia_Ferrari	2	2	21	-	-	20
@@ -48751,4 +48751,3 @@ event_id	driver_id	team_id	start_position	end_position	laps	status	dnf_category	
 2022-22-R	Sergio_Perez	Oracle_Red_Bull_Racing	2	3	58	+10.093	-	20
 2022-22-R	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	18	15	57	+1 lap	-	20
 2022-22-R	Yuki_Tsunoda	Scuderia_AlphaTauri	11	11	57	+1 lap	-	20
-
