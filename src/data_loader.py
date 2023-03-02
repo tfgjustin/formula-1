@@ -104,8 +104,8 @@ class DataLoader(object):
             return True
 
     def load_results(self, content):
-        _HEADERS = ['event_id', 'driver_id', 'end_position', 'num_racers', 'team_id', 'start_position', 'dnf_category',
-                    'laps']
+        _HEADERS = ['event_id', 'driver_id', 'team_id', 'start_position', 'partial_position', 'end_position',
+                    'laps', 'status', 'dnf_category', 'num_racers']
         all_rows = self._load_and_group_by_event(content, _HEADERS)
         self._team_factory.reset_current_teams()
         last_event_id = None
@@ -254,14 +254,15 @@ class DataLoader(object):
             return
         driver = self._drivers[row['driver_id']]
         entrant = Entrant(event, driver, team, start_position=start_position)
-        result = Result(event, entrant, row['end_position'],
+        result = Result(event, entrant, row['partial_position'], row['end_position'],
                         dnf_category=row['dnf_category'], laps_completed=row['laps'])
         entrant.set_result(result)
         self._results.append(result)
         self._events[event.id()].add_entrant(entrant)
 
     def _load_events_internal(self, contents, tag, event_log, season_log):
-        _HEADERS = ['season', 'stage', 'date', 'name', 'type', 'event_id', 'laps', 'lap_distance', 'course_type', 'weather']
+        _HEADERS = ['season', 'stage', 'date', 'name', 'type', 'event_id', 'laps', 'lap_distance', 'course_type',
+                    'weather']
         handle = io.StringIO(contents)
         reader = csv.DictReader(handle, delimiter='\t')
         for row in reader:

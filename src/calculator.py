@@ -62,8 +62,12 @@ def validate_factors(argument):
     return argument
 
 
-def was_performance_win(result_this, result_other):
-    return result_this.dnf_category() == '-' and result_other.dnf_category() == '-'
+def was_performance_win(result_this, result_other, mode='full'):
+    if mode != 'partial':
+        return result_this.dnf_category() == '-' and result_other.dnf_category() == '-'
+    else:
+        # Partial results
+        return result_this.partial_position() is not None and result_other.partial_position() is not None
 
 
 def assign_year_value_dict(spec, divisor, value_dict):
@@ -385,41 +389,36 @@ class Calculator(object):
             self.add_full_h2h_error(event, win_actual_a, win_prob_a)
             self.add_full_h2h_error(event, 1 - win_actual_a, 1 - win_prob_a)
         # Now do the performance (Elo-based) probabilities
-        if not was_performance_win(result_a, result_b):
-            if self._debug_file is not None:
-                print('      Skip: At least one entrant DNF\'ed', file=self._debug_file)
-            return
+        # self.update_elo_ratings(event, predictions, entrant_a, entrant_b, result_a, result_b, win_actual_a,
+        # mode='partial')
+        # self.update_elo_ratings(event, predictions, entrant_a, entrant_b, result_a, result_b, win_actual_a,
+        # mode='closing')
+        self.update_elo_ratings(event, predictions, entrant_a, entrant_b, result_a, result_b, win_actual_a, mode='full')
+
+    def update_elo_ratings(self, event, predictions, entrant_a, entrant_b, result_a, result_b, win_actual_a,
+                           mode='full'):
         elo_win_prob_a, rating_a, rating_b = predictions.get_elo_win_probability(entrant_a, entrant_b)
         if elo_win_prob_a is None:
             if self._debug_file is not None:
                 print('      Skip: Elo Prob is None', file=self._debug_file)
             return
-        car_delta, driver_delta = predictions.get_elo_deltas(entrant_a, entrant_b)
+        if not was_performance_win(result_a, result_b, mode=mode):
+            if self._debug_file is not None:
+                print('      Skip: At least one entrant DNF\'ed', file=self._debug_file)
+            return
+        if mode == 'full':
+            self.add_elo_h2h_error(event, win_actual_a, elo_win_prob_a)
+            self.add_elo_h2h_error(event, 1 - win_actual_a, 1 - elo_win_prob_a)
+            # return
+        car_delta, driver_delta = predictions.get_elo_deltas(entrant_a, entrant_b, mode=mode)
         if car_delta is None or driver_delta is None:
             if self._debug_file is not None:
                 print('      Skip: Use', file=self._debug_file)
             return
-        self.add_elo_h2h_error(event, win_actual_a, elo_win_prob_a)
-        self.add_elo_h2h_error(event, 1 - win_actual_a, 1 - elo_win_prob_a)
         if not self.should_compare(rating_a, rating_b, predictions.elo_denominator()):
             if self._debug_file is not None:
                 print('      Skip: SC', file=self._debug_file)
             return
-        if self._debug_file is not None and event.type() == 'R':
-            if result_a.start_position() > result_b.start_position():
-                # If 'a' started behind 'b', but finished ahead of 'b', then they passed 'b'
-                print('H2HPass %d %s %d %s %d %.4f %d' % (
-                    event.season(), entrant_a.driver().id(), result_a.start_position(),
-                    entrant_b.driver().id(), result_b.start_position(), elo_win_prob_a,
-                    result_a.end_position() < result_b.end_position()),
-                      file=self._debug_file)
-            else:
-                # But if 'b' started behind 'a', but finished ahead of 'a', then they passed 'a'
-                print('H2HPass %d %s %d %s %d %.4f %d' % (
-                    event.season(), entrant_b.driver().id(), result_b.start_position(),
-                    entrant_a.driver().id(), result_a.start_position(), 1 - elo_win_prob_a,
-                    result_b.end_position() < result_a.end_position()),
-                      file=self._debug_file)
         self.update_ratings(result_a, car_delta, driver_delta)
         self.update_ratings(result_b, -car_delta, -driver_delta)
 

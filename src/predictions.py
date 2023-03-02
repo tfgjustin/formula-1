@@ -58,8 +58,17 @@ class HeadToHeadPrediction(object):
         self._this_elo_probability = None
         self._tie_probability = None
 
-    def this_won(self):
-        return 1 if self._entrant_this.result().end_position() < self._entrant_other.result().end_position() else 0
+    def this_won(self, mode='full'):
+        if mode != 'partial':
+            return 1 if self._entrant_this.result().end_position() < self._entrant_other.result().end_position() else 0
+        else:
+            if self._entrant_this.result().partial_position() is None:
+                return None
+            elif self._entrant_other.result().partial_position() is None:
+                return None
+            return 1 \
+                if self._entrant_this.result().partial_position() < self._entrant_other.result().partial_position() \
+                else 0
 
     def same_team(self):
         return self._entrant_this.team().uuid() == self._entrant_other.team().uuid()
@@ -124,13 +133,17 @@ class HeadToHeadPrediction(object):
         else:
             return self._this_elo_probability, self._rating_this, self._rating_other
 
-    def this_elo_deltas(self, get_other=False):
+    def this_elo_deltas(self, get_other=False, mode='full'):
         elo_win_probability_this, _, _ = self.this_elo_probability()
         if elo_win_probability_this is None:
             return None, None
-        win_actual_this = self.this_won()
+        win_actual_this = self.this_won(mode=mode)
         k_factor = self.combined_k_factor()
         delta_all_this = k_factor * (win_actual_this - elo_win_probability_this)
+        if mode == 'partial':
+            delta_all_this *= 0.9
+        elif mode == 'closing':
+            delta_all_this *= 0.1
         if get_other:
             delta_all_this *= -1
         if self.same_team():
@@ -578,8 +591,9 @@ class EventPrediction(object):
             penalized.add(driver_id)
             new_place = penalty[1] + starting_positions[driver_id]
             temporary_grid_0[new_place].add(driver_id)
-        unpenalized_order = [driver_id for driver_id in sorted(starting_positions.keys(), key=lambda x: starting_positions[x])
-                if driver_id not in penalized]
+        unpenalized_order = [driver_id for driver_id in sorted(starting_positions.keys(),
+                                                               key=lambda x: starting_positions[x])
+                             if driver_id not in penalized]
         # The updated temporary grid, with no collisions allowed
         # [position] = driver_id
         temporary_grid_1 = dict()
@@ -591,7 +605,7 @@ class EventPrediction(object):
                 temporary_grid_1[curr_place] = driver_id
         # Now start at the front of the grid and work our way back.
         # If the current spot is taken by a penalized driver, use that.
-        # Otherwise pull the next unpenalized driver
+        # Otherwise, pull the next unpenalized driver
         # [driver_id] = position
         updated_starting_positions = dict()
         for position in range(1, len(starting_positions) + 1):
@@ -708,13 +722,13 @@ class EventPrediction(object):
               file=self._debug_file)
         return None
 
-    def get_elo_deltas(self, entrant_a, entrant_b):
+    def get_elo_deltas(self, entrant_a, entrant_b, mode='full'):
         if entrant_a in self._head_to_head:
             if entrant_b in self._head_to_head[entrant_a]:
-                return self._head_to_head[entrant_a][entrant_b].this_elo_deltas()
+                return self._head_to_head[entrant_a][entrant_b].this_elo_deltas(mode=mode)
         if entrant_b in self._head_to_head:
             if entrant_b in self._head_to_head[entrant_b]:
-                return self._head_to_head[entrant_b][entrant_a].this_elo_deltas(get_other=True)
+                return self._head_to_head[entrant_b][entrant_a].this_elo_deltas(get_other=True, mode=mode)
         if entrant_a == entrant_b:
             return 0, 0
         print('ERROR no (%s:%s) or (%s:%s) in GED' % (entrant_a.driver().id(), entrant_a.team().uuid(),

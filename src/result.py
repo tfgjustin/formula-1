@@ -1,8 +1,12 @@
 class Result(object):
-    def __init__(self, event, entrant, end_position, dnf_category='', laps_completed=0):
+    def __init__(self, event, entrant, partial_position, end_position, dnf_category='', laps_completed=0):
         self._event = event
         self._entrant = entrant
         self._end_position = int(end_position)
+        if partial_position is None or partial_position == '-':
+            self._partial_position = None
+        else:
+            self._partial_position = int(partial_position)
         self._num_racers = event.num_entrants()
         self._laps_completed = int(laps_completed)
         self._dnf_category = dnf_category
@@ -24,6 +28,9 @@ class Result(object):
 
     def start_position(self):
         return self._entrant.start_position()
+
+    def partial_position(self):
+        return self._partial_position
 
     def end_position(self):
         return self._end_position
