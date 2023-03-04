@@ -2163,3 +2163,4 @@ event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance	course_t
 2022-21-R	2022	21	R	2022-11-13	Heineken_Grand_Prix_of_Sao_Paulo	Autodromo Jose Carlos Pace	20	71	4.309	road	dry
 2022-22-Q	2022	22	Q	2022-11-20	Etihad_Airways_Abu_Dhabi_Grand_Prix	Yas Marina Circuit	20	10	5.281	road	dry
 2022-22-R	2022	22	R	2022-11-20	Etihad_Airways_Abu_Dhabi_Grand_Prix	Yas Marina Circuit	20	58	5.281	road	dry
+2023-01-Q	2023	1	Q	2023-03-05	Gulf_Air_Bahrain_Grand_Prix	Bahrain International Circuit	20	10	5.412	road	dry
