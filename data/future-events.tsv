@@ -1,5 +1,4 @@
 event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance	course_type	weather
-2023-01-R	2023	1	R	2023-03-05	Gulf_Air_Bahrain_Grand_Prix	Bahrain International Circuit	20	57	5.412	road	dry
 2023-02-Q	2023	2	Q	2023-03-19	STC_Saudi_Arabian_Grand_Prix	Jeddah Street Circuit	20	10	6.174	road	dry
 2023-02-R	2023	2	R	2023-03-19	STC_Saudi_Arabian_Grand_Prix	Jeddah Street Circuit	20	50	6.174	road	dry
 2023-03-Q	2023	3	Q	2023-04-02	Heineken_Australian_Grand_Prix	Albert Park Grand Prix Circuit	20	10	5.303	road	dry
