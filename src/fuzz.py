@@ -68,31 +68,36 @@ class Fuzzer(object):
                 # Also bump back the index one slot because the head of the list is the current year.
                 non_current_idx = 1
             # Start with the current delta.
-            start_of_year_fuzz = 0
-            target_eoy_fuzz = avg_elo_age_experience(current_age, current_exp)
+            current_elo_diff = 0
+            target_elo_diff = avg_elo_age_experience(current_age, current_exp)
             if current_exp:
                 # This is not their rookie year. Subtract out their previous experience.
                 previous_year = seasons[non_current_idx]
-                target_eoy_fuzz -= avg_elo_age_experience(previous_year - birth_year, current_exp - 1)
+                target_elo_diff -= avg_elo_age_experience(previous_year - birth_year, current_exp - 1)
             else:
                 # This is their rookie year. So instead of a "start where they are now and move to 2*EOY delta" slope,
                 # we assume "start at EOY and have zero slope".
-                start_of_year_fuzz = target_eoy_fuzz
-                target_eoy_fuzz = 0
+                current_elo_diff = target_elo_diff
+                target_elo_diff = 0
             if self._logfile is not None:
                 print('DriverFuzz %d %d %d %s %6.2f %6.2f' % (year, birth_year, year - birth_year, driver.id(),
-                                                              start_of_year_fuzz, target_eoy_fuzz),
+                                                              current_elo_diff, target_elo_diff),
                       file=self._logfile)
             # The fuzz represents the change in the average rating from year to year.
-            # We'll assume the change is linear, so the delta at race=1 is 0 and race=N is 2*fuzz
-            # For each simulation we'll pick a number with mean=fuzz and stddev=12
-            # Then we'll iterate through each event and apply the linear adjustment
+            # We'll assume the change is linear; the delta at race=1 is current_elo_diff and race=N is 2*target_elo_diff
+            target_elo_diff *= 2
+            elo_stddev = max([abs(current_elo_diff), abs(target_elo_diff)])
+            elo_stddev = max([min([30, abs(elo_stddev)]), 15])
             driver_fuzz = defaultdict(list)
-            elo_stddev = max([12, abs(target_eoy_fuzz)])
             for _ in range(self._args.num_iterations):
-                year_elo_diff = 2 * random.gauss(target_eoy_fuzz, elo_stddev)
+                # First fuzz both the current and target diffs
+                now_elo_diff = random.gauss(current_elo_diff, elo_stddev)
+                eoy_elo_diff = random.gauss(target_elo_diff, elo_stddev)
                 for event in events.values():
-                    event_diff = start_of_year_fuzz + ((event.stage() * year_elo_diff) / num_stages)
+                    # Note that because the age/experience curve starts at round=1 and ends at round=Final, we don't
+                    # care about the where this particular event is in relation to the most recent event in real life,
+                    # just where it is in relation to the start and the end of the year.
+                    event_diff = now_elo_diff + (((event.stage() - 1) * eoy_elo_diff) / (num_stages - 1))
                     driver_fuzz[event.id()].append(event_diff)
             self._all_fuzz[driver.id()] = driver_fuzz
 
@@ -113,12 +118,13 @@ class Fuzzer(object):
                     print('ERROR: Mismatched amount of base fuzz for %s in %s' % (driver_id, event.id()))
                     continue
                 fuzz_dict = driver_race_fuzz
-                default_dist = [-3.1, 11.5]
+                default_dist = [0, 15]
                 if event.type() == 'Q':
                     fuzz_dict = driver_qualifying_fuzz
                 for idx in range(self._args.num_iterations):
                     dist = fuzz_dict.get(driver_id, default_dist)
-                    self._all_fuzz[driver_id][event.id()][idx] += random.gauss(dist[0], dist[1])
+                    this_fuzz = random.gauss(dist[0], dist[1])
+                    self._all_fuzz[driver_id][event.id()][idx] += this_fuzz
 
     def generate_fuzz_team_estimate(self, events, min_stage, num_stages):
         # team_id: name-ish identifier of the team
@@ -152,7 +158,7 @@ class Fuzzer(object):
                 now_elo_diff = random.gauss(current_elo_diff, elo_stddev)
                 eoy_elo_diff = random.gauss(target_elo_diff, elo_stddev)
                 for event in events.values():
-                    event_diff = now_elo_diff + ((event.stage() * eoy_elo_diff) / stages_left)
+                    event_diff = now_elo_diff + (((event.stage() - min_stage) * eoy_elo_diff) / stages_left)
                     team_fuzz[event.id()].append(event_diff)
             self._all_fuzz[team_id] = team_fuzz
 
