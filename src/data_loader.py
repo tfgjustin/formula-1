@@ -346,6 +346,8 @@ class DataLoader(object):
         if team is None:
             print('ERROR: Invalid team ID %s for future lineup' % (team_id), file=self._outfile)
             return None
+        if team.id() in self._future_teams:
+            return self._future_teams[team.id()]
         team = deepcopy(team)
         self._disable_reliability_decay(team.rating())
         self._future_teams[team.id()] = team
