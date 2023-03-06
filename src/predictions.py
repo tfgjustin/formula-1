@@ -125,9 +125,12 @@ class HeadToHeadPrediction(object):
         self._rating_other = elo_rating_from_entrant(self._car_factor, self._entrant_other)
         self._this_elo_probability = elo_win_probability(self._rating_this, self._rating_other, self._elo_denominator)
         if self._debug_file is not None:
-            print('%s TEP: (%.1f + %.1f) vs (%.1f) = %.6f' % (
-                self._event.id(), self._rating_this, self.this_elo_start_position_advantage(),
-                self._rating_other, self._this_elo_probability), file=self._debug_file)
+            print('%s ThisEloProb: (%.1f + %.1f) vs (%.1f) = %.6f %s:%s vs %s:%s' % (
+                self._event.id(), self._rating_this - self.this_elo_start_position_advantage(),
+                self.this_elo_start_position_advantage(), self._rating_other, self._this_elo_probability,
+                self._entrant_this.driver().id(), self._entrant_this.team().uuid(), self._entrant_other.driver().id(),
+                self._entrant_other.team().uuid()),
+                  file=self._debug_file)
         if get_other:
             return 1 - self._this_elo_probability, self._rating_other, self._rating_this
         else:
