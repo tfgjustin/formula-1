@@ -16,6 +16,10 @@ _ALL = 'All'
 _CAR = 'Car'
 _DRIVER = 'Driver'
 
+_MODE_FULL = 'full'
+_MODE_PARTIAL = 'partial'
+_MODE_CLOSING = 'closing'
+
 
 def validate_factors(argument):
     parts = argument.split('_')
@@ -62,8 +66,8 @@ def validate_factors(argument):
     return argument
 
 
-def was_performance_win(result_this, result_other, mode='full'):
-    if mode != 'partial':
+def was_performance_win(result_this, result_other, mode=_MODE_FULL):
+    if mode != _MODE_PARTIAL:
         return result_this.dnf_category() == '-' and result_other.dnf_category() == '-'
     else:
         # Partial results
@@ -389,14 +393,15 @@ class Calculator(object):
             self.add_full_h2h_error(event, win_actual_a, win_prob_a)
             self.add_full_h2h_error(event, 1 - win_actual_a, 1 - win_prob_a)
         # Now do the performance (Elo-based) probabilities
-        # self.update_elo_ratings(event, predictions, entrant_a, entrant_b, result_a, result_b, win_actual_a,
-        # mode='partial')
-        # self.update_elo_ratings(event, predictions, entrant_a, entrant_b, result_a, result_b, win_actual_a,
-        # mode='closing')
-        self.update_elo_ratings(event, predictions, entrant_a, entrant_b, result_a, result_b, win_actual_a, mode='full')
+        self.update_elo_ratings(event, predictions, entrant_a, entrant_b, result_a, result_b, win_actual_a,
+                                mode=_MODE_PARTIAL)
+        self.update_elo_ratings(event, predictions, entrant_a, entrant_b, result_a, result_b, win_actual_a,
+                                mode=_MODE_CLOSING)
+        self.update_elo_ratings(event, predictions, entrant_a, entrant_b, result_a, result_b, win_actual_a,
+                                mode=_MODE_FULL)
 
     def update_elo_ratings(self, event, predictions, entrant_a, entrant_b, result_a, result_b, win_actual_a,
-                           mode='full'):
+                           mode=_MODE_FULL):
         elo_win_prob_a, rating_a, rating_b = predictions.get_elo_win_probability(entrant_a, entrant_b)
         if elo_win_prob_a is None:
             if self._debug_file is not None:
@@ -406,10 +411,10 @@ class Calculator(object):
             if self._debug_file is not None:
                 print('      Skip: At least one entrant DNF\'ed', file=self._debug_file)
             return
-        if mode == 'full':
+        if mode == _MODE_FULL:
             self.add_elo_h2h_error(event, win_actual_a, elo_win_prob_a)
             self.add_elo_h2h_error(event, 1 - win_actual_a, 1 - elo_win_prob_a)
-            # return
+            return
         car_delta, driver_delta = predictions.get_elo_deltas(entrant_a, entrant_b, mode=mode)
         if car_delta is None or driver_delta is None:
             if self._debug_file is not None:

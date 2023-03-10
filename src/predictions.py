@@ -9,6 +9,10 @@ _ALL = 'All'
 _CAR = 'Car'
 _DRIVER = 'Driver'
 
+_MODE_FULL = 'full'
+_MODE_PARTIAL = 'partial'
+_MODE_CLOSING = 'closing'
+
 
 def elo_rating_from_entrant(car_factor, entrant):
     rating = (1 - car_factor) * entrant.driver().rating().elo()
@@ -58,8 +62,8 @@ class HeadToHeadPrediction(object):
         self._this_elo_probability = None
         self._tie_probability = None
 
-    def this_won(self, mode='full'):
-        if mode != 'partial':
+    def this_won(self, mode=_MODE_FULL):
+        if mode != _MODE_PARTIAL:
             return 1 if self._entrant_this.result().end_position() < self._entrant_other.result().end_position() else 0
         else:
             if self._entrant_this.result().partial_position() is None:
@@ -136,17 +140,17 @@ class HeadToHeadPrediction(object):
         else:
             return self._this_elo_probability, self._rating_this, self._rating_other
 
-    def this_elo_deltas(self, get_other=False, mode='full'):
+    def this_elo_deltas(self, partial_distance_share, get_other=False, mode=_MODE_FULL):
         elo_win_probability_this, _, _ = self.this_elo_probability()
         if elo_win_probability_this is None:
             return None, None
         win_actual_this = self.this_won(mode=mode)
         k_factor = self.combined_k_factor()
         delta_all_this = k_factor * (win_actual_this - elo_win_probability_this)
-        if mode == 'partial':
-            delta_all_this *= 0.9
-        elif mode == 'closing':
-            delta_all_this *= 0.1
+        if mode == _MODE_PARTIAL:
+            delta_all_this *= partial_distance_share
+        elif mode == _MODE_CLOSING:
+            delta_all_this *= (1 - partial_distance_share)
         if get_other:
             delta_all_this *= -1
         if self.same_team():
@@ -725,13 +729,15 @@ class EventPrediction(object):
               file=self._debug_file)
         return None
 
-    def get_elo_deltas(self, entrant_a, entrant_b, mode='full'):
+    def get_elo_deltas(self, entrant_a, entrant_b, mode=_MODE_FULL):
         if entrant_a in self._head_to_head:
             if entrant_b in self._head_to_head[entrant_a]:
-                return self._head_to_head[entrant_a][entrant_b].this_elo_deltas(mode=mode)
+                return self._head_to_head[entrant_a][entrant_b].this_elo_deltas(self._args.partial_distance_share,
+                                                                                mode=mode)
         if entrant_b in self._head_to_head:
             if entrant_b in self._head_to_head[entrant_b]:
-                return self._head_to_head[entrant_b][entrant_a].this_elo_deltas(get_other=True, mode=mode)
+                return self._head_to_head[entrant_b][entrant_a].this_elo_deltas(self._args.partial_distance_share,
+                                                                                get_other=True, mode=mode)
         if entrant_a == entrant_b:
             return 0, 0
         print('ERROR no (%s:%s) or (%s:%s) in GED' % (entrant_a.driver().id(), entrant_a.team().uuid(),

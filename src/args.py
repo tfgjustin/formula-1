@@ -64,9 +64,9 @@ def add_common_args(parser):
     parser.add_argument('--num_iterations',
                         help='The number of times to simulate an event outcome to estimate win and podium odds.',
                         type=int, default=20000)
-    parser.add_argument('--qualifying_kfactor_multiplier',
-                        help='Value by which to multiply K-Factors during qualifying.',
-                        type=float, default=0.40)
+    parser.add_argument('--partial_distance_share',
+                        help='What percent of the Elo points transfer should happen at partial distance.',
+                        type=float, default=0.00)
     parser.add_argument('--position_base_spec', help='Base Elo boost per starting position advantage.',
                         type=str, default='20_0_0')
 #                        type = calculator.validate_factors, default = '10_4_1')
@@ -85,6 +85,9 @@ def add_common_args(parser):
     parser.add_argument('--print_progress',
                         help='Print a file logging the progress of the calculations.',
                         default=False, action='store_true')
+    parser.add_argument('--qualifying_kfactor_multiplier',
+                        help='Value by which to multiply K-Factors during qualifying.',
+                        type=float, default=0.40)
     parser.add_argument('--reliability_km_multiplier_street',
                         help='Per-KM driver reliability multiplier for street races.',
                         type=float, default=0.9995)
