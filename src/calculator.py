@@ -321,7 +321,10 @@ class Calculator(object):
             k_factor_adjust = self.race_distance_multiplier(event)
             elo_denominator = self._args.elo_exponent_denominator_race
         if event.weather() == 'wet':
-            elo_denominator *= self._args.wet_multiplier_elo_denominator
+            if event.type() == 'Q':
+                elo_denominator *= self._args.wet_multiplier_elo_denominator_qualifying
+            else:
+                elo_denominator *= self._args.wet_multiplier_elo_denominator_race
             k_factor_adjust *= self._args.wet_multiplier_k_factor
         return elo_denominator, k_factor_adjust
 

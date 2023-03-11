@@ -133,9 +133,12 @@ def add_common_args(parser):
     parser.add_argument('--wear_reliability_percent',
                         help='Percent of the wear reliability ratio to use when calculating failure rates.',
                         type=float, default=0.638)
-    parser.add_argument('--wet_multiplier_elo_denominator',
+    parser.add_argument('--wet_multiplier_elo_denominator_qualifying',
                         help='Amount by which we multiple the Elo denominator during a wet event.',
-                        type=float, default=1.15)
+                        type=float, default=1.25)
+    parser.add_argument('--wet_multiplier_elo_denominator_race',
+                        help='Amount by which we multiple the Elo denominator during a wet event.',
+                        type=float, default=1.05)
     parser.add_argument('--wet_multiplier_k_factor',
                         help='Amount by which we multiple the K-Factor during a wet event.',
                         type=float, default=0.75)
