@@ -300,7 +300,6 @@ class EloRating(object):
         self._k_factor.increment_events()
         self._deferred_complete = False
         self._current_event_id = None
-        self._current_delta = None
         self.reset_lists()
         self._commit_complete = True
         if self._reliability is not None:
@@ -325,6 +324,9 @@ class EloRating(object):
 
     def reliability(self):
         return self._reliability
+
+    def elo_delta(self):
+        return self._current_delta
 
     def lookback_deltas(self, event_type):
         if event_type is None:
