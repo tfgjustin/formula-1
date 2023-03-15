@@ -54,10 +54,10 @@ def add_common_args(parser):
                         type=float, default=2.0)
     parser.add_argument('--elo_exponent_denominator_qualifying',
                         help='The denominator in the Elo probability exponent for races.',
-                        type=int, default=180)
+                        type=int, default=200)
     parser.add_argument('--elo_exponent_denominator_race',
                         help='The denominator in the Elo probability exponent for races.',
-                        type=int, default=270)
+                        type=int, default=230)
     parser.add_argument('--logfile_uses_parameters',
                         help='Append encoded parameters to the logfile output name.',
                         default=False, action='store_true')
@@ -66,7 +66,7 @@ def add_common_args(parser):
                         type=int, default=20000)
     parser.add_argument('--partial_distance_share',
                         help='What percent of the Elo points transfer should happen at partial distance.',
-                        type=float, default=0.00)
+                        type=float, default=0.05)
     parser.add_argument('--position_base_spec', help='Base Elo boost per starting position advantage.',
                         type=str, default='20_0_0')
 #                        type = calculator.validate_factors, default = '10_4_1')
@@ -135,7 +135,7 @@ def add_common_args(parser):
                         type=float, default=0.638)
     parser.add_argument('--wet_multiplier_elo_denominator_qualifying',
                         help='Amount by which we multiple the Elo denominator during a wet event.',
-                        type=float, default=1.25)
+                        type=float, default=1.3)
     parser.add_argument('--wet_multiplier_elo_denominator_race',
                         help='Amount by which we multiple the Elo denominator during a wet event.',
                         type=float, default=1.05)
