@@ -570,7 +570,8 @@ class Calculator(object):
         dnf = result.dnf_category()
         rating_before = predictions.driver_before(result.driver().id()).rating()
         rating_after = result.driver().rating()
-        elo_diff = rating_after.elo() - rating_before.elo()
+        # We use this instead of after-before because there could've been regression to the mean throwing off the delta.
+        elo_diff = rating_after.elo_delta()
         before_effect = (rating_before.elo() - self._args.driver_elo_initial)
         before_effect *= (1 - self._team_share_dict[event.season()])
         after_effect = (rating_after.elo() - self._args.driver_elo_initial)
