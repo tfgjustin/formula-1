@@ -42,20 +42,6 @@ then
   exit 1
 fi
 
-# Check to see if any data files or code has changed and not been committed.
-log_dir=""
-num_to_commit=$(git diff --name-only | grep -c -F "tsv
-py")
-if [[ "${num_to_commit}" -ne 0 ]]
-then
-  echo "Found ${num_to_commit} changed files which have not been checked in:"
-  git diff --name-only | grep -F "tsv
-py"
-  log_dir="${MAIN_LOG_DIR}/test/${current_time}"
-else
-  log_dir="${MAIN_LOG_DIR}/release/${current_time}"
-fi
-
 current_git_tag=$(git rev-parse --short HEAD 2> /dev/null)
 if [[ -z "${current_git_tag}" ]]
 then
@@ -63,14 +49,39 @@ then
   exit 1
 fi
 
+# Check to see if any data files or code has changed and not been committed.
+log_dir=""
+num_to_commit=$(git diff --name-only | grep -c -F "tsv
+py")
+is_parameter_space=$(git diff --name-only | grep -c run_release.sh)
+if [[ "${num_to_commit}" -ne 0 ]]
+then
+  echo "Found ${num_to_commit} changed files which have not been checked in:"
+  git diff --name-only | grep -F "tsv
+py"
+  log_dir="${MAIN_LOG_DIR}/test/${current_time}"
+elif [[ "${is_parameter_space}" -ne 0 ]]
+then
+  echo "This appears to be a parameter-space exploration run."
+  log_dir="${MAIN_LOG_DIR}/explore/${current_time}"
+else
+  log_dir="${MAIN_LOG_DIR}/release/${current_time}"
+fi
+
 mkdir -p "${log_dir}"
 python "${MAIN_PY}" "${log_dir}/${current_git_tag}" "${DRIVERS_TSV}" "${EVENTS_TSV}" "${RESULTS_TSV}" \
 	"${TEAM_HISTORY_TSV}" --logfile_uses_parameters --print_args --num_iterations=100000
-#	--print_predictions --num_iterations 50000 --print_simulations
+# 	--print_predictions --print_simulations
 if [[ $? -ne 0 ]]
 then
   echo "Run did not complete successfully."
   exit 1
+fi
+
+if [[ "${num_to_commit}" -eq 0 && "${is_parameter_space}" -ne 0 ]]
+then
+  echo "Parameter-space exploration completed."
+  exit 0
 fi
 
 driver_ratings=$( find "${log_dir}" -name '*.driver_ratings')
