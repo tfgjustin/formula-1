@@ -392,7 +392,7 @@ class Calculator(object):
             if self._debug_file is not None:
                 print('      Skip: Win Prob is None', file=self._debug_file)
             return
-        if result_a.laps() > 1 and result_b.laps() > 1:
+        if result_a.laps() > 0 and result_b.laps() > 0:
             self.add_full_h2h_error(event, win_actual_a, win_prob_a)
             self.add_full_h2h_error(event, 1 - win_actual_a, 1 - win_prob_a)
         # Now do the performance (Elo-based) probabilities
@@ -415,8 +415,10 @@ class Calculator(object):
                 print('      Skip: At least one entrant DNF\'ed', file=self._debug_file)
             return
         if mode == _MODE_FULL:
-            self.add_elo_h2h_error(event, win_actual_a, elo_win_prob_a)
-            self.add_elo_h2h_error(event, 1 - win_actual_a, 1 - elo_win_prob_a)
+            if elo_win_prob_a >= 0.5:
+                self.add_elo_h2h_error(event, win_actual_a, elo_win_prob_a)
+            else:
+                self.add_elo_h2h_error(event, 1 - win_actual_a, 1 - elo_win_prob_a)
             return
         car_delta, driver_delta = predictions.get_elo_deltas(entrant_a, entrant_b, mode=mode)
         if car_delta is None or driver_delta is None:
@@ -448,9 +450,12 @@ class Calculator(object):
         return (abs(rating_a - rating_b) / elo_denominator) <= self._args.elo_compare_window
 
     def add_full_h2h_error(self, event, actual, prob):
+        # Include races and sprint qualifying but not qualifying.
         if event.type() == 'Q':
             return
-        # Include races and sprint qualifying.
+        # Only log the odds of the favorite so things like Skew make sense
+        if prob < 0.5:
+            return
         error_array = [event.id(), 0.5, prob, actual]
         for _ in range(self.get_oversample_rate(event.type(), event.id())):
             self._full_h2h_log.append(error_array)
@@ -507,7 +512,8 @@ class Calculator(object):
             return
         rating_before = predictions.team_before(team.id()).rating()
         rating_after = team.rating()
-        elo_diff = rating_after.elo() - rating_before.elo()
+        # We use this instead of after-before because there could've been regression to the mean throwing off the delta.
+        elo_diff = rating_after.elo_delta()
         before_effect = (rating_before.elo() - self._args.team_elo_initial) * self._team_share_dict[event.season()]
         after_effect = (rating_after.elo() - self._args.team_elo_initial) * self._team_share_dict[event.season()]
         reliability_before = rating_before.reliability()
