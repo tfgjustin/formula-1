@@ -6,6 +6,7 @@ SRC_DIR="${BASE_DIR}/src"
 DRIVERS_TSV="${DATA_DIR}/drivers.tsv"
 EVENTS_TSV="${DATA_DIR}/events.tsv"
 RESULTS_TSV="${DATA_DIR}/results.tsv"
+GRID_PENALTIES_TSV="${DATA_DIR}/grid-penalties.tsv"
 TEAM_ADJUST_TSV="${DATA_DIR}/team-adjust.tsv"
 TEAM_HISTORY_TSV="${DATA_DIR}/team-history.tsv"
 FUTURE_EVENTS_TSV="${DATA_DIR}/future-events.tsv"
@@ -92,6 +93,7 @@ fi
 #   future_events_tsv     TSV file containing list of future events.
 #   driver_ratings_tsv    TSV file with the log of driver ratings.
 #   team_ratings_tsv      TSV file with the log of team ratings.
+#   grid_penalties_tsv    TSV file with the log of grid penalties.
 #
 # optional arguments:
 #   --future_lineup_tsv FUTURE_LINEUP_TSV
@@ -102,8 +104,8 @@ fi
 #                         The first round in the season we will simulate; if "XX" start with the final real event.
 python -m cProfile -o "profiles/simulate.profile.${current_time}.dat" "${MAIN_PY}" "${ratings_dir}/${tag}" \
   "${DRIVERS_TSV}" "${EVENTS_TSV}" "${RESULTS_TSV}" "${TEAM_HISTORY_TSV}" "${FUTURE_EVENTS_TSV}" \
-  "${TEAM_ADJUST_TSV}" "${driver_ratings}" "${team_ratings}" "@${args_file}" --logfile_uses_parameters \
-  --future_lineup_tsv "${FUTURE_LINEUP_TSV}"
+  "${TEAM_ADJUST_TSV}" "${driver_ratings}" "${team_ratings}" "${GRID_PENALTIES_TSV}" "@${args_file}" \
+  --logfile_uses_parameters --future_lineup_tsv "${FUTURE_LINEUP_TSV}"
 
 if [[ $? -ne 0 ]]
 then

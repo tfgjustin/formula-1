@@ -271,9 +271,9 @@ class Calculator(object):
                 if self._logfile is not None:
                     print('Skipping %s (%s)' % (event.id(), event.name()), file=self._logfile)
                 continue
-            self.simulate_one_future_event(event, carryover_starting_positions)
+            self.simulate_one_future_event(event, carryover_starting_positions, loader)
 
-    def simulate_one_future_event(self, event, carryover_starting_positions):
+    def simulate_one_future_event(self, event, carryover_starting_positions, loader):
         if event.type() == 'Q':
             carryover_starting_positions.clear()
         if self._logfile is not None:
@@ -290,11 +290,7 @@ class Calculator(object):
         predictions.maybe_force_regress()
         predictions.commit_updates()
         # Only simulate the results, don't actually update the Elo and reliability ratings.
-        grid_penalties = None
-        # TODO: Have this loaded from a file
-        if event.id() == '2023-XX-X':
-            grid_penalties = [
-                ]
+        grid_penalties = loader.grid_penalties(event_id=event.id())
         predictions.only_simulate_outcomes(self._fuzzer.all_fuzz(), grid_penalties=grid_penalties)
 
     @staticmethod

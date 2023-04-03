@@ -31,6 +31,7 @@ class DataLoader(object):
         self._future_seasons = dict()
         self._drivers = dict()
         self._results = list()
+        self._grid_penalties = defaultdict(list)
         self._future_drivers = dict()
         self._future_teams = dict()
         self._args = args
@@ -54,6 +55,11 @@ class DataLoader(object):
 
     def drivers(self):
         return self._drivers
+
+    def grid_penalties(self, event_id=None):
+        if event_id is None:
+            return self._grid_penalties
+        return self._grid_penalties.get(event_id, [])
 
     def future_drivers(self):
         return self._future_drivers
@@ -203,6 +209,26 @@ class DataLoader(object):
                 canonical_team.set_rating(rating)
         print('Loaded %d teams from log' % (len(self._team_factory.teams())), file=self._outfile)
         return True
+
+    def load_grid_penalties(self, content):
+        _HEADERS = ['event_id', 'driver_id', 'num_places']
+        handle = io.StringIO(content)
+        reader = csv.DictReader(handle, delimiter='\t')
+        is_valid_file = True
+        for row in reader:
+            if not _is_valid_row(row, _HEADERS):
+                is_valid_file = False
+                continue
+            driver_id = row['driver_id']
+            if driver_id not in self._drivers:
+                print('ERROR: Driver %s is in grid penalties log but not database of drivers' % driver_id,
+                      file=self._outfile)
+                is_valid_file = False
+                continue
+            penalty = [driver_id, int(row['num_places'])]
+            self._grid_penalties[row['event_id']].append(penalty)
+        print('Loaded grid penalties for %d events' % len(self._grid_penalties), file=self._outfile)
+        return is_valid_file
 
     def load_future_simulation_data(self):
         self.load_future_events(self._args.future_events_tsv)

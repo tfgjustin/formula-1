@@ -20,6 +20,8 @@ def create_argparser():
                         type=argparse.FileType('r'))
     parser.add_argument('team_ratings_tsv', help='TSV file with the log of team ratings.',
                         type=argparse.FileType('r'))
+    parser.add_argument('grid_penalties_tsv', help='TSV file with the log of grid_penalties.',
+                        type=argparse.FileType('r'))
 #    parser.add_argument('driver_aggregates_tsv', help='TSV file with the log of driver aggregates.',
 #                        type=argparse.FileType('r'))
 #    parser.add_argument('team_aggregates_tsv', help='TSV file with the log of team aggregates.',
@@ -64,6 +66,11 @@ def run_one_combination(parsed_args, task_queue):
             return True
         # Historical results
         loader.load_results(parsed_args.results_tsv)
+        if not loader.load_grid_penalties(parsed_args.grid_penalties_tsv):
+            print('ERROR loading grid penalties during %s' % base_path)
+            if task_queue is not None:
+                task_queue.task_done()
+            return True
         # Load historical driver data
         if not loader.update_drivers_from_ratings(parsed_args.driver_ratings_tsv):
             print('ERROR loading drivers from ratings during %s' % base_path)

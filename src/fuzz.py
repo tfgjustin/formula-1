@@ -87,7 +87,7 @@ class Fuzzer(object):
             # We'll assume the change is linear; the delta at race=1 is current_elo_diff and race=N is 2*target_elo_diff
             target_elo_diff *= 2
             elo_stddev = max([abs(current_elo_diff), abs(target_elo_diff)])
-            elo_stddev = max([min([30, abs(elo_stddev)]), 15])
+            elo_stddev = max([min([25, abs(elo_stddev)]), 10])
             driver_fuzz = defaultdict(list)
             for _ in range(self._args.num_iterations):
                 # First fuzz both the current and target diffs
@@ -152,7 +152,7 @@ class Fuzzer(object):
             current_elo_diff = current_fuzz.get(team_id, 0)
             target_elo_diff = target_fuzz.get(team_id, 0) - current_elo_diff
             elo_stddev = max([abs(current_elo_diff), abs(target_elo_diff)])
-            elo_stddev = max([min([30, abs(elo_stddev)]), 15])
+            elo_stddev = max([min([40, abs(elo_stddev)]), 20])
             team_fuzz = defaultdict(list)
             for _ in range(self._args.num_iterations):
                 now_elo_diff = random.gauss(current_elo_diff, elo_stddev)
