@@ -1,12 +1,11 @@
 team_id	elo_adjust	mode
-
-Alfa_Romeo_Racing_ORLEN	0.0	current
-Aston_Martin_Aramco_Cognizant_F1_Team	0.0	current
-BWT_Alpine_F1_Team	0.0	current
+Alfa_Romeo_Racing_ORLEN	-3.0	current
+Aston_Martin_Aramco_Cognizant_F1_Team	71.0	current
+BWT_Alpine_F1_Team	-5.0	current
 Haas_F1_Team	0.0	current
-McLaren_F1_Team	0.0	current
-Mercedes_AMG_Petronas_F1_Team	0.0	current
-Oracle_Red_Bull_Racing	0.0	current
-Scuderia_AlphaTauri	0.0	current
-Scuderia_Ferrari	0.0	current
-Williams_Racing	0.0	current
+McLaren_F1_Team	-16.0	current
+Mercedes_AMG_Petronas_F1_Team	-21.0	current
+Oracle_Red_Bull_Racing	26.0	current
+Scuderia_AlphaTauri	-26.0	current
+Scuderia_Ferrari	-15.0	current
+Williams_Racing	-11.0	current
