@@ -2126,7 +2126,7 @@ event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance	course_t
 2022-04-S	2022	4	S	2022-04-24	Rolex_Emilia_Romagna_Grand_Prix	Autodromo Enzo Dino Ferrari	20	21	4.909	road	wet
 2022-04-R	2022	4	R	2022-04-24	Rolex_Emilia_Romagna_Grand_Prix	Autodromo Enzo Dino Ferrari	20	63	4.909	road	wet
 2022-05-Q	2022	5	Q	2022-05-08	Crypto.com_Miami_Grand_Prix	Miami International Autodrome	20	10	5.412	street	dry
-2022-05-R	2022	5	R	2022-05-08	Crypto.com_Miami_Grand_Prix	Miami International Autodrome	20	57	5.412	street	dr
+2022-05-R	2022	5	R	2022-05-08	Crypto.com_Miami_Grand_Prix	Miami International Autodrome	20	57	5.412	street	dry
 2022-06-Q	2022	6	Q	2022-05-22	Pirelli_Grand_Prix_of_Spain	Circuit de Catalunya	20	10	4.655	road	dry
 2022-06-R	2022	6	R	2022-05-22	Pirelli_Grand_Prix_of_Spain	Circuit de Catalunya	20	66	4.655	road	dry
 2022-07-Q	2022	7	Q	2022-05-29	Grand_Prix_of_Monaco	Circuit de Monaco	20	10	3.337	street	wet
