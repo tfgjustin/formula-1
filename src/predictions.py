@@ -454,9 +454,9 @@ class EventPrediction(object):
         driver_reliability_multiplier_km = 1
         car_reliability_multiplier_km = 1
         if 'Monaco' in self._event.name():
-            driver_reliability_multiplier_km *= 0.9994
+            driver_reliability_multiplier_km *= 0.99982
         if self._event.stage() == 1:
-            car_reliability_multiplier_km *= 0.9991
+            car_reliability_multiplier_km *= 0.99983
         if self._event.weather() == 'wet':
             driver_reliability_multiplier_km *= self._args.reliability_km_multiplier_wet
         if self._event.is_street_course():

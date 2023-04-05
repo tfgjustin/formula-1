@@ -42,7 +42,7 @@ def add_common_args(parser):
                         type=float, default=0.98)
     parser.add_argument('--driver_reliability_failure_constant',
                         help='Number of "failure" KM we add on a crash when calculating the per-KM failure odds.',
-                        type=float, default=0.80)
+                        type=float, default=0.81)
     parser.add_argument('--driver_reliability_lookback',
                         help='Lookback window in races for driver reliability data.',
                         type=int, default=128)
@@ -90,7 +90,7 @@ def add_common_args(parser):
                         type=float, default=0.40)
     parser.add_argument('--reliability_km_multiplier_street',
                         help='Per-KM driver reliability multiplier for street races.',
-                        type=float, default=0.99975)
+                        type=float, default=0.99992)
     parser.add_argument('--reliability_km_multiplier_wet',
                         help='Per-KM driver reliability multiplier for wet races.',
                         type=float, default=0.99991)
@@ -113,7 +113,7 @@ def add_common_args(parser):
                         type=float, default=0.995)
     parser.add_argument('--team_reliability_failure_constant',
                         help='Number of "failure" KM we add on a car failure when calculating the per-KM failure odds.',
-                        type=float, default=0.56)
+                        type=float, default=0.565)
     parser.add_argument('--team_reliability_lookback',
                         help='Lookback window in races for team reliability data.',
                         type=int, default=48)
