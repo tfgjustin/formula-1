@@ -301,9 +301,9 @@ class EloRating(object):
         self._deferred_complete = False
         self._current_event_id = None
         self.reset_lists()
-        self._commit_complete = True
         if self._reliability is not None:
             self._reliability.commit_update()
+        self._commit_complete = True
 
     def update_lookback(self):
         if self._current_event_id is None:

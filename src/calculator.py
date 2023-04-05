@@ -237,7 +237,10 @@ class Calculator(object):
                 if result_a.driver().id() < result_b.driver().id():
                     self.compare_results(event, predictions, result_a, result_b)
         self.update_all_reliability(event)
+        # When we commit updates we commit all state to the Driver and Team entities.
         predictions.commit_updates()
+        # This will reset the weather, course, etc, reliability conditions.
+        predictions.reset_condition_state()
         self.log_results(predictions)
 
     def simulate_future_events(self, loader):
@@ -292,6 +295,8 @@ class Calculator(object):
         # Only simulate the results, don't actually update the Elo and reliability ratings.
         grid_penalties = loader.grid_penalties(event_id=event.id())
         predictions.only_simulate_outcomes(self._fuzzer.all_fuzz(), grid_penalties=grid_penalties)
+        # Wait until after we've simulated the outcomes to remove the weather, street, etc, reliability conditions.
+        predictions.reset_condition_state()
 
     @staticmethod
     def should_skip_event(event):
@@ -335,10 +340,11 @@ class Calculator(object):
             return
         driver_condition_multiplier_km = 1
         car_condition_multiplier_km = 1
+        # TODO: Fix up these hard-coded values
         if 'Monaco' in event.name():
-            driver_condition_multiplier_km = 0.9994
+            driver_condition_multiplier_km = 0.99982
         if event.stage() == 1:
-            car_condition_multiplier_km *= 0.9991
+            car_condition_multiplier_km *= 0.99983
         if event.weather() == 'wet':
             driver_condition_multiplier_km *= self._args.reliability_km_multiplier_wet
         if event.is_street_course():

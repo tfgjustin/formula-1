@@ -482,12 +482,14 @@ class EventPrediction(object):
             team.maybe_regress()
 
     def commit_updates(self):
-        for entrant in self._sorted_entrants:
-            entrant.reset_condition_multiplier_km()
         for driver in self._event.drivers():
             driver.commit_update()
         for team in self._event.teams():
             team.commit_update()
+
+    def reset_condition_state(self):
+        for entrant in self._sorted_entrants:
+            entrant.reset_condition_multiplier_km()
 
     def predict_winner(self, do_simulate_results):
         """

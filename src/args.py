@@ -90,10 +90,10 @@ def add_common_args(parser):
                         type=float, default=0.40)
     parser.add_argument('--reliability_km_multiplier_street',
                         help='Per-KM driver reliability multiplier for street races.',
-                        type=float, default=0.9995)
+                        type=float, default=0.99975)
     parser.add_argument('--reliability_km_multiplier_wet',
                         help='Per-KM driver reliability multiplier for wet races.',
-                        type=float, default=0.99945)
+                        type=float, default=0.99991)
     parser.add_argument('--run_index', help='Which run is this.',
                         type=int, default=1)
     parser.add_argument('--run_max', help='Maximum number of runs.',

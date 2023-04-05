@@ -77,7 +77,7 @@ class Entrant(object):
                                                                            race_distance_km=(lap_distance_km * n))
             this_lap_success *= self._team.rating().probability_finishing(start_km=(lap_distance_km * (n - 1)),
                                                                           race_distance_km=(lap_distance_km * n))
-            this_lap_success *= self._condition_multiplier_km
+            this_lap_success *= (self._condition_multiplier_km ** lap_distance_km)
             this_lap_failure = 1 - this_lap_success
             # Odds of completing N-1 laps and then failing at lap N
             self._probability_fail_at_n[n] = current_success_probability * this_lap_failure
