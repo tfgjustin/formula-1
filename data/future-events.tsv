@@ -1,47 +1,45 @@
 event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance	course_type	weather
-2023-04-Q	2023	4	Q	2023-04-30	Azerbaijan_Grand_Prix	Baku City Circuit	20	10	6.003	street	dry
-2023-04-S	2023	4	S	2023-04-30	Azerbaijan_Grand_Prix	Baku City Circuit	20	17	6.003	street	dry
-2023-04-R	2023	4	R	2023-04-30	Azerbaijan_Grand_Prix	Baku City Circuit	20	51	6.003	street	dry
-2023-05-Q	2023	5	Q	2023-05-07	Crypto.com_Miami_Grand_Prix	Miami International Autodrome	20	10	5.412	street	dry
-2023-05-R	2023	5	R	2023-05-07	Crypto.com_Miami_Grand_Prix	Miami International Autodrome	20	57	5.412	street	dr
-2023-06-Q	2023	6	Q	2023-05-21	Rolex_Emilia_Romagna_Grand_Prix	Autodromo Enzo Dino Ferrari	20	10	4.909	road	dry
-2023-06-R	2023	6	R	2023-05-21	Rolex_Emilia_Romagna_Grand_Prix	Autodromo Enzo Dino Ferrari	20	63	4.909	road	dry
-2023-07-Q	2023	7	Q	2023-05-28	Grand_Prix_of_Monaco	Circuit de Monaco	20	10	3.337	street	dry
-2023-07-R	2023	7	R	2023-05-28	Grand_Prix_of_Monaco	Circuit de Monaco	20	64	3.337	street	dry
-2023-08-Q	2023	8	Q	2023-06-04	Pirelli_Grand_Prix_of_Spain	Circuit de Catalunya	20	10	4.655	road	dry
-2023-08-R	2023	8	R	2023-06-04	Pirelli_Grand_Prix_of_Spain	Circuit de Catalunya	20	66	4.655	road	dry
-2023-09-Q	2023	9	Q	2023-06-18	AWS_Grand_Prix_Du_Canada	Circuit Gilles Villeneuve	20	10	4.361	road	dry
-2023-09-R	2023	9	R	2023-06-18	AWS_Grand_Prix_Du_Canada	Circuit Gilles Villeneuve	20	70	4.361	road	dry
-2023-10-Q	2023	10	Q	2023-07-02	Rolex_Grand_Prix_of_Austria	Red Bull Ring	20	10	4.318	road	dry
-2023-10-S	2023	10	S	2023-07-02	Rolex_Grand_Prix_of_Austria	Red Bull Ring	20	24	4.318	road	dry
-2023-10-R	2023	10	R	2023-07-02	Rolex_Grand_Prix_of_Austria	Red Bull Ring	20	71	4.318	road	dry
-2023-11-Q	2023	11	Q	2023-07-09	Lenovo_British_Grand_Prix	Silverstone Circuit	20	10	5.891	road	dry
-2023-11-R	2023	11	R	2023-07-09	Lenovo_British_Grand_Prix	Silverstone Circuit	20	52	5.891	road	dry
-2023-12-Q	2023	12	Q	2023-07-23	Rolex_Hungarian_Grand_Prix	Hungaroring	20	10	4.381	road	dry
-2023-12-R	2023	12	R	2023-07-23	Rolex_Hungarian_Grand_Prix	Hungaroring	20	70	4.381	road	dry
-2023-13-Q	2023	13	Q	2023-07-30	Rolex_Belgian_Grand_Prix	Circuit de Spa Francorchamps	20	10	7.004	road	dry
-2023-13-S	2023	13	S	2023-07-30	Rolex_Belgian_Grand_Prix	Circuit de Spa Francorchamps	20	15	7.004	road	dry
-2023-13-R	2023	13	R	2023-07-30	Rolex_Belgian_Grand_Prix	Circuit de Spa Francorchamps	20	44	7.004	road	dry
-2023-14-Q	2023	14	Q	2023-08-27	Heineken_Dutch_Grand_Prix	Circuit Zandvoort	20	10	4.259	road	dry
-2023-14-R	2023	14	R	2023-08-27	Heineken_Dutch_Grand_Prix	Circuit Zandvoort	20	72	4.259	road	dry
-2023-15-Q	2023	15	Q	2023-09-03	Heineken_Grand_Prix_of_Italy	Autodromo Nazionale di Monza	20	10	5.793	road	dry
-2023-15-R	2023	15	R	2023-09-03	Heineken_Grand_Prix_of_Italy	Autodromo Nazionale di Monza	20	53	5.793	road	dry
-2023-16-Q	2023	16	Q	2023-09-17	Singapore_Airlines_Singapore_Grand_Prix	Marina Bay Street Circuit	20	10	5.065	street	dry
-2023-16-R	2023	16	R	2023-09-17	Singapore_Airlines_Singapore_Grand_Prix	Marina Bay Street Circuit	20	59	5.065	street	dry
-2023-17-Q	2023	17	Q	2023-09-24	Japanese_Grand_Prix	Suzuka Circuitland	20	10	5.807	road	dry
-2023-17-R	2023	17	R	2023-09-24	Japanese_Grand_Prix	Suzuka Circuitland	20	52	5.807	road	dry
-2023-18-Q	2023	18	Q	2023-10-08	Ooredoo_Qatar_Grand_Prix	Losail International Circuit	20	10	5.38	road	dry
-2023-18-S	2023	18	S	2023-10-08	Ooredoo_Qatar_Grand_Prix	Losail International Circuit	20	19	5.38	road	dry
-2023-18-R	2023	18	R	2023-10-08	Ooredoo_Qatar_Grand_Prix	Losail International Circuit	20	57	5.38	road	dry
-2023-19-Q	2023	19	Q	2023-10-22	Aramco_United_States_Grand_Prix	Circuit of the Americas	20	10	5.513	road	dry
-2023-19-S	2023	19	S	2023-10-22	Aramco_United_States_Grand_Prix	Circuit of the Americas	20	19	5.513	road	dry
-2023-19-R	2023	19	R	2023-10-22	Aramco_United_States_Grand_Prix	Circuit of the Americas	20	56	5.513	road	dry
-2023-20-Q	2023	20	Q	2023-10-29	Grand_Prix_of_Mexico_+City	Autodromo Hermanos Rodriguez	20	10	4.304	road	dry
-2023-20-R	2023	20	R	2023-10-29	Grand_Prix_of_Mexico_+City	Autodromo Hermanos Rodriguez	20	71	4.304	road	dry
-2023-21-Q	2023	21	Q	2023-11-05	Heineken_Grand_Prix_of_Sao_Paulo	Autodromo Jose Carlos Pace	20	10	4.309	road	dry
-2023-21-S	2023	21	S	2023-11-05	Heineken_Grand_Prix_of_Sao_Paulo	Autodromo Jose Carlos Pace	20	24	4.309	road	dry
-2023-21-R	2023	21	R	2023-11-05	Heineken_Grand_Prix_of_Sao_Paulo	Autodromo Jose Carlos Pace	20	71	4.309	road	dry
-2023-22-Q	2023	22	Q	2023-11-19	Las_Vegas_Grand_Prix	Las Vegas Street Circuit	20	10	6.120	street	dry
-2023-22-R	2023	22	R	2023-11-19	Las_Vegas_Grand_Prix	Las Vegas Street Circuit	20	50	6.120	street	dry
-2023-23-Q	2023	23	Q	2023-11-26	Etihad_Airways_Abu_Dhabi_Grand_Prix	Yas Marina Circuit	20	10	5.281	road	dry
-2023-23-R	2023	23	R	2023-11-26	Etihad_Airways_Abu_Dhabi_Grand_Prix	Yas Marina Circuit	20	58	5.281	road	dry
+2023-05-R	2023	5	R	2023-04-30	Azerbaijan_Grand_Prix	Baku City Circuit	20	51	6.003	street	dry
+2023-06-Q	2023	6	Q	2023-05-07	Crypto.com_Miami_Grand_Prix	Miami International Autodrome	20	10	5.412	street	dry
+2023-06-R	2023	6	R	2023-05-07	Crypto.com_Miami_Grand_Prix	Miami International Autodrome	20	57	5.412	street	dr
+2023-07-Q	2023	7	Q	2023-05-21	Rolex_Emilia_Romagna_Grand_Prix	Autodromo Enzo Dino Ferrari	20	10	4.909	road	dry
+2023-07-R	2023	7	R	2023-05-21	Rolex_Emilia_Romagna_Grand_Prix	Autodromo Enzo Dino Ferrari	20	63	4.909	road	dry
+2023-08-Q	2023	8	Q	2023-05-28	Grand_Prix_of_Monaco	Circuit de Monaco	20	10	3.337	street	dry
+2023-08-R	2023	8	R	2023-05-28	Grand_Prix_of_Monaco	Circuit de Monaco	20	64	3.337	street	dry
+2023-09-Q	2023	9	Q	2023-06-04	Pirelli_Grand_Prix_of_Spain	Circuit de Catalunya	20	10	4.655	road	dry
+2023-09-R	2023	9	R	2023-06-04	Pirelli_Grand_Prix_of_Spain	Circuit de Catalunya	20	66	4.655	road	dry
+2023-10-Q	2023	10	Q	2023-06-18	AWS_Grand_Prix_Du_Canada	Circuit Gilles Villeneuve	20	10	4.361	road	dry
+2023-10-R	2023	10	R	2023-06-18	AWS_Grand_Prix_Du_Canada	Circuit Gilles Villeneuve	20	70	4.361	road	dry
+2023-11-Q	2023	11	Q	2023-07-02	Rolex_Grand_Prix_of_Austria	Red Bull Ring	20	10	4.318	road	dry
+2023-11-S	2023	11	S	2023-07-02	Rolex_Grand_Prix_of_Austria	Red Bull Ring	20	24	4.318	road	dry
+2023-11-R	2023	11	R	2023-07-02	Rolex_Grand_Prix_of_Austria	Red Bull Ring	20	71	4.318	road	dry
+2023-12-Q	2023	12	Q	2023-07-09	Lenovo_British_Grand_Prix	Silverstone Circuit	20	10	5.891	road	dry
+2023-12-R	2023	12	R	2023-07-09	Lenovo_British_Grand_Prix	Silverstone Circuit	20	52	5.891	road	dry
+2023-13-Q	2023	13	Q	2023-07-23	Rolex_Hungarian_Grand_Prix	Hungaroring	20	10	4.381	road	dry
+2023-13-R	2023	13	R	2023-07-23	Rolex_Hungarian_Grand_Prix	Hungaroring	20	70	4.381	road	dry
+2023-14-Q	2023	14	Q	2023-07-30	Rolex_Belgian_Grand_Prix	Circuit de Spa Francorchamps	20	10	7.004	road	dry
+2023-14-S	2023	14	S	2023-07-30	Rolex_Belgian_Grand_Prix	Circuit de Spa Francorchamps	20	15	7.004	road	dry
+2023-14-R	2023	14	R	2023-07-30	Rolex_Belgian_Grand_Prix	Circuit de Spa Francorchamps	20	44	7.004	road	dry
+2023-15-Q	2023	15	Q	2023-08-27	Heineken_Dutch_Grand_Prix	Circuit Zandvoort	20	10	4.259	road	dry
+2023-15-R	2023	15	R	2023-08-27	Heineken_Dutch_Grand_Prix	Circuit Zandvoort	20	72	4.259	road	dry
+2023-16-Q	2023	16	Q	2023-09-03	Heineken_Grand_Prix_of_Italy	Autodromo Nazionale di Monza	20	10	5.793	road	dry
+2023-16-R	2023	16	R	2023-09-03	Heineken_Grand_Prix_of_Italy	Autodromo Nazionale di Monza	20	53	5.793	road	dry
+2023-17-Q	2023	17	Q	2023-09-17	Singapore_Airlines_Singapore_Grand_Prix	Marina Bay Street Circuit	20	10	5.065	street	dry
+2023-17-R	2023	17	R	2023-09-17	Singapore_Airlines_Singapore_Grand_Prix	Marina Bay Street Circuit	20	59	5.065	street	dry
+2023-18-Q	2023	18	Q	2023-09-24	Japanese_Grand_Prix	Suzuka Circuitland	20	10	5.807	road	dry
+2023-18-R	2023	18	R	2023-09-24	Japanese_Grand_Prix	Suzuka Circuitland	20	52	5.807	road	dry
+2023-19-Q	2023	19	Q	2023-10-08	Ooredoo_Qatar_Grand_Prix	Losail International Circuit	20	10	5.38	road	dry
+2023-19-S	2023	19	S	2023-10-08	Ooredoo_Qatar_Grand_Prix	Losail International Circuit	20	19	5.38	road	dry
+2023-19-R	2023	19	R	2023-10-08	Ooredoo_Qatar_Grand_Prix	Losail International Circuit	20	57	5.38	road	dry
+2023-20-Q	2023	20	Q	2023-10-22	Aramco_United_States_Grand_Prix	Circuit of the Americas	20	10	5.513	road	dry
+2023-20-S	2023	20	S	2023-10-22	Aramco_United_States_Grand_Prix	Circuit of the Americas	20	19	5.513	road	dry
+2023-20-R	2023	20	R	2023-10-22	Aramco_United_States_Grand_Prix	Circuit of the Americas	20	56	5.513	road	dry
+2023-21-Q	2023	21	Q	2023-10-29	Grand_Prix_of_Mexico_+City	Autodromo Hermanos Rodriguez	20	10	4.304	road	dry
+2023-21-R	2023	21	R	2023-10-29	Grand_Prix_of_Mexico_+City	Autodromo Hermanos Rodriguez	20	71	4.304	road	dry
+2023-22-Q	2023	22	Q	2023-11-05	Heineken_Grand_Prix_of_Sao_Paulo	Autodromo Jose Carlos Pace	20	10	4.309	road	dry
+2023-22-S	2023	22	S	2023-11-05	Heineken_Grand_Prix_of_Sao_Paulo	Autodromo Jose Carlos Pace	20	24	4.309	road	dry
+2023-22-R	2023	22	R	2023-11-05	Heineken_Grand_Prix_of_Sao_Paulo	Autodromo Jose Carlos Pace	20	71	4.309	road	dry
+2023-23-Q	2023	23	Q	2023-11-19	Las_Vegas_Grand_Prix	Las Vegas Street Circuit	20	10	6.120	street	dry
+2023-23-R	2023	23	R	2023-11-19	Las_Vegas_Grand_Prix	Las Vegas Street Circuit	20	50	6.120	street	dry
+2023-24-Q	2023	24	Q	2023-11-26	Etihad_Airways_Abu_Dhabi_Grand_Prix	Yas Marina Circuit	20	10	5.281	road	dry
+2023-24-R	2023	24	R	2023-11-26	Etihad_Airways_Abu_Dhabi_Grand_Prix	Yas Marina Circuit	20	58	5.281	road	dry
