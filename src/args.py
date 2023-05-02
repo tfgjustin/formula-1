@@ -259,7 +259,7 @@ class ArgFactory(object):
 
     def load_inputs(self):
         """
-        We assume anything which is of type _io.TextIOWrapper is a file we should read. Store the bytes.
+        We assume anything which is of type _io.TextIOWrapper is a file to be read. Swap in the bytes.
 
         TODO: Handle outputs (i.e., write TextIOWrappers)
         """
@@ -268,7 +268,7 @@ class ArgFactory(object):
                 continue
             values = getattr(self._parsed_args, action.dest)
             if values is not None and isinstance(values, _io.TextIOWrapper):
-                self._file_contents[values.name] = values.read()
+                setattr(self._parsed_args, action.dest, values.read())
 
     def next_config(self):
         """
