@@ -24,7 +24,7 @@ def _is_valid_row(row, headers):
 
 class DataLoader(object):
 
-    def __init__(self, args, base_filename):
+    def __init__(self, args, base_output_filename):
         self._events = dict()
         self._future_events = dict()
         self._seasons = dict()
@@ -35,14 +35,15 @@ class DataLoader(object):
         self._future_drivers = dict()
         self._future_teams = dict()
         self._args = args
-        self._outfile = open(base_filename + '.loader', 'w')
+        self._outfile = open(base_output_filename + '.loader', 'w') if base_output_filename is not None else None
         self._team_factory = TeamFactory(args)
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self._outfile.close()
+        if self._outfile is not None:
+            self._outfile.close()
 
     def seasons(self):
         return self._seasons
