@@ -22,6 +22,15 @@ def _is_valid_row(row, headers):
     return True
 
 
+def _open_file_with_suffix(base_output_filename, suffix):
+    if base_output_filename is None:
+        return None
+    elif base_output_filename.startswith('/dev/'):
+        return open(base_output_filename, 'w')
+    else:
+        open(base_output_filename + suffix, 'w')
+
+
 class DataLoader(object):
 
     def __init__(self, args, base_output_filename):
@@ -35,7 +44,7 @@ class DataLoader(object):
         self._future_drivers = dict()
         self._future_teams = dict()
         self._args = args
-        self._outfile = open(base_output_filename + '.loader', 'w') if base_output_filename is not None else None
+        self._outfile = _open_file_with_suffix(base_output_filename, '.loader')
         self._team_factory = TeamFactory(args)
 
     def __enter__(self):
@@ -233,7 +242,10 @@ class DataLoader(object):
 
     def load_future_simulation_data(self):
         self.load_future_events(self._args.future_events_tsv)
-        self.load_future_lineup(self._args.future_lineup_tsv)
+        if hasattr(self._args, 'future_lineup_tsv'):
+            self.load_future_lineup(self._args.future_lineup_tsv)
+        else:
+            self.load_future_lineup(None)
 
     def load_future_events(self, content):
         if not content:
@@ -241,7 +253,7 @@ class DataLoader(object):
         self._load_events_internal(content, 'Future', self._future_events, self._future_seasons)
 
     def load_future_lineup(self, filename):
-        if filename:
+        if filename is not None and filename:
             self._load_future_lineup_from_file(filename)
         else:
             self._get_future_lineup_from_last_event()
