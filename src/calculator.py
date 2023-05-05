@@ -6,7 +6,7 @@ import numpy as np
 
 from event import compare_events
 from fuzz import Fuzzer
-from predictions import EventPrediction
+from predictions import EventPrediction, SimulatedEventPrediction
 from ratings import CarReliability, DriverReliability, Reliability
 from scipy.stats import skew
 from sklearn.metrics import auc, precision_recall_curve, roc_auc_score
@@ -239,7 +239,7 @@ class Calculator(object):
         self.update_all_reliability(event)
         # When we commit updates we commit all state to the Driver and Team entities.
         predictions.commit_updates()
-        # This will reset the weather, course, etc, reliability conditions.
+        # This will reset the weather, course, etc., reliability conditions.
         predictions.reset_condition_state()
         self.log_results(predictions)
 
@@ -281,22 +281,31 @@ class Calculator(object):
             carryover_starting_positions.clear()
         if self._logfile is not None:
             print('  Future Event %s' % (event.id()), file=self._logfile)
-        elo_denominator, k_factor_adjust = self.get_elo_and_k_factor_parameters(event)
-        predictions = EventPrediction(event, self._args, elo_denominator, k_factor_adjust,
-                                      self._team_share_dict[event.season()], self._position_base_dict[event.season()],
-                                      self._base_car_reliability, self._base_new_car_reliability,
-                                      self._base_driver_reliability, self._debug_file,
-                                      simulation_log=self._simulation_log_file,
-                                      starting_positions=carryover_starting_positions)
+        is_wet = self.create_is_wet_array(event)
+        elo_denominator, k_factor_adjust = self.get_elo_and_k_factor_parameters_array(event, is_wet)
+        predictions = SimulatedEventPrediction(
+            event, self._args, elo_denominator, k_factor_adjust, self._team_share_dict[event.season()],
+            self._position_base_dict[event.season()], self._base_car_reliability, self._base_new_car_reliability,
+            self._base_driver_reliability, self._debug_file, is_wet, simulation_log=self._simulation_log_file,
+            starting_positions=carryover_starting_positions)
         # Starting the updates will also regress the start-of-year back to the mean
-        predictions.start_updates()
+        # The 'common' part will not apply the weather modifier, though.
+        predictions.start_updates_common()
         predictions.maybe_force_regress()
         predictions.commit_updates()
         # Only simulate the results, don't actually update the Elo and reliability ratings.
         grid_penalties = loader.grid_penalties(event_id=event.id())
         predictions.only_simulate_outcomes(self._fuzzer.all_fuzz(), grid_penalties=grid_penalties)
-        # Wait until after we've simulated the outcomes to remove the weather, street, etc, reliability conditions.
+        # Wait until after we've simulated the outcomes to remove the weather, street, etc., reliability conditions.
         predictions.reset_condition_state()
+
+    def create_is_wet_array(self, event):
+        if event.weather() != 'wet':
+            return np.repeat(False, self._args.num_iterations)
+        elif abs(event.weather_probability() - 1) < 1e-4:
+            return np.repeat(True, self._args.num_iterations)
+        wet_probabilities = np.random.uniform(0, 1, self._args.num_iterations)
+        return wet_probabilities < event.weather_probability()
 
     @staticmethod
     def should_skip_event(event):
@@ -305,6 +314,21 @@ class Calculator(object):
         return 'Indianapolis' in event.name() and event.season() <= 1960
 
     def get_elo_and_k_factor_parameters(self, event):
+        return self.get_elo_and_k_factor_parameters_inner(event, event.weather())
+
+    def get_elo_and_k_factor_parameters_array(self, event, is_wet_array):
+        # If it's either going to be dry or it's guaranteed to be wet, just return all the samples the same.
+        if event.weather() != 'wet' or abs(event.weather_probability() - 1) < 1e-4:
+            elo, k_factor = self.get_elo_and_k_factor_parameters_inner(event, event.weather())
+            return np.repeat(elo, len(is_wet_array)), np.repeat(k_factor, len(is_wet_array))
+        # If we got here, then there are mixed conditions. Let's get both dry and wet ratings.
+        dry_elo, dry_k_factor = self.get_elo_and_k_factor_parameters_inner(event, 'dry')
+        wet_elo, wet_k_factor = self.get_elo_and_k_factor_parameters_inner(event, 'wet')
+        elo = np.where(is_wet_array, wet_elo, dry_elo)
+        k_factor = np.where(is_wet_array, wet_k_factor, dry_k_factor)
+        return elo, k_factor
+
+    def get_elo_and_k_factor_parameters_inner(self, event, weather):
         if event.type() == 'Q':
             # If this is a qualifying session, adjust all K-factors by a constant multiplier so fewer points flow
             # between the drivers and teams. Also use a different denominator since the advantage is much more
@@ -321,7 +345,7 @@ class Calculator(object):
         else:
             k_factor_adjust = self.race_distance_multiplier(event)
             elo_denominator = self._args.elo_exponent_denominator_race
-        if event.weather() == 'wet':
+        if weather == 'wet':
             if event.type() == 'Q':
                 elo_denominator *= self._args.wet_multiplier_elo_denominator_qualifying
             else:

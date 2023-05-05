@@ -59,9 +59,15 @@ class Entrant(object):
 
     def set_condition_multiplier_km(self, condition_multiplier_km):
         self._condition_multiplier_km = condition_multiplier_km
+        self._probability_fail_at_n = None
+
+    def apply_condition_multiplier_km(self, condition_multiplier_km):
+        self._condition_multiplier_km *= condition_multiplier_km
+        self._probability_fail_at_n = None
 
     def reset_condition_multiplier_km(self):
         self._condition_multiplier_km = 1
+        self._probability_fail_at_n = None
 
     def calculate_lap_reliability(self, num_laps, lap_distance_km):
         if self._probability_fail_at_n is not None:

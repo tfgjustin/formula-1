@@ -30,7 +30,8 @@ def compare_events(e1, e2):
 
 class Event(object):
 
-    def __init__(self, event_id, name, season, stage, date, event_type, num_laps, lap_distance_km, is_street_course, weather):
+    def __init__(self, event_id, name, season, stage, date, event_type, num_laps, lap_distance_km, is_street_course,
+                 weather, weather_probability=1.0):
         self._id = event_id
         self._name = name
         self._season = int(season)
@@ -45,6 +46,7 @@ class Event(object):
         self._teams = set()
         self._is_street_course = is_street_course
         self._weather = weather
+        self._weather_probability = weather_probability
 
     def add_entrant(self, entrant):
         if entrant.event().id() == self._id:
@@ -97,6 +99,9 @@ class Event(object):
     def weather(self):
         return self._weather
 
+    def weather_probability(self):
+        return self._weather_probability
+
     def num_laps(self):
         return self._num_laps
 
@@ -108,15 +113,21 @@ class Event(object):
 
 
 class Qualifying(Event):
-    def __init__(self, event_id, name, season, stage, date, num_laps, lap_distance_km, is_street_course, weather):
-        super().__init__(event_id, name, season, stage, date, 'Q', num_laps, lap_distance_km, is_street_course, weather)
+    def __init__(self, event_id, name, season, stage, date, num_laps, lap_distance_km, is_street_course, weather,
+                 weather_probability=1.0):
+        super().__init__(event_id, name, season, stage, date, 'Q', num_laps, lap_distance_km, is_street_course, weather,
+                         weather_probability=weather_probability)
 
 
 class SprintQualifying(Event):
-    def __init__(self, event_id, name, season, stage, date, num_laps, lap_distance_km, is_street_course, weather):
-        super().__init__(event_id, name, season, stage, date, 'S', num_laps, lap_distance_km, is_street_course, weather)
+    def __init__(self, event_id, name, season, stage, date, num_laps, lap_distance_km, is_street_course, weather,
+                 weather_probability=1.0):
+        super().__init__(event_id, name, season, stage, date, 'S', num_laps, lap_distance_km, is_street_course, weather,
+                         weather_probability=weather_probability)
 
 
 class Race(Event):
-    def __init__(self, event_id, name, season, stage, date, num_laps, lap_distance_km, is_street_course, weather):
-        super().__init__(event_id, name, season, stage, date, 'R', num_laps, lap_distance_km, is_street_course, weather)
+    def __init__(self, event_id, name, season, stage, date, num_laps, lap_distance_km, is_street_course, weather,
+                 weather_probability=1.0):
+        super().__init__(event_id, name, season, stage, date, 'R', num_laps, lap_distance_km, is_street_course, weather,
+                         weather_probability=weather_probability)

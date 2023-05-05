@@ -2,6 +2,7 @@ from collections import defaultdict
 
 import copy
 import math
+import numpy as np
 import random
 import ratings
 
@@ -451,14 +452,16 @@ class EventPrediction(object):
         return self._team_cache.get(team_id)
 
     def start_updates(self):
+        self.start_updates_common()
+        self.apply_weather(self._event.weather())
+
+    def start_updates_common(self):
         driver_reliability_multiplier_km = 1
         car_reliability_multiplier_km = 1
         if 'Monaco' in self._event.name():
             driver_reliability_multiplier_km *= 0.99982
         if self._event.stage() == 1:
             car_reliability_multiplier_km *= 0.99983
-        if self._event.weather() == 'wet':
-            driver_reliability_multiplier_km *= self._args.reliability_km_multiplier_wet
         if self._event.is_street_course():
             driver_reliability_multiplier_km *= self._args.reliability_km_multiplier_street
         for entrant in self._sorted_entrants:
@@ -588,6 +591,18 @@ class EventPrediction(object):
             team.rating().update(total_fuzz * multiplier)
             team.commit_update()
 
+    def apply_weather(self, weather):
+        self._weather_internal(weather, self._args.reliability_km_multiplier_wet)
+
+    def remove_weather(self, weather):
+        self._weather_internal(weather, 1.0 / self._args.reliability_km_multiplier_wet)
+
+    def _weather_internal(self, weather, multiplier):
+        if weather != 'wet':
+            return
+        for entrant in self._sorted_entrants:
+            entrant.apply_condition_multiplier_km(multiplier)
+
     @staticmethod
     def apply_grid_penalties(starting_positions, grid_penalties):
         if grid_penalties is None or not grid_penalties:
@@ -631,48 +646,6 @@ class EventPrediction(object):
             updated_starting_positions[driver_id] = current_position
             current_position += 1
         starting_positions.update(updated_starting_positions)
-
-    def only_simulate_outcomes(self, fuzz, grid_penalties=None):
-        if self._starting_positions is None:
-            # This is a function call signature mismatch
-            print('ERROR: Starting positions is None in simulation-only mode.', file=self._debug_file)
-            return
-        if not self._starting_positions:
-            # This is a qualifying event and there are no starting positions
-            self.set_starting_positions(None)
-            simulator = EventSimulator(self)
-            for idx in range(self._num_iterations):
-                self.apply_fuzz(fuzz, idx)
-                self.predict_all_head_to_head()
-                simulator.simulate(idx_offset=idx, num_iterations=1)
-                self.remove_fuzz(fuzz, idx)
-            self._starting_positions.extend(simulator.simulation_log())
-        else:
-            # By default, only run one simulation per starting position ordering. However, if only one starting
-            # position ordering is specified, this means it was generated artificially from a previous event.  E.g., the
-            # last seen actual/real event was qualifying, and now we need to simulate the race given the outcome of
-            # that qualifying session; in that case do the full set of simulations.
-            if len(self._starting_positions) == 1:
-                self._starting_positions = self._starting_positions * self._num_iterations
-            elif len(self._starting_positions) != self._num_iterations:
-                print('ERROR: In simulation-only mode were only given %d starting positions but expected %d.' % (
-                    len(self._starting_positions), self._num_iterations
-                ), file=self._debug_file)
-                return
-            simulation_outcomes = list()
-            simulator = EventSimulator(self)
-            for idx in range(self._num_iterations):
-                self.set_starting_positions(self._starting_positions[idx], grid_penalties=grid_penalties)
-                self.apply_fuzz(fuzz, idx)
-                self.predict_all_head_to_head()
-                simulator.simulate(num_iterations=1, idx_offset=idx)
-                self.remove_fuzz(fuzz, idx)
-                idx += 1
-            simulation_outcomes.extend(simulator.simulation_log())
-            self._starting_positions.clear()
-            if self._event.type() != 'R':
-                # We don't carry race results over but otherwise (qualifying and sprint) carry them over.
-                self._starting_positions.extend(simulation_outcomes)
 
     def set_starting_positions(self, starting_order, grid_penalties=None):
         driver_to_start_position = dict()
@@ -770,3 +743,83 @@ class EventPrediction(object):
 
     def naive_finish_probabilities(self):
         return self._naive_probabilities
+
+
+class SimulatedEventPrediction(EventPrediction):
+
+    def __init__(self, event, args, elo_denominator, k_factor_adjust, car_factor, base_points_per_position,
+                 base_car_reliability, base_new_car_reliability, base_driver_reliability,
+                 debug_file, is_wet, starting_positions=None, simulation_log=None):
+        super(SimulatedEventPrediction, self).__init__(event, args, None, None, car_factor,
+                                                       base_points_per_position, base_car_reliability,
+                                                       base_new_car_reliability, base_driver_reliability, debug_file,
+                                                       starting_positions=starting_positions,
+                                                       simulation_log=simulation_log)
+        self._all_elo_denominators = elo_denominator
+        self._all_k_factor_adjust = k_factor_adjust
+        self._is_wet = is_wet
+        # print('is_wet', self._is_wet[:100])
+        assert type(self._all_elo_denominators) == np.ndarray
+        assert type(self._all_k_factor_adjust) == np.ndarray
+        assert len(self._all_elo_denominators) == self._args.num_iterations
+        assert len(self._all_k_factor_adjust) == self._args.num_iterations
+
+    def only_simulate_outcomes(self, fuzz, grid_penalties=None):
+        if self._starting_positions is None:
+            # This is a function call signature mismatch
+            print('ERROR: Starting positions is None in simulation-only mode.', file=self._debug_file)
+            return
+        if not self._starting_positions:
+            # This is a qualifying event and there are no starting positions
+            self.set_starting_positions(None)
+            simulator = EventSimulator(self)
+            for idx in range(self._num_iterations):
+                self.setup_sim(fuzz, idx)
+                simulator.simulate(idx_offset=idx, num_iterations=1)
+                self.finish_sim(fuzz, idx)
+            self._starting_positions.extend(simulator.simulation_log())
+        else:
+            # By default, only run one simulation per starting position ordering. However, if only one starting
+            # position ordering is specified, this means it was generated artificially from a previous event.  E.g., the
+            # last seen actual/real event was qualifying, and now we need to simulate the race given the outcome of
+            # that qualifying session; in that case do the full set of simulations.
+            if len(self._starting_positions) == 1:
+                self._starting_positions = self._starting_positions * self._num_iterations
+            elif len(self._starting_positions) != self._num_iterations:
+                print('ERROR: In simulation-only mode were only given %d starting positions but expected %d.' % (
+                    len(self._starting_positions), self._num_iterations
+                ), file=self._debug_file)
+                return
+            simulation_outcomes = list()
+            simulator = EventSimulator(self)
+            for idx in range(self._num_iterations):
+                self.set_starting_positions(self._starting_positions[idx], grid_penalties=grid_penalties)
+                self.setup_sim(fuzz, idx)
+                simulator.simulate(idx_offset=idx, num_iterations=1)
+                self.finish_sim(fuzz, idx)
+            simulation_outcomes.extend(simulator.simulation_log())
+            self._starting_positions.clear()
+            if self._event.type() != 'R':
+                # We don't carry race results over but otherwise (qualifying and sprint) carry them over.
+                self._starting_positions.extend(simulation_outcomes)
+
+    def setup_sim(self, fuzz, idx):
+        self._elo_denominator = self._all_elo_denominators[idx]
+        self._k_factor_adjust = self._all_k_factor_adjust[idx]
+        self.apply_weather_for_sim(idx)
+        self.apply_fuzz(fuzz, idx)
+        self.predict_all_head_to_head()
+
+    def finish_sim(self, fuzz, idx):
+        self._elo_denominator = None
+        self._k_factor_adjust = None
+        self.remove_fuzz(fuzz, idx)
+        self.remove_weather_for_sim(idx)
+
+    def apply_weather_for_sim(self, idx):
+        weather = 'wet' if self._is_wet[idx] else 'dry'
+        self.apply_weather(weather)
+
+    def remove_weather_for_sim(self, idx):
+        weather = 'wet' if self._is_wet[idx] else 'dry'
+        self.remove_weather(weather)

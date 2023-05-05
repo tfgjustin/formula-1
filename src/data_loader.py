@@ -28,7 +28,7 @@ def _open_file_with_suffix(base_output_filename, suffix):
     elif base_output_filename.startswith('/dev/'):
         return open(base_output_filename, 'w')
     else:
-        open(base_output_filename + suffix, 'w')
+        return open(base_output_filename + suffix, 'w')
 
 
 class DataLoader(object):
@@ -310,18 +310,23 @@ class DataLoader(object):
             if row['event_id'].startswith('#'):
                 continue
             is_street_course = row['course_type'] == 'street'
+            weather_probability = row.get('weather_probability')
+            if weather_probability is None:
+                weather_probability = 1.0
+            else:
+                weather_probability = float(weather_probability)
             if row['type'] == 'Q':
                 event = Qualifying(
                     row['event_id'], row['name'], row['season'], row['stage'], row['date'], row['laps'],
-                    row['lap_distance'], is_street_course, row['weather'])
+                    row['lap_distance'], is_street_course, row['weather'], weather_probability=weather_probability)
             elif row['type'] == 'S':
                 event = SprintQualifying(
                     row['event_id'], row['name'], row['season'], row['stage'], row['date'], row['laps'],
-                    row['lap_distance'], is_street_course, row['weather'])
+                    row['lap_distance'], is_street_course, row['weather'], weather_probability=weather_probability)
             elif row['type'] == 'R':
                 event = Race(
                     row['event_id'], row['name'], row['season'], row['stage'], row['date'], row['laps'],
-                    row['lap_distance'], is_street_course, row['weather'])
+                    row['lap_distance'], is_street_course, row['weather'], weather_probability=weather_probability)
             else:
                 continue
             event_log[event.id()] = event
