@@ -292,7 +292,7 @@ class EventSimulator(object):
         distances = defaultdict(list)
         self._calculate_distances(distances)
         # Then compare all within each position
-        self._determine_positions(distances)
+        self._determine_positions(idx, distances)
         if self._simulation_log_file is not None:
             self.log_results(idx)
 
@@ -332,7 +332,7 @@ class EventSimulator(object):
             else:
                 return low - 1
 
-    def _determine_positions(self, distances):
+    def _determine_positions(self, idx, distances):
         curr_start = 0
         for lap_num in sorted(distances.keys(), reverse=True):
             curr_end = curr_start + len(distances[lap_num])
@@ -605,6 +605,8 @@ class EventPrediction(object):
 
     @staticmethod
     def apply_grid_penalties(starting_positions, grid_penalties):
+        if starting_positions is None or not starting_positions:
+            return
         if grid_penalties is None or not grid_penalties:
             return
         # The raw temporary grid, with collisions allowed
@@ -647,13 +649,15 @@ class EventPrediction(object):
             current_position += 1
         starting_positions.update(updated_starting_positions)
 
-    def set_starting_positions(self, starting_order, grid_penalties=None):
+    def set_starting_positions(self, idx, grid_penalties=None):
         driver_to_start_position = dict()
-        if starting_order is not None:
-            p = 1
-            for driver_id in starting_order.split('|'):
-                driver_to_start_position[driver_id] = p
-                p += 1
+        if self._starting_positions is not None and idx is not None:
+            starting_order = self._starting_positions[idx]
+            if starting_order is not None:
+                p = 1
+                for driver_id in starting_order.split('|'):
+                    driver_to_start_position[driver_id] = p
+                    p += 1
         self.apply_grid_penalties(driver_to_start_position, grid_penalties)
         for entrant in self._sorted_entrants:
             start_position = driver_to_start_position.get(entrant.driver().id(), 0)
@@ -770,8 +774,6 @@ class SimulatedEventPrediction(EventPrediction):
             print('ERROR: Starting positions is None in simulation-only mode.', file=self._debug_file)
             return
         if not self._starting_positions:
-            # This is a qualifying event and there are no starting positions
-            self.set_starting_positions(None)
             simulator = EventSimulator(self)
             for idx in range(self._num_iterations):
                 self.setup_sim(fuzz, idx)
@@ -793,8 +795,7 @@ class SimulatedEventPrediction(EventPrediction):
             simulation_outcomes = list()
             simulator = EventSimulator(self)
             for idx in range(self._num_iterations):
-                self.set_starting_positions(self._starting_positions[idx], grid_penalties=grid_penalties)
-                self.setup_sim(fuzz, idx)
+                self.setup_sim(fuzz, idx, grid_penalties=grid_penalties)
                 simulator.simulate(idx_offset=idx, num_iterations=1)
                 self.finish_sim(fuzz, idx)
             simulation_outcomes.extend(simulator.simulation_log())
@@ -803,9 +804,10 @@ class SimulatedEventPrediction(EventPrediction):
                 # We don't carry race results over but otherwise (qualifying and sprint) carry them over.
                 self._starting_positions.extend(simulation_outcomes)
 
-    def setup_sim(self, fuzz, idx):
+    def setup_sim(self, fuzz, idx, grid_penalties=None):
         self._elo_denominator = self._all_elo_denominators[idx]
         self._k_factor_adjust = self._all_k_factor_adjust[idx]
+        self.set_starting_positions(idx, grid_penalties=grid_penalties)
         self.apply_weather_for_sim(idx)
         self.apply_fuzz(fuzz, idx)
         self.predict_all_head_to_head()

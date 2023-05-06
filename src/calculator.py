@@ -255,6 +255,7 @@ class Calculator(object):
         teams = loader.future_teams()
         if self._logfile is not None:
             print('Simulating future year %d' % year, file=self._logfile)
+        self._fuzzer.generate_all_fuzz(year, events, drivers, teams)
         # List of outcomes, with each item specifying the ordering of finishers by driver ID in a previous event. This
         # lets us carryover starting positions from qualifying to sprint races to actual races.
         carryover_starting_positions = list()
@@ -267,7 +268,6 @@ class Calculator(object):
             if last_seen_event.type() != 'R' and last_seen_event.has_results():
                 # We do need to carryover the results.
                 self.create_carryover_from_event(last_seen_event, carryover_starting_positions)
-        self._fuzzer.generate_all_fuzz(year, events, drivers, teams)
         for event_id in sorted(events.keys(), key=functools.cmp_to_key(compare_events)):
             event = events[event_id]
             if self.should_skip_event(event):
