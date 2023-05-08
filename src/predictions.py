@@ -651,7 +651,7 @@ class EventPrediction(object):
 
     def set_starting_positions(self, idx, grid_penalties=None):
         driver_to_start_position = dict()
-        if self._starting_positions is not None and idx is not None:
+        if self._starting_positions is not None and self._starting_positions and idx is not None:
             starting_order = self._starting_positions[idx]
             if starting_order is not None:
                 p = 1
