@@ -1,6 +1,27 @@
+RACE = 'RA'
+SPRINT_QUALIFYING = 'SQ'
+QUALIFYING = 'QU'
+SPRINT_RACE = 'SR'
+SPRINT_SHOOTOUT = 'SS'
+_EVENT_TYPE_TO_VALUE = {
+    'RA': 90,   # Race: Always the last event of the weekend
+    'SQ': 70,   # Sprint qualifying: A sprint (100km event) which sets the grid for a race
+    'QU': 50,   # Qualifying: A pre-race/sprint event which sets the grid for either a race or sprint qualifying
+    'SR': 30,   # Sprint race: A sprint which is itself a race
+    'SS': 10    # Sprint shootout: A shortened qualifying event which sets the grid for a sprint race
+}
+
+
+def event_tag_to_value(event_tag):
+    assert event_tag in _EVENT_TYPE_TO_VALUE, 'Invalid event tag: %s' % event_tag
+    return _EVENT_TYPE_TO_VALUE.get(event_tag)
+
+
 def compare_events(e1, e2):
     left = e1.split('-')
     right = e2.split('-')
+    left_tag_value = event_tag_to_value(left[2])
+    right_tag_value = event_tag_to_value(right[2])
     if left[0] < right[0]:
         return -1
     elif left[0] > right[0]:
@@ -9,23 +30,12 @@ def compare_events(e1, e2):
         return -1
     elif left[1] > right[1]:
         return 1
-    if left[2] == 'Q':
-        if right[2] == 'Q':
-            return 0
-        else:
-            return -1
-    elif left[2] == 'S':
-        if right[2] == 'Q':
-            return 1
-        elif right[2] == 'R':
-            return -1
-        else:
-            return 0
+    if left_tag_value < right_tag_value:
+        return -1
+    elif left_tag_value > right_tag_value:
+        return 1
     else:
-        if right[2] == 'R':
-            return 0
-        else:
-            return 1
+        return 0
 
 
 class Event(object):
@@ -115,19 +125,33 @@ class Event(object):
 class Qualifying(Event):
     def __init__(self, event_id, name, season, stage, date, num_laps, lap_distance_km, is_street_course, weather,
                  weather_probability=1.0):
-        super().__init__(event_id, name, season, stage, date, 'Q', num_laps, lap_distance_km, is_street_course, weather,
-                         weather_probability=weather_probability)
+        super().__init__(event_id, name, season, stage, date, QUALIFYING, num_laps, lap_distance_km, is_street_course,
+                         weather, weather_probability=weather_probability)
+
+
+class SprintShootout(Event):
+    def __init__(self, event_id, name, season, stage, date, num_laps, lap_distance_km, is_street_course, weather,
+                 weather_probability=1.0):
+        super().__init__(event_id, name, season, stage, date, SPRINT_SHOOTOUT, num_laps, lap_distance_km,
+                         is_street_course, weather, weather_probability=weather_probability)
 
 
 class SprintQualifying(Event):
     def __init__(self, event_id, name, season, stage, date, num_laps, lap_distance_km, is_street_course, weather,
                  weather_probability=1.0):
-        super().__init__(event_id, name, season, stage, date, 'S', num_laps, lap_distance_km, is_street_course, weather,
-                         weather_probability=weather_probability)
+        super().__init__(event_id, name, season, stage, date, SPRINT_QUALIFYING, num_laps, lap_distance_km,
+                         is_street_course, weather, weather_probability=weather_probability)
+
+
+class SprintRace(Event):
+    def __init__(self, event_id, name, season, stage, date, num_laps, lap_distance_km, is_street_course, weather,
+                 weather_probability=1.0):
+        super().__init__(event_id, name, season, stage, date, SPRINT_RACE, num_laps, lap_distance_km, is_street_course,
+                         weather, weather_probability=weather_probability)
 
 
 class Race(Event):
     def __init__(self, event_id, name, season, stage, date, num_laps, lap_distance_km, is_street_course, weather,
                  weather_probability=1.0):
-        super().__init__(event_id, name, season, stage, date, 'R', num_laps, lap_distance_km, is_street_course, weather,
-                         weather_probability=weather_probability)
+        super().__init__(event_id, name, season, stage, date, RACE, num_laps, lap_distance_km, is_street_course,
+                         weather, weather_probability=weather_probability)

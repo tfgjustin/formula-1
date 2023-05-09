@@ -55,12 +55,12 @@ def head_to_head(h2h_predictions):
             continue
         correct = int(parts[_CORRECT_H2H_IDX])
         diff = correct - confidence
-        if parts[_EVENT_H2H_IDX].endswith('Q'):
+        if parts[_EVENT_H2H_IDX].endswith('QU'):
             qual_num += 1
             qual_correct += correct
             qual_exp += confidence
             qual_sse += (diff * diff)
-        elif parts[_EVENT_H2H_IDX].endswith('R'):
+        elif parts[_EVENT_H2H_IDX].endswith('RA'):
             race_num += 1
             race_correct += correct
             race_exp += confidence
@@ -195,7 +195,7 @@ def main(argv):
     # h2h_predictions = list()
     # get_h2h_predictions(argv[1], h2h_predictions)
     # head_to_head(h2h_predictions)
-    # for event_type in ['Q', 'R']:
+    # for event_type in ['QU', 'RA']:
     #     win_predictions = dict()
     #     get_win_predictions(argv[1], win_predictions, event_type)
     #     win_calibration(win_predictions, event_type)

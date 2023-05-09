@@ -1,10 +1,10 @@
 import argparse
 import datetime
+import event as f1event
 import functools
 import math
 import numpy as np
 
-from event import compare_events
 from fuzz import Fuzzer
 from predictions import EventPrediction, SimulatedEventPrediction
 from ratings import CarReliability, DriverReliability, Reliability
@@ -123,8 +123,8 @@ class Calculator(object):
         self._team_share_dict = dict()
         self.create_team_share_dict()
         self._oversample_rates = dict(
-            {'Q': dict({'195': 3, '196': 2}),
-             'R': dict({'195': 7, '196': 6, '197': 3, '198': 3, '199': 3, '200': 2})
+            {f1event.QUALIFYING: dict({'195': 3, '196': 2}),
+             f1event.RACE: dict({'195': 7, '196': 6, '197': 3, '198': 3, '199': 3, '200': 2})
              })
         self._base_car_reliability = CarReliability(
             default_decay_rate=self._args.team_reliability_decay,
@@ -204,7 +204,7 @@ class Calculator(object):
         if self._logfile is not None:
             print('Running %d' % year, file=self._logfile)
         self._base_new_car_reliability.regress()
-        for event_id in sorted(events.keys(), key=functools.cmp_to_key(compare_events)):
+        for event_id in sorted(events.keys(), key=functools.cmp_to_key(f1event.compare_events)):
             event = events[event_id]
             if self.should_skip_event(event):
                 if self._logfile is not None:
@@ -244,7 +244,7 @@ class Calculator(object):
         self.log_results(predictions)
 
     def simulate_future_events(self, loader):
-        last_seen_event_id = sorted(loader.events().keys(), key=functools.cmp_to_key(compare_events))[-1]
+        last_seen_event_id = sorted(loader.events().keys(), key=functools.cmp_to_key(f1event.compare_events))[-1]
         last_seen_event = loader.events()[last_seen_event_id]
         for year in sorted(loader.future_seasons().keys()):
             self.simulate_one_future_year(last_seen_event, year, loader)
@@ -265,10 +265,10 @@ class Calculator(object):
         else:
             # The last seen event was in this year. See if it was a race (no need to carry anything over) or something
             # else (we do need to carryover).
-            if last_seen_event.type() != 'R' and last_seen_event.has_results():
+            if last_seen_event.type() not in [f1event.SPRINT_RACE, f1event.RACE] and last_seen_event.has_results():
                 # We do need to carryover the results.
                 self.create_carryover_from_event(last_seen_event, carryover_starting_positions)
-        for event_id in sorted(events.keys(), key=functools.cmp_to_key(compare_events)):
+        for event_id in sorted(events.keys(), key=functools.cmp_to_key(f1event.compare_events)):
             event = events[event_id]
             if self.should_skip_event(event):
                 if self._logfile is not None:
@@ -277,7 +277,7 @@ class Calculator(object):
             self.simulate_one_future_event(event, carryover_starting_positions, loader)
 
     def simulate_one_future_event(self, event, carryover_starting_positions, loader):
-        if event.type() == 'Q':
+        if event.type() in [f1event.QUALIFYING, f1event.SPRINT_SHOOTOUT]:
             carryover_starting_positions.clear()
         if self._logfile is not None:
             print('  Future Event %s' % (event.id()), file=self._logfile)
@@ -329,14 +329,14 @@ class Calculator(object):
         return elo, k_factor
 
     def get_elo_and_k_factor_parameters_inner(self, event, weather):
-        if event.type() == 'Q':
+        if event.type() in [f1event.QUALIFYING, f1event.SPRINT_SHOOTOUT]:
             # If this is a qualifying session, adjust all K-factors by a constant multiplier so fewer points flow
             # between the drivers and teams. Also use a different denominator since the advantage is much more
             # pronounced in qualifying than in races (e.g., a 100 point Elo advantage in qualifying gives you a much
             # better chance of finishing near the front than a 100 point Elo advantage in a race).
             k_factor_adjust = self._args.qualifying_kfactor_multiplier
             elo_denominator = self._args.elo_exponent_denominator_qualifying
-        elif event.type() == 'S':
+        elif event.type() in [f1event.SPRINT_RACE, f1event.SPRINT_QUALIFYING]:
             # Sprint qualifying, new for 2021. Use the K-Factor adjustment and the average of the race and qualifying
             # Elo denominator.
             k_factor_adjust = self._args.qualifying_kfactor_multiplier
@@ -346,7 +346,7 @@ class Calculator(object):
             k_factor_adjust = self.race_distance_multiplier(event)
             elo_denominator = self._args.elo_exponent_denominator_race
         if weather == 'wet':
-            if event.type() == 'Q':
+            if event.type() in [f1event.QUALIFYING, f1event.SPRINT_SHOOTOUT]:
                 elo_denominator *= self._args.wet_multiplier_elo_denominator_qualifying
             else:
                 elo_denominator *= self._args.wet_multiplier_elo_denominator_race
@@ -360,7 +360,7 @@ class Calculator(object):
         )
 
     def update_all_reliability(self, event):
-        if event.type() == 'Q':
+        if event.type() in [f1event.QUALIFYING, f1event.SPRINT_SHOOTOUT]:
             return
         driver_condition_multiplier_km = 1
         car_condition_multiplier_km = 1
@@ -476,8 +476,8 @@ class Calculator(object):
         return (abs(rating_a - rating_b) / elo_denominator) <= self._args.elo_compare_window
 
     def add_full_h2h_error(self, event, actual, prob):
-        # Include races and sprint qualifying but not qualifying.
-        if event.type() == 'Q':
+        # Include races and sprint qualifying but not qualifying or sprint shootouts.
+        if event.type() in [f1event.QUALIFYING, f1event.SPRINT_SHOOTOUT]:
             return
         # Only log the odds of the favorite so things like Skew make sense
         if prob < 0.5:
@@ -621,8 +621,8 @@ class Calculator(object):
               file=self._driver_rating_file)
 
     def log_finish_probabilities(self, event, predictions, driver_id, result):
-        # Log this for sprint qualifying and races but not regular qualifying
-        if event.type() == 'Q':
+        # Log this for sprint qualifying and races but not regular qualifying or sprint shootouts
+        if event.type() in [f1event.QUALIFYING, f1event.SPRINT_SHOOTOUT]:
             return
         # Identifiers for the entrant, team (car), and driver
         identifiers = {
@@ -757,7 +757,7 @@ class Calculator(object):
         self.log_one_pr_auc('FullH2H', matching_errors, decade, None)
 
     def log_elo_summary(self, decade=''):
-        for event_type in ['Q', 'R']:
+        for event_type in [f1event.QUALIFYING, f1event.RACE]:
             matching_errors = self.get_matching_errors(self._elo_h2h_log, decade, event_type)
             self.log_one_error_log('EloH2H', matching_errors, decade, event_type)
             self.log_one_pr_auc('EloH2H', matching_errors, decade, event_type)
@@ -765,7 +765,7 @@ class Calculator(object):
     def log_win_summary(self, decade=''):
         if not self._args.print_predictions:
             return
-        for event_type in ['Q', 'R']:
+        for event_type in [f1event.QUALIFYING, f1event.RACE]:
             matching_errors = self.get_matching_errors(self._win_odds_log, decade, event_type)
             self.log_one_error_log('Win', matching_errors, decade, event_type)
             self.log_one_pr_auc('Win', matching_errors, decade, event_type)
@@ -773,7 +773,7 @@ class Calculator(object):
     def log_podium_summary(self, decade=''):
         if not self._args.print_predictions:
             return
-        for event_type in ['Q', 'R']:
+        for event_type in [f1event.QUALIFYING, f1event.RACE]:
             matching_errors = self.get_matching_errors(self._podium_odds_log, decade, event_type)
             self.log_one_error_log('Podium', matching_errors, decade, event_type)
             self.log_one_pr_auc('Podium', matching_errors, decade, event_type)

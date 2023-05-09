@@ -1,3 +1,5 @@
+import event as f1event
+
 from collections import defaultdict
 
 
@@ -48,7 +50,7 @@ class Driver(object):
         self._rating = rating
 
     def add_year_participation(self, event_id):
-        if not event_id.endswith('R'):
+        if not event_id.endswith(f1event.RACE):
             return
         year = int(event_id[0:4])
         self._race_counts_by_year[year] += 1

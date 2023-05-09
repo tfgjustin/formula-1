@@ -29,7 +29,7 @@ def load_events(filename, reference_events, test_events, results):
         for row in reader:
             if 'RaceID' not in row or 'EloPost' not in row:
                 continue
-            if not row['RaceID'].endswith('-R'):
+            if not row['RaceID'].endswith('-RA'):
                 continue
             event_id = row['RaceID']
             year = event_id[1:5]

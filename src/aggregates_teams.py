@@ -41,7 +41,7 @@ def import_teams(tsv_filename, teams, events):
             parts = race_id.split('-')
             if len(parts) != 3:
                 continue
-            if parts[-1] == 'Q':
+            if parts[-2:] != 'RA':
                 continue
             events[parts[0]][parts[1]] = race_id
 

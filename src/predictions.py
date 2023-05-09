@@ -1,10 +1,11 @@
-from collections import defaultdict
-
 import copy
+import event as f1event
 import math
 import numpy as np
 import random
 import ratings
+
+from collections import defaultdict
 
 _ALL = 'All'
 _CAR = 'Car'
@@ -800,7 +801,7 @@ class SimulatedEventPrediction(EventPrediction):
                 self.finish_sim(fuzz, idx)
             simulation_outcomes.extend(simulator.simulation_log())
             self._starting_positions.clear()
-            if self._event.type() != 'R':
+            if self._event.type() not in [f1event.RACE, f1event.SPRINT_RACE]:
                 # We don't carry race results over but otherwise (qualifying and sprint) carry them over.
                 self._starting_positions.extend(simulation_outcomes)
 

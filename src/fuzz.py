@@ -1,11 +1,11 @@
 import csv
+import event as f1event
 import functools
 import io
 import numpy as np
 import random
 
 from collections import defaultdict
-from event import compare_events
 
 
 def avg_elo_age_experience(age, experience):
@@ -41,7 +41,7 @@ class Fuzzer(object):
         if self._logfile is not None:
             print('Generating fuzz: start (%d events %d drivers %d teams)' % (len(events), len(drivers), len(teams)),
                   file=self._logfile)
-        event_ids = sorted(events.keys(),  key=functools.cmp_to_key(compare_events))
+        event_ids = sorted(events.keys(),  key=functools.cmp_to_key(f1event.compare_events))
         min_stage = events[event_ids[0]].stage()
         num_stages = events[event_ids[-1]].stage()
         # Generate the base team fuzz first, then the per-event fuzz.
@@ -102,8 +102,8 @@ class Fuzzer(object):
             self._all_fuzz[driver.id()] = driver_fuzz
 
     def generate_fuzz_driver_event(self, events, drivers):
-        driver_qualifying_fuzz = self.generate_fuzz_entity_event_type(drivers, 'Q')
-        driver_race_fuzz = self.generate_fuzz_entity_event_type(drivers, 'R')
+        driver_qualifying_fuzz = self.generate_fuzz_entity_event_type(drivers, f1event.QUALIFYING)
+        driver_race_fuzz = self.generate_fuzz_entity_event_type(drivers, f1event.RACE)
         # All fuzz for the simulations (if any)
         # [entity_id][event_id][sim_id] = diff_amount
         for driver_id in drivers.keys():
@@ -119,7 +119,7 @@ class Fuzzer(object):
                     continue
                 fuzz_dict = driver_race_fuzz
                 default_dist = [0, 15]
-                if event.type() == 'Q':
+                if event.type() in [f1event.QUALIFYING, f1event.SPRINT_SHOOTOUT]:
                     fuzz_dict = driver_qualifying_fuzz
                 for idx in range(self._args.num_iterations):
                     dist = fuzz_dict.get(driver_id, default_dist)
@@ -163,8 +163,8 @@ class Fuzzer(object):
             self._all_fuzz[team_id] = team_fuzz
 
     def generate_fuzz_team_event(self, events, teams):
-        team_qualifying_fuzz = self.generate_fuzz_entity_event_type(teams, 'Q')
-        team_race_fuzz = self.generate_fuzz_entity_event_type(teams, 'R')
+        team_qualifying_fuzz = self.generate_fuzz_entity_event_type(teams, f1event.QUALIFYING)
+        team_race_fuzz = self.generate_fuzz_entity_event_type(teams, f1event.RACE)
         # All fuzz for the simulations (if any)
         # [entity_id][event_id][sim_id] = diff_amount
         for team_id in teams.keys():
@@ -180,7 +180,7 @@ class Fuzzer(object):
                     continue
                 fuzz_dict = team_race_fuzz
                 default_dist = [0, 35]
-                if event.type() == 'Q':
+                if event.type() in [f1event.QUALIFYING, f1event.SPRINT_SHOOTOUT]:
                     fuzz_dict = team_qualifying_fuzz
                 for idx in range(self._args.num_iterations):
                     dist = fuzz_dict.get(team_id, default_dist)

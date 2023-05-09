@@ -56,7 +56,7 @@ def parse_races(filename, races):
                 continue
             if int(season) < 2000 or race_date > today:
                 continue
-            races[race_id] = '%s-%02d-R' % (season, int(stage))
+            races[race_id] = '%s-%02d-RA' % (season, int(stage))
     print('Loaded info on %d races' % len(races))
 
 

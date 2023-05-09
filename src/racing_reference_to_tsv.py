@@ -18,7 +18,7 @@ _ONE_DAY_DELTA = datetime.timedelta(days=1)
 
 
 def MakeFullRaceID(year, event_id, event_type):
-  if event_type not in ['Q', 'R']:
+  if event_type not in ['QU', 'RA']:
     return None
   return 'S%sE%04dD%s' % (year, event_id, event_type)
 
@@ -93,20 +93,20 @@ def ConvertRaces(intsv, outtsv, races):
       outdict = dict.fromkeys(_FIELDS)
       # Qualifying first
       # S1950E0042DQ
-      outdict['RaceID'] = MakeFullRaceID(row['season'], race_id, 'Q')
+      outdict['RaceID'] = MakeFullRaceID(row['season'], race_id, 'QU')
       outdict['Season'] = row['season']
       outdict['Round'] = row['stage']
       outdict['Date'] = QualifyingForDate(date)
       outdict['RaceName'] = MakeFullRaceName(row['season'], row['race'],
                                              ' – Qualifying')
-      races[row['date'] + 'Q'] = race_id
+      races[row['date'] + 'QU'] = race_id
       tsvwriter.writerow(outdict)
       race_id += 1
       # Now the race itself
-      outdict['RaceID'] = MakeFullRaceID(row['season'], race_id, 'Q')
+      outdict['RaceID'] = MakeFullRaceID(row['season'], race_id, 'QU')
       outdict['Date'] = date
       outdict['RaceName'] = MakeFullRaceName(row['season'], row['race'], '')
-      races[row['date'] + 'R'] = race_id
+      races[row['date'] + 'RA'] = race_id
       tsvwriter.writerow(outdict)
       race_id += 1
 
@@ -135,8 +135,8 @@ def ConvertResults(intsv, drivers, races, outtsv):
         # Qualifying
         outdict = dict.fromkeys(_FIELDS)
         outdict['Year'] = row['season']
-        outdict['RaceID'] = races[row['date'] + 'Q']
-        outdict['RaceType'] = 'Q'
+        outdict['RaceID'] = races[row['date'] + 'QU']
+        outdict['RaceType'] = 'QU'
         outdict['DriverID'] = drivers[row['driver_ID']]
         # If we can't convert a result to an int it's because they didn't start
         # (or finish) the race successfully.
@@ -146,8 +146,8 @@ def ConvertResults(intsv, drivers, races, outtsv):
           continue
         tsvwriter.writerow(outdict)
         # Race
-        outdict['RaceID'] = races[row['date'] + 'R']
-        outdict['RaceType'] = 'R'
+        outdict['RaceID'] = races[row['date'] + 'RA']
+        outdict['RaceType'] = 'RA'
         try:
           outdict['Result'] = int(row['finish'])
         except:

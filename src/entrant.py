@@ -1,3 +1,4 @@
+import event as f1event
 import math
 
 
@@ -102,7 +103,7 @@ class Entrant(object):
 
     def probability_survive_opening(self):
         # TODO: Remove this hack.
-        if self._event.type() == 'Q':
+        if self._event.type() in [f1event.QUALIFYING, f1event.SPRINT_SHOOTOUT]:
             return 1.0
         grid_row = math.floor(self._start_position / 2) + 1
         if self._event.season() >= 2000:

@@ -1,4 +1,5 @@
 import csv
+import event as f1event
 import functools
 import io
 
@@ -6,7 +7,6 @@ from collections import defaultdict
 from copy import deepcopy
 from driver import Driver
 from entrant import Entrant
-from event import Qualifying, Race, SprintQualifying, compare_events
 from ratings import DriverReliability, EloRating, KFactor, Reliability
 from result import Result
 from season import Season
@@ -126,7 +126,7 @@ class DataLoader(object):
         self._team_factory.reset_current_teams()
         last_event_id = None
         # Iterate over all rows sorted by event ID
-        for event_id in sorted(all_rows.keys(), key=functools.cmp_to_key(compare_events)):
+        for event_id in sorted(all_rows.keys(), key=functools.cmp_to_key(f1event.compare_events)):
             for row in all_rows[event_id]:
                 event_id = row['event_id']
                 if event_id.startswith('#'):
@@ -153,7 +153,7 @@ class DataLoader(object):
         unseen_drivers = set(self._drivers.keys())
         set_reliability_metrics = False
         base_driver_reliability = DriverReliability()
-        for event_id in sorted(all_rows.keys(), key=functools.cmp_to_key(compare_events), reverse=True):
+        for event_id in sorted(all_rows.keys(), key=functools.cmp_to_key(f1event.compare_events), reverse=True):
             for row in all_rows[event_id]:
                 event_id = row['RaceID'][1:]
                 if event_id.startswith('#'):
@@ -195,7 +195,7 @@ class DataLoader(object):
                     'WearSuccessPost', 'WearFailurePost']
         all_rows = self._load_and_group_by_event(content, _HEADERS, event_id_tag='RaceID')
         seen_teams = set()
-        for event_id in sorted(all_rows.keys(), key=functools.cmp_to_key(compare_events), reverse=True):
+        for event_id in sorted(all_rows.keys(), key=functools.cmp_to_key(f1event.compare_events), reverse=True):
             for row in all_rows[event_id]:
                 event_id = row['RaceID'][1:]
                 if event_id.startswith('#'):
@@ -315,16 +315,24 @@ class DataLoader(object):
                 weather_probability = 1.0
             else:
                 weather_probability = float(weather_probability)
-            if row['type'] == 'Q':
-                event = Qualifying(
+            if row['type'] == f1event.QUALIFYING:
+                event = f1event.Qualifying(
                     row['event_id'], row['name'], row['season'], row['stage'], row['date'], row['laps'],
                     row['lap_distance'], is_street_course, row['weather'], weather_probability=weather_probability)
-            elif row['type'] == 'S':
-                event = SprintQualifying(
+            elif row['type'] == f1event.SPRINT_SHOOTOUT:
+                event = f1event.SprintShootout(
                     row['event_id'], row['name'], row['season'], row['stage'], row['date'], row['laps'],
                     row['lap_distance'], is_street_course, row['weather'], weather_probability=weather_probability)
-            elif row['type'] == 'R':
-                event = Race(
+            elif row['type'] == f1event.SPRINT_QUALIFYING:
+                event = f1event.SprintQualifying(
+                    row['event_id'], row['name'], row['season'], row['stage'], row['date'], row['laps'],
+                    row['lap_distance'], is_street_course, row['weather'], weather_probability=weather_probability)
+            elif row['type'] == f1event.SPRINT_RACE:
+                event = f1event.SprintRace(
+                    row['event_id'], row['name'], row['season'], row['stage'], row['date'], row['laps'],
+                    row['lap_distance'], is_street_course, row['weather'], weather_probability=weather_probability)
+            elif row['type'] == f1event.RACE:
+                event = f1event.Race(
                     row['event_id'], row['name'], row['season'], row['stage'], row['date'], row['laps'],
                     row['lap_distance'], is_street_course, row['weather'], weather_probability=weather_probability)
             else:
@@ -362,7 +370,7 @@ class DataLoader(object):
         print('Loaded %d future entrants from %s' % (count, filename), file=self._outfile)
 
     def _get_future_lineup_from_last_event(self):
-        last_event_id = sorted(self._events.keys(),  key=functools.cmp_to_key(compare_events))[-1]
+        last_event_id = sorted(self._events.keys(),  key=functools.cmp_to_key(f1event.compare_events))[-1]
         last_event = self._events[last_event_id]
         count = 0
         for entrant in last_event.entrants():

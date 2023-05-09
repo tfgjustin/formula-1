@@ -1,3 +1,4 @@
+import event as f1event
 import math
 import sys
 
@@ -239,7 +240,10 @@ class EloRating(object):
         self._commit_complete = False
         self._lookback_length = lookback_length
         self._current_delta = None
-        self._recent_lookback = {'Q': deque(list(), self._lookback_length), 'R': deque(list(), self._lookback_length)}
+        self._recent_lookback = {
+            f1event.QUALIFYING: deque(list(), self._lookback_length),
+            f1event.RACE: deque(list(), self._lookback_length)
+        }
 
     def start_update(self, event_id, caller_id, is_alias=False, base_reliability=None):
         self._commit_complete = False
@@ -308,7 +312,8 @@ class EloRating(object):
     def update_lookback(self):
         if self._current_event_id is None:
             return
-        lookback_queue = self._recent_lookback.get(self._current_event_id[-1])
+        # Grab the last two letters of the event since that's the event type.
+        lookback_queue = self._recent_lookback.get(self._current_event_id[-2:])
         if lookback_queue is None:
             return
         lookback_queue.append(self._current_delta)

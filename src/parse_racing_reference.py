@@ -8,9 +8,10 @@ import re
 import sys
 
 _DRIVERS_HEADERS = ['driver_id', 'driver_name']
-_EVENTS_HEADERS = ['event_id', 'season', 'stage', 'type', 'date', 'name', 'site', 'num_drivers',
-        'laps', 'lap_distance', 'course_type'
-        ]
+_EVENTS_HEADERS = [
+    'event_id', 'season', 'stage', 'type', 'date', 'name', 'site', 'num_drivers',
+    'laps', 'lap_distance', 'course_type'
+    ]
 _RESULTS_HEADERS = [
     'event_id', 'driver_id', 'team_id', 'start_position', 'end_position', 'laps', 'status', 'dnf_category', 'num_racers'
 ]
@@ -289,7 +290,7 @@ class RaceParser(HTMLParser):
         for tag, value in attrs:
             if tag != 'href':
                 continue
-            extract = re.match('^.*/driver/([^/]*)/{0,1}.*$', value)
+            extract = re.match('^.*/driver/([^/]*)/?.*$', value)
             if not extract:
                 continue
             self._driver_id = extract.group(1)
@@ -332,19 +333,19 @@ class RaceParser(HTMLParser):
     def print_data(self):
         for row in self._data:
             row.append(self._driver_count)
-        for event_type in ['Q', 'S', 'R']:
+        for event_type in ['QU', 'SQ', 'RA']:
             for row in sorted(self._data, key=lambda x: x[1]):
                 if row[0].endswith(event_type):
                     self._results_tsv.writerow(row)
         # Qualifying
-        event_id = '%d-%02d-Q' % (self._year, self._stage)
-        data = [event_id, self._year, self._stage, 'Q', self._date, self._race_id, self._site, self._driver_count,
+        event_id = '%d-%02d-QU' % (self._year, self._stage)
+        data = [event_id, self._year, self._stage, 'QU', self._date, self._race_id, self._site, self._driver_count,
                 num_qualifying_laps(self._year), self._lap_distance, self._course_type
                 ]
         self._events_tsv.writerow(data)
         # Race
-        event_id = '%d-%02d-R' % (self._year, self._stage)
-        data = [event_id, self._year, self._stage, 'R', self._date, self._race_id, self._site, self._driver_count,
+        event_id = '%d-%02d-RA' % (self._year, self._stage)
+        data = [event_id, self._year, self._stage, 'RA', self._date, self._race_id, self._site, self._driver_count,
                 self._num_laps, self._lap_distance, self._course_type
                 ]
         self._events_tsv.writerow(data)
@@ -358,11 +359,11 @@ class RaceParser(HTMLParser):
         self.add_driver(self._driver_id, self._driver_name)
         self.add_team(self._team_id, self._team_name)
         # Qualifying
-        event_id = '%d-%02d-Q' % (self._year, self._stage)
+        event_id = '%d-%02d-QU' % (self._year, self._stage)
         data = [event_id, self._driver_id, self._team_id, 0, self._start, num_qualifying_laps(self._year), '-', '-']
         self._data.append(data)
         # Race
-        event_id = '%d-%02d-R' % (self._year, self._stage)
+        event_id = '%d-%02d-RA' % (self._year, self._stage)
         data = [event_id, self._driver_id, self._team_id, self._start, self._finish, self._laps, self._status,
                 dnf_status(self._status)]
         self._data.append(data)
