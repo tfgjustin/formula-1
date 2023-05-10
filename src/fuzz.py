@@ -3,9 +3,9 @@ import event as f1event
 import functools
 import io
 import numpy as np
-import random
 
 from collections import defaultdict
+from numpy.random import normal
 
 
 def avg_elo_age_experience(age, experience):
@@ -86,9 +86,11 @@ class Fuzzer(object):
             elo_stddev = max([abs(current_elo_diff), abs(target_elo_diff)])
             elo_stddev = max([min([40, abs(elo_stddev)]), 20])
             team_fuzz = defaultdict(list)
-            for _ in range(self._args.num_iterations):
-                now_elo_diff = random.gauss(current_elo_diff, elo_stddev)
-                per_stage_elo_diff = random.gauss(target_elo_diff, elo_stddev) / stages_left
+            now_samples = normal(current_elo_diff, elo_stddev, self._args.num_iterations)
+            target_samples = normal(target_elo_diff, elo_stddev, self._args.num_iterations)
+            for idx in range(self._args.num_iterations):
+                now_elo_diff = now_samples[idx]
+                per_stage_elo_diff = target_samples[idx] / stages_left
                 for event in events.values():
                     event_diff = now_elo_diff + ((event.stage() - current_stage_number) * per_stage_elo_diff)
                     team_fuzz[event.id()].append(event_diff)
@@ -114,9 +116,10 @@ class Fuzzer(object):
                 default_dist = [0, 30]
                 if event.type() in [f1event.QUALIFYING, f1event.SPRINT_SHOOTOUT]:
                     fuzz_dict = team_qualifying_fuzz
+                dist = fuzz_dict.get(team_id, default_dist)
+                samples = normal(dist[0], dist[1], self._args.num_iterations)
                 for idx in range(self._args.num_iterations):
-                    dist = fuzz_dict.get(team_id, default_dist)
-                    self._all_fuzz[team_id][event.id()][idx] += random.gauss(dist[0], dist[1])
+                    self._all_fuzz[team_id][event.id()][idx] += samples[idx]
 
     def generate_fuzz_driver_age(self, year, events, current_stage_number, season_total_stages, drivers):
         stages_left = season_total_stages - current_stage_number + 1
@@ -158,10 +161,12 @@ class Fuzzer(object):
             elo_stddev = max([abs(current_elo_diff), abs(target_elo_diff)])
             elo_stddev = max([min([25, abs(elo_stddev)]), 10])
             driver_fuzz = defaultdict(list)
-            for _ in range(self._args.num_iterations):
+            now_samples = normal(current_elo_diff, elo_stddev, self._args.num_iterations)
+            target_per_stage_samples = normal(target_elo_diff, elo_stddev, self._args.num_iterations)
+            for idx in range(self._args.num_iterations):
                 # First fuzz both the current and target diffs
-                now_elo_diff = random.gauss(current_elo_diff, elo_stddev)
-                target_per_stage_elo_diff = random.gauss(target_elo_diff, elo_stddev) / stages_left
+                now_elo_diff = now_samples[idx]
+                target_per_stage_elo_diff = target_per_stage_samples[idx] / stages_left
                 for event in events.values():
                     # Note that because the age/experience curve starts at round=1 and ends at round=Final, we don't
                     # care about the where this particular event is in relation to the most recent event in real life,
@@ -190,10 +195,10 @@ class Fuzzer(object):
                 default_dist = [0, 10]
                 if event.type() in [f1event.QUALIFYING, f1event.SPRINT_SHOOTOUT]:
                     fuzz_dict = driver_qualifying_fuzz
+                dist = fuzz_dict.get(driver_id, default_dist)
+                fuzz_samples = normal(dist[0], dist[1], self._args.num_iterations)
                 for idx in range(self._args.num_iterations):
-                    dist = fuzz_dict.get(driver_id, default_dist)
-                    this_fuzz = random.gauss(dist[0], dist[1])
-                    self._all_fuzz[driver_id][event.id()][idx] += this_fuzz
+                    self._all_fuzz[driver_id][event.id()][idx] += fuzz_samples[idx]
 
     def generate_fuzz_entity_event_type(self, entities, event_type):
         recent_fuzz = dict()
