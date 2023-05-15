@@ -223,7 +223,7 @@ class Calculator(object):
                                       self._team_share_dict[event.season()], self._position_base_dict[event.season()],
                                       self._base_car_reliability, self._base_new_car_reliability,
                                       self._base_driver_reliability, self._debug_file,
-                                      simulation_log=self._simulation_log_file)
+                                      simulation_log_file=self._simulation_log_file)
         predictions.cache_ratings()
         # Starting the updates will also regress the start-of-year back to the mean
         predictions.start_updates()
@@ -286,7 +286,7 @@ class Calculator(object):
         predictions = SimulatedEventPrediction(
             event, self._args, elo_denominator, k_factor_adjust, self._team_share_dict[event.season()],
             self._position_base_dict[event.season()], self._base_car_reliability, self._base_new_car_reliability,
-            self._base_driver_reliability, self._debug_file, is_wet, simulation_log=self._simulation_log_file,
+            self._base_driver_reliability, self._debug_file, is_wet, simulation_log_file=self._simulation_log_file,
             starting_positions=carryover_starting_positions)
         # Starting the updates will also regress the start-of-year back to the mean
         # The 'common' part will not apply the weather modifier, though.

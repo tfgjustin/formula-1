@@ -261,7 +261,9 @@ class EventSimulator(object):
         self._all_simulated_results = dict()
         self._position_probabilities = dict()
         self._is_normalized = False
-        self._simulation_log = list()
+        self._simulation_outcomes = defaultdict(list)
+        self._simulation_ordering_log_cache = dict()
+        self._simulation_num_laps_log_cache = dict()
         self._tmp_one_simulation_ordering = [None] * self._num_entrants
         self._tmp_one_simulation_num_laps = [None] * self._num_entrants
         self._init_simulated_results()
@@ -285,7 +287,7 @@ class EventSimulator(object):
         return self._position_probabilities
 
     def simulation_log(self):
-        return self._simulation_log
+        return [outcome for _, outcome in sorted(self._simulation_outcomes.items())]
 
     def _simulate_one(self, idx):
         self._is_normalized = False
@@ -294,8 +296,6 @@ class EventSimulator(object):
         self._calculate_distances(distances)
         # Then compare all within each position
         self._determine_positions(idx, distances)
-        if self._simulation_log_file is not None:
-            self.log_results(idx)
 
     def _calculate_distances(self, distances):
         for entrant in self._event.entrants():
@@ -340,8 +340,10 @@ class EventSimulator(object):
             self._tmp_one_simulation_ordering[curr_start:curr_end] = self._order_entrant_results(distances[lap_num])
             self._tmp_one_simulation_num_laps[curr_start:curr_end] = [lap_num] * len(distances[lap_num])
             curr_start += len(distances[lap_num])
-        # Append this outcome to the simulation log
-        self._simulation_log.append('|'.join([e.driver().id() for e in self._tmp_one_simulation_ordering]))
+        # Cache the simulation results
+        self._simulation_outcomes[idx] = '|'.join([e.driver().id() for e in self._tmp_one_simulation_ordering])
+        self._simulation_ordering_log_cache[idx] = copy.copy(self._tmp_one_simulation_ordering)
+        self._simulation_num_laps_log_cache[idx] = copy.copy(self._tmp_one_simulation_num_laps)
         pos = 1
         for entrant in self._tmp_one_simulation_ordering:
             self._all_simulated_results[entrant][pos] += 1
@@ -393,21 +395,29 @@ class EventSimulator(object):
             return 0
         return random.random() - elo_win_prob
 
-    def log_results(self, idx):
-        order_string = '|'.join([self.simulation_log_string(idx) for idx in range(self._num_entrants)])
-        print('%s,%s,%s' % (self._event.id(), idx, order_string), file=self._simulation_log_file)
+    def log_results(self):
+        if self._simulation_log_file is None:
+            return
+        for idx in sorted(self._simulation_outcomes):
+            self._log_results_one_sim(idx)
 
-    def simulation_log_string(self, idx):
-        entrant = self._tmp_one_simulation_ordering[idx]
-        return 'P%02d:%s:%d:%d' % (idx + 1, entrant.id(), entrant.start_position(),
-                                   self._tmp_one_simulation_num_laps[idx])
+    def _log_results_one_sim(self, sim_idx):
+        order_string = '|'.join(
+            [self.simulation_log_entrant_string(sim_idx, entrant_idx) for entrant_idx in range(self._num_entrants)]
+        )
+        print('%s,%s,%s' % (self._event.id(), sim_idx, order_string), file=self._simulation_log_file)
+
+    def simulation_log_entrant_string(self, sim_idx, entrant_idx):
+        entrant = self._simulation_ordering_log_cache[sim_idx][entrant_idx]
+        return 'P%02d:%s:%d:%d' % (entrant_idx + 1, entrant.id(), entrant.start_position(),
+                                   self._simulation_num_laps_log_cache[sim_idx][entrant_idx])
 
 
 class EventPrediction(object):
 
     def __init__(self, event, args, elo_denominator, k_factor_adjust, car_factor, base_points_per_position,
                  base_car_reliability, base_new_car_reliability, base_driver_reliability,
-                 debug_file, starting_positions=None, simulation_log=None):
+                 debug_file, starting_positions=None, simulation_log_file=None):
         self._args = args
         self._event = event
         self._sorted_entrants = sorted(self._event.entrants(), key=lambda e: e.driver().id())
@@ -439,8 +449,13 @@ class EventPrediction(object):
         self._driver_cache = None
         self._team_cache = None
         # These are only used in only_simulate_outcomes
+        # _starting_positions is an array of arrays. The first level (the rows) are one per simulated iteration, and the
+        # second level (the columns) are a list of driver IDs from first to last place on the grid.
         self._starting_positions = starting_positions
-        self._simulation_log_file = simulation_log
+        self._simulation_log_file = simulation_log_file
+        # What was the weather condition of the last sim we ran, and what was the multiplier?
+        self._last_weather_condition = None
+        self._last_condition_multiplier = None
 
     def cache_ratings(self):
         self._driver_cache = {driver.id(): copy.deepcopy(driver) for driver in self._event.drivers()}
@@ -513,6 +528,7 @@ class EventPrediction(object):
         simulator = EventSimulator(self)
         if do_simulate_results:
             simulator.simulate()
+            simulator.log_results()
         for entrant, position_probabilities in simulator.position_probabilities().items():
             driver_id = entrant.driver().id()
             driver_finish = entrant.driver().rating().probability_finishing(race_distance_km=distance_km)
@@ -593,13 +609,26 @@ class EventPrediction(object):
             team.commit_update()
 
     def apply_weather(self, weather):
-        self._weather_internal(weather, self._args.reliability_km_multiplier_wet)
+        if self._last_weather_condition is not None:
+            # This is not the first weather we've seen
+            if self._last_weather_condition == weather:
+                # The weather is the same as the last time we ran a sim.
+                # print(self._event.id(), 'weather unchanged', weather)
+                return
+            else:
+                # The weather changed since we last saw did a sim.
+                # Remove the last multiplier.
+                # print(self._event.id(), 'weather changed; reverting', self._last_weather_condition, weather)
+                self._apply_condition_multiplier(1 / self._last_condition_multiplier)
+        # If we got here then either we haven't applied any weather yet, or we need to set it to
+        # something new.
+        self._last_weather_condition = weather
+        self._last_condition_multiplier = 1 if weather == 'dry' else self._args.reliability_km_multiplier_wet
+        # print(self._event.id(), 'applying weather', self._last_weather_condition, self._last_condition_multiplier)
+        self._apply_condition_multiplier(self._last_condition_multiplier)
 
-    def remove_weather(self, weather):
-        self._weather_internal(weather, 1.0 / self._args.reliability_km_multiplier_wet)
-
-    def _weather_internal(self, weather, multiplier):
-        if weather != 'wet':
+    def _apply_condition_multiplier(self, multiplier):
+        if abs(1.0 - multiplier) < 1e-6:
             return
         for entrant in self._sorted_entrants:
             entrant.apply_condition_multiplier_km(multiplier)
@@ -754,16 +783,15 @@ class SimulatedEventPrediction(EventPrediction):
 
     def __init__(self, event, args, elo_denominator, k_factor_adjust, car_factor, base_points_per_position,
                  base_car_reliability, base_new_car_reliability, base_driver_reliability,
-                 debug_file, is_wet, starting_positions=None, simulation_log=None):
+                 debug_file, is_wet, starting_positions=None, simulation_log_file=None):
         super(SimulatedEventPrediction, self).__init__(event, args, None, None, car_factor,
                                                        base_points_per_position, base_car_reliability,
                                                        base_new_car_reliability, base_driver_reliability, debug_file,
                                                        starting_positions=starting_positions,
-                                                       simulation_log=simulation_log)
+                                                       simulation_log_file=simulation_log_file)
         self._all_elo_denominators = elo_denominator
         self._all_k_factor_adjust = k_factor_adjust
         self._is_wet = is_wet
-        # print('is_wet', self._is_wet[:100])
         assert type(self._all_elo_denominators) == np.ndarray
         assert type(self._all_k_factor_adjust) == np.ndarray
         assert len(self._all_elo_denominators) == self._args.num_iterations
@@ -774,14 +802,7 @@ class SimulatedEventPrediction(EventPrediction):
             # This is a function call signature mismatch
             print('ERROR: Starting positions is None in simulation-only mode.', file=self._debug_file)
             return
-        if not self._starting_positions:
-            simulator = EventSimulator(self)
-            for idx in range(self._num_iterations):
-                self.setup_sim(fuzz, idx)
-                simulator.simulate(idx_offset=idx, num_iterations=1)
-                self.finish_sim(fuzz, idx)
-            self._starting_positions.extend(simulator.simulation_log())
-        else:
+        if self._starting_positions:
             # By default, only run one simulation per starting position ordering. However, if only one starting
             # position ordering is specified, this means it was generated artificially from a previous event.  E.g., the
             # last seen actual/real event was qualifying, and now we need to simulate the race given the outcome of
@@ -793,17 +814,18 @@ class SimulatedEventPrediction(EventPrediction):
                     len(self._starting_positions), self._num_iterations
                 ), file=self._debug_file)
                 return
-            simulation_outcomes = list()
-            simulator = EventSimulator(self)
-            for idx in range(self._num_iterations):
-                self.setup_sim(fuzz, idx, grid_penalties=grid_penalties)
-                simulator.simulate(idx_offset=idx, num_iterations=1)
-                self.finish_sim(fuzz, idx)
-            simulation_outcomes.extend(simulator.simulation_log())
+        simulator = EventSimulator(self)
+        for idx, _ in sorted(enumerate(self._is_wet), key=lambda w: w[1]):
+            # for idx in range(self._args.num_iterations):
+            self.setup_sim(fuzz, idx, grid_penalties=grid_penalties)
+            simulator.simulate(idx_offset=idx, num_iterations=1)
+            self.finish_sim(fuzz, idx)
+        simulator.log_results()
+        if self._event.type() not in [f1event.RACE, f1event.SPRINT_RACE]:
+            # We don't carry race results over but otherwise (qualifying and sprint) carry them over.
+            simulation_outcomes = copy.copy(simulator.simulation_log())
             self._starting_positions.clear()
-            if self._event.type() not in [f1event.RACE, f1event.SPRINT_RACE]:
-                # We don't carry race results over but otherwise (qualifying and sprint) carry them over.
-                self._starting_positions.extend(simulation_outcomes)
+            self._starting_positions.extend(simulation_outcomes)
 
     def setup_sim(self, fuzz, idx, grid_penalties=None):
         self._elo_denominator = self._all_elo_denominators[idx]
@@ -817,12 +839,7 @@ class SimulatedEventPrediction(EventPrediction):
         self._elo_denominator = None
         self._k_factor_adjust = None
         self.remove_fuzz(fuzz, idx)
-        self.remove_weather_for_sim(idx)
 
     def apply_weather_for_sim(self, idx):
         weather = 'wet' if self._is_wet[idx] else 'dry'
         self.apply_weather(weather)
-
-    def remove_weather_for_sim(self, idx):
-        weather = 'wet' if self._is_wet[idx] else 'dry'
-        self.remove_weather(weather)
