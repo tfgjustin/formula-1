@@ -37,15 +37,22 @@ class Fuzzer(object):
         self._logfile = logfile
         # All fuzz for the simulations (if any)
         # [entity_id][event_id][sim_id] = diff_amount
-        self._all_fuzz = defaultdict(dict)
+        self._all_fuzz = None
 
     def all_fuzz(self):
         return self._all_fuzz
 
+    def set_fuzz(self, all_fuzz):
+        self._all_fuzz = all_fuzz
+
     def generate_all_fuzz(self, year, events, drivers, teams):
+        if self._all_fuzz is not None:
+            print('Fuzz is already generated', file=self._logfile)
+            return
         if self._logfile is not None:
             print('Generating fuzz: start (%d events %d drivers %d teams)' % (len(events), len(drivers), len(teams)),
                   file=self._logfile)
+        self._all_fuzz = defaultdict(dict)
         event_ids = sorted(events.keys(),  key=functools.cmp_to_key(f1event.compare_events))
         current_stage_number = events[event_ids[0]].stage()
         season_total_stages = events[event_ids[-1]].stage()
