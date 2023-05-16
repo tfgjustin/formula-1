@@ -7,6 +7,7 @@ from collections import defaultdict
 from copy import deepcopy
 from driver import Driver
 from entrant import Entrant
+from f1_logging import open_file_with_suffix
 from ratings import DriverReliability, EloRating, KFactor, Reliability
 from result import Result
 from season import Season
@@ -22,15 +23,6 @@ def _is_valid_row(row, headers):
     return True
 
 
-def _open_file_with_suffix(base_output_filename, suffix):
-    if base_output_filename is None:
-        return None
-    elif base_output_filename.startswith('/dev/'):
-        return open(base_output_filename, 'w')
-    else:
-        return open(base_output_filename + suffix, 'w')
-
-
 class DataLoader(object):
 
     def __init__(self, args, base_output_filename):
@@ -44,7 +36,7 @@ class DataLoader(object):
         self._future_drivers = dict()
         self._future_teams = dict()
         self._args = args
-        self._outfile = _open_file_with_suffix(base_output_filename, '.loader')
+        self._outfile = open_file_with_suffix(base_output_filename, '.loader')
         self._team_factory = TeamFactory(args)
 
     def __enter__(self):

@@ -395,17 +395,21 @@ class EventSimulator(object):
             return 0
         return random.random() - elo_win_prob
 
-    def log_results(self):
+    def log_results(self, sim_log_idx_offset=0, output_buffer=None):
         if self._simulation_log_file is None:
             return
         for idx in sorted(self._simulation_outcomes):
-            self._log_results_one_sim(idx)
+            self._log_results_one_sim(idx, sim_log_idx_offset=sim_log_idx_offset, output_buffer=output_buffer)
 
-    def _log_results_one_sim(self, sim_idx):
+    def _log_results_one_sim(self, sim_idx, sim_log_idx_offset=0, output_buffer=None):
         order_string = '|'.join(
             [self.simulation_log_entrant_string(sim_idx, entrant_idx) for entrant_idx in range(self._num_entrants)]
         )
-        print('%s,%s,%s' % (self._event.id(), sim_idx, order_string), file=self._simulation_log_file)
+        output_data = '%s,%s,%s' % (self._event.id(), sim_idx + sim_log_idx_offset, order_string)
+        if output_buffer is None:
+            print(output_data, file=self._simulation_log_file)
+        else:
+            output_buffer.append(output_data)
 
     def simulation_log_entrant_string(self, sim_idx, entrant_idx):
         entrant = self._simulation_ordering_log_cache[sim_idx][entrant_idx]
@@ -797,7 +801,7 @@ class SimulatedEventPrediction(EventPrediction):
         assert len(self._all_elo_denominators) == self._args.num_iterations
         assert len(self._all_k_factor_adjust) == self._args.num_iterations
 
-    def only_simulate_outcomes(self, fuzz, grid_penalties=None):
+    def only_simulate_outcomes(self, fuzz, grid_penalties=None, sim_log_idx_offset=0, output_buffer=None):
         if self._starting_positions is None:
             # This is a function call signature mismatch
             print('ERROR: Starting positions is None in simulation-only mode.', file=self._debug_file)
@@ -820,7 +824,7 @@ class SimulatedEventPrediction(EventPrediction):
             self.setup_sim(fuzz, idx, grid_penalties=grid_penalties)
             simulator.simulate(idx_offset=idx, num_iterations=1)
             self.finish_sim(fuzz, idx)
-        simulator.log_results()
+        simulator.log_results(sim_log_idx_offset=sim_log_idx_offset, output_buffer=output_buffer)
         if self._event.type() not in [f1event.RACE, f1event.SPRINT_RACE]:
             # We don't carry race results over but otherwise (qualifying and sprint) carry them over.
             simulation_outcomes = copy.copy(simulator.simulation_log())

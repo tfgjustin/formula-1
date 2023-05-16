@@ -6,6 +6,7 @@ import math
 import numpy as np
 
 from fuzz import Fuzzer
+from f1_logging import open_file_with_suffix
 from predictions import EventPrediction, SimulatedEventPrediction
 from ratings import CarReliability, DriverReliability, Reliability
 from scipy.stats import skew
@@ -98,26 +99,26 @@ class Calculator(object):
     def __init__(self, args, base_filename):
         self._args = args
         if self._args.print_ratings:
-            self._driver_rating_file = open(base_filename + '.driver_ratings', 'w')
-            self._team_rating_file = open(base_filename + '.team_ratings', 'w')
-            self._summary_file = open(base_filename + '.summary', 'w')
+            self._driver_rating_file = open_file_with_suffix(base_filename, '.driver_ratings')
+            self._team_rating_file = open_file_with_suffix(base_filename, '.team_ratings')
+            self._summary_file = open_file_with_suffix(base_filename, '.summary')
         else:
             self._driver_rating_file = None
             self._team_rating_file = None
             self._summary_file = None
         self._logfile = None
         if self._args.print_progress:
-            self._logfile = open(base_filename + '.log', 'w')
+            self._logfile = open_file_with_suffix(base_filename, '.log')
         self._debug_file = None
         if self._args.print_debug:
-            self._debug_file = open(base_filename + '.debug', 'w')
+            self._debug_file = open_file_with_suffix(base_filename, '.debug')
         self._predict_file = None
         if self._args.print_predictions:
-            self._predict_file = open(base_filename + '.predict', 'w')
+            self._predict_file = open_file_with_suffix(base_filename, '.predict')
         self._simulation_log_file = None
         if getattr(self._args, 'print_future_simulations', False) or \
            getattr(self._args, 'print_simulations', False):
-            self._simulation_log_file = open(base_filename + '.simulations', 'w')
+            self._simulation_log_file = open_file_with_suffix(base_filename, '.simulations')
         self._position_base_dict = dict()
         self.create_position_base_dict()
         self._team_share_dict = dict()
@@ -243,19 +244,24 @@ class Calculator(object):
         predictions.reset_condition_state()
         self.log_results(predictions)
 
-    def simulate_future_events(self, loader):
+    def simulate_future_events(self, loader, fuzz=None, sim_log_idx_offset=0, output_buffer=None):
         last_seen_event_id = sorted(loader.events().keys(), key=functools.cmp_to_key(f1event.compare_events))[-1]
         last_seen_event = loader.events()[last_seen_event_id]
         for year in sorted(loader.future_seasons().keys()):
-            self.simulate_one_future_year(last_seen_event, year, loader)
+            self.simulate_one_future_year(last_seen_event, year, loader, fuzz=fuzz,
+                                          sim_log_idx_offset=sim_log_idx_offset, output_buffer=output_buffer)
 
-    def simulate_one_future_year(self, last_seen_event, year, loader):
+    def simulate_one_future_year(self, last_seen_event, year, loader, fuzz=None, sim_log_idx_offset=0,
+                                 output_buffer=None):
         events = loader.future_seasons()[year].events()
         drivers = loader.future_drivers()
         teams = loader.future_teams()
         if self._logfile is not None:
             print('Simulating future year %d' % year, file=self._logfile)
-        self._fuzzer.generate_all_fuzz(year, events, drivers, teams)
+        if fuzz is None:
+            self._fuzzer.generate_all_fuzz(year, events, drivers, teams)
+        else:
+            self._fuzzer.set_fuzz(fuzz)
         # List of outcomes, with each item specifying the ordering of finishers by driver ID in a previous event. This
         # lets us carryover starting positions from qualifying to sprint races to actual races.
         carryover_starting_positions = list()
@@ -274,9 +280,11 @@ class Calculator(object):
                 if self._logfile is not None:
                     print('Skipping %s (%s)' % (event.id(), event.name()), file=self._logfile)
                 continue
-            self.simulate_one_future_event(event, carryover_starting_positions, loader)
+            self.simulate_one_future_event(event, carryover_starting_positions, loader,
+                                           sim_log_idx_offset=sim_log_idx_offset, output_buffer=output_buffer)
 
-    def simulate_one_future_event(self, event, carryover_starting_positions, loader):
+    def simulate_one_future_event(self, event, carryover_starting_positions, loader, sim_log_idx_offset=0,
+                                  output_buffer=None):
         if event.type() in [f1event.QUALIFYING, f1event.SPRINT_SHOOTOUT]:
             carryover_starting_positions.clear()
         if self._logfile is not None:
@@ -295,7 +303,8 @@ class Calculator(object):
         predictions.commit_updates()
         # Only simulate the results, don't actually update the Elo and reliability ratings.
         grid_penalties = loader.grid_penalties(event_id=event.id())
-        predictions.only_simulate_outcomes(self._fuzzer.all_fuzz(), grid_penalties=grid_penalties)
+        predictions.only_simulate_outcomes(self._fuzzer.all_fuzz(), grid_penalties=grid_penalties,
+                                           sim_log_idx_offset=sim_log_idx_offset, output_buffer=output_buffer)
         # Wait until after we've simulated the outcomes to remove the weather, street, etc., reliability conditions.
         predictions.reset_condition_state()
 
