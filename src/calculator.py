@@ -98,7 +98,7 @@ class Calculator(object):
 
     def __init__(self, args, base_filename):
         self._args = args
-        if self._args.print_ratings:
+        if getattr(self._args, 'print_ratings', False):
             self._driver_rating_file = open_file_with_suffix(base_filename, '.driver_ratings')
             self._team_rating_file = open_file_with_suffix(base_filename, '.team_ratings')
             self._summary_file = open_file_with_suffix(base_filename, '.summary')
@@ -107,13 +107,13 @@ class Calculator(object):
             self._team_rating_file = None
             self._summary_file = None
         self._logfile = None
-        if self._args.print_progress:
+        if getattr(self._args, 'print_progress', False):
             self._logfile = open_file_with_suffix(base_filename, '.log')
         self._debug_file = None
-        if self._args.print_debug:
+        if getattr(self._args, 'print_debug', False):
             self._debug_file = open_file_with_suffix(base_filename, '.debug')
         self._predict_file = None
-        if self._args.print_predictions:
+        if getattr(self._args, 'print_predictions', False):
             self._predict_file = open_file_with_suffix(base_filename, '.predict')
         self._simulation_log_file = None
         if getattr(self._args, 'print_future_simulations', False) or \
@@ -230,7 +230,7 @@ class Calculator(object):
         predictions.start_updates()
         predictions.maybe_force_regress()
         # Predict the odds of each entrant either winning or finishing on the podium.
-        predictions.predict_winner(self._args.print_predictions)
+        predictions.predict_winner(getattr(self._args, 'print_predictions', False))
         # Do the full pairwise comparison of each driver. In order to not calculate A vs B and B vs A (or A vs A) only
         # compare when the ID of A<B.
         for result_a in event.results():
@@ -538,7 +538,7 @@ class Calculator(object):
         for driver_id, result in sorted(driver_results.items()):
             self.log_driver_results(event, predictions, num_drivers, result)
             self.log_finish_probabilities(event, predictions, driver_id, result)
-            if self._args.print_predictions:
+            if getattr(self._args, 'print_predictions', False):
                 self.log_win_probabilities(event, predictions, driver_id, result)
                 self.log_podium_probabilities(event, predictions, driver_id, result)
 
@@ -772,7 +772,7 @@ class Calculator(object):
             self.log_one_pr_auc('EloH2H', matching_errors, decade, event_type)
 
     def log_win_summary(self, decade=''):
-        if not self._args.print_predictions:
+        if not getattr(self._args, 'print_predictions', False):
             return
         for event_type in [f1event.QUALIFYING, f1event.RACE]:
             matching_errors = self.get_matching_errors(self._win_odds_log, decade, event_type)
@@ -780,7 +780,7 @@ class Calculator(object):
             self.log_one_pr_auc('Win', matching_errors, decade, event_type)
 
     def log_podium_summary(self, decade=''):
-        if not self._args.print_predictions:
+        if not getattr(self._args, 'print_predictions', False):
             return
         for event_type in [f1event.QUALIFYING, f1event.RACE]:
             matching_errors = self.get_matching_errors(self._podium_odds_log, decade, event_type)
