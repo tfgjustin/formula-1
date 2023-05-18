@@ -396,7 +396,7 @@ class EventSimulator(object):
         return random.random() - elo_win_prob
 
     def log_results(self, sim_log_idx_offset=0, output_buffer=None):
-        if self._simulation_log_file is None:
+        if self._simulation_log_file is None and output_buffer is None:
             return
         for idx in sorted(self._simulation_outcomes):
             self._log_results_one_sim(idx, sim_log_idx_offset=sim_log_idx_offset, output_buffer=output_buffer)
