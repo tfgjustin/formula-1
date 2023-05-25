@@ -1,6 +1,9 @@
 # Profile output
 profile.*
 
+# Database configuration file
+db.cfg
+
 # Images
 *.png
 *.jpg

@@ -1,3 +1,13 @@
+import logging
+
+
+def init_logging(log_tag, loglevel=logging.INFO):
+    _FORMAT = '%%(asctime)s %s %%(message)s' % log_tag
+    logging.basicConfig(format=_FORMAT)
+    logger = logging.getLogger()
+    logger.setLevel(loglevel)
+
+
 def open_file_with_suffix(base_output_filename, suffix, mode='w'):
     if base_output_filename is None:
         return None
