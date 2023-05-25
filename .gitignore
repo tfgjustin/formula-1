@@ -1,8 +1,8 @@
 # Profile output
 profile.*
 
-# Database configuration file
-db.cfg
+# All configuration files
+*.cfg
 
 # Images
 *.png
@@ -13,7 +13,7 @@ db.cfg
 .idea/
 
 # Output runs
-logs/
+logs
 
 # Scraped files
 html/
