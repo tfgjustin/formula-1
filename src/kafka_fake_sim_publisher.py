@@ -2,6 +2,7 @@ import kafka_topic_names
 import sys
 
 from collections import defaultdict
+from f1_logging import init_logging
 from kafka_producers import F1TopicProducer
 from kafka_topics import SimulationOutputBlock, SimulationRun
 from time import time
@@ -73,6 +74,7 @@ def main(argv):
     if len(argv) < 2 or len(argv) > 3:
         usage(argv[0])
         return 1
+    init_logging('fake-sim-publisher')
     sim_filename = argv[1]
     block_size = 100 if len(argv) == 2 else int(argv[2])
     sim_run_producer = F1TopicProducer(kafka_topic_names.SANDBOX_SIM_RUNS, dry_run=False, dry_run_verbose=False)
