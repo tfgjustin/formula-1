@@ -6,6 +6,7 @@ def init_logging(log_tag, loglevel=logging.INFO):
     logging.basicConfig(format=_FORMAT)
     logger = logging.getLogger()
     logger.setLevel(loglevel)
+    return logger
 
 
 def open_file_with_suffix(base_output_filename, suffix, mode='w'):
