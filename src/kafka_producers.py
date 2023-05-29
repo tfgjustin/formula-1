@@ -11,11 +11,13 @@ def create_configuration_dict(**kwargs):
 
 class F1TopicProducer(Producer):
     def __init__(self, topic, dry_run=False, dry_run_verbose=False, value_serializer=pickle.dumps,
-                 bootstrap_servers=('localhost:9092'), message_max_bytes=20 * 1024 * 1024, **kwargs):
+                 bootstrap_servers=('localhost:9092'), logger=None, message_max_bytes=20 * 1024 * 1024,
+                 **kwargs):
         super(F1TopicProducer, self).__init__(
             create_configuration_dict(
                 bootstrap_servers=bootstrap_servers, message_max_bytes=message_max_bytes, **kwargs
-            )
+            ),
+            logger=logger
         )
         self.topic = topic
         self.dry_run = dry_run
@@ -31,7 +33,16 @@ class F1TopicProducer(Producer):
             if self.dry_run_verbose:
                 logging.debug(json.dumps(f1_topic.__dict__, default=str, ensure_ascii=False, indent=4))
         else:
-            self.produce(
-                self.topic, key=f1_topic.topic_key(), value=self.value_serializer(f1_topic)
-            )
+            logging.debug('Producer.serialize(topic=%s key=%s)' % (self.topic, f1_topic.topic_key()))
+            output_value = self.value_serializer(f1_topic)
+            logging.debug('Producer.serialize(topic=%s key=%s) ~> %d bytes' % (
+                self.topic, f1_topic.topic_key(), len(output_value)
+            ))
+            self.produce(self.topic, key=f1_topic.topic_key(), value=output_value)
+            logging.debug('Producer.serialize(topic=%s key=%s) ~> %d bytes' % (
+                self.topic, f1_topic.topic_key(), len(output_value)
+            ))
             self.flush()
+            logging.debug('Producer.flush(topic=%s key=%s, bytes=%d)' % (
+                self.topic, f1_topic.topic_key(), len(output_value)
+            ))
