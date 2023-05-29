@@ -58,7 +58,7 @@ def parse_admin_client_configuration(config):
 def parse_topic_configurations(config):
     _default_settings = {
         'num_partitions': 1,
-        'replication_factor': 1,
+        'replication_factor': 2,
         'retention.ms': 86400000,
     }
     for section in config.sections():
