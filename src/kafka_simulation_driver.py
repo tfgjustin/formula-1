@@ -80,11 +80,12 @@ def publish_one_sim(parsed_args, sim_run_producer, sim_rating_producer, sim_fuzz
         run_id = create_run_id()
         logging.debug('run_id=%d' % run_id)
         sim_run = SimulationRun(run_id=run_id, total_num_sims=parsed_args.num_iterations)
-        logging.debug('SimulationRun(run_id=%d;total_num_sims=%d' % (sim_run.run_id, sim_run.total_num_sims))
-        sim_run_producer.send_message()
+        logging.debug('SimulationRun(run_id=%d;total_num_sims=%d)' % (sim_run.run_id, sim_run.total_num_sims))
+        sim_run_producer.send_message(sim_run)
         sim_input = SimulationInput(run_id=run_id, data_loader=loader)
         logging.debug('SimulationInput(run_id=%d)' % run_id)
         sim_rating_producer.send_message(sim_input)
+        logging.debug('SimulationInput: sent')
         generate_fuzz_requests(parsed_args, run_id, sim_fuzz_producer)
         logging.info('Initialized run_id=%d' % run_id)
 
@@ -98,13 +99,14 @@ def publish_sim_messages(arg_factory, sim_run_producer, sim_rating_producer, sim
 
 def main():
     # For now set the logger to DEBUG because AWS is doing something wonky/weird we need to sort out.
-    init_logging('simulation-driver', loglevel=logging.DEBUG)
+    logger = init_logging('simulation-driver', loglevel=logging.DEBUG)
     factory = args.ArgFactory(create_argparser())
     factory.parse_args()
     logging.info('Running %d combination(s)' % factory.max_combinations())
-    sim_run_producer = F1TopicProducer(kafka_topic_names.SANDBOX_SIM_RUNS, dry_run=False, dry_run_verbose=False)
+    sim_run_producer = F1TopicProducer(kafka_topic_names.SANDBOX_SIM_RUNS, dry_run=False, dry_run_verbose=False,
+                                       logger=logger)
     sim_rating_producer = F1TopicProducer(kafka_topic_names.SANDBOX_SIM_RATINGS, dry_run=False, dry_run_verbose=False,
-                                          compression_type='gzip')
+                                          logger=logger, compression_type='gzip')
     sim_fuzz_producer = F1TopicProducer(kafka_topic_names.SANDBOX_FUZZ_REQUEST, dry_run=False, dry_run_verbose=False)
     publish_sim_messages(factory, sim_run_producer, sim_rating_producer, sim_fuzz_producer)
     return 0
