@@ -66,7 +66,7 @@ class SimulationFileWriter(object):
         run_id = sim_output_block.run_id
         output_file = self.fetch_file_handle(run_id)
         for sim in sim_output_block.simulations:
-            print(sim, file=output_file)
+            print(sim.to_string(), file=output_file)
         self._sims_written[run_id] += len(sim_output_block.simulations)
 
     def fetch_file_handle(self, run_id):
