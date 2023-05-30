@@ -3,6 +3,7 @@
 BASE_DIR=$(pwd)
 DATA_DIR="${BASE_DIR}/data"
 SRC_DIR="${BASE_DIR}/src"
+PROFILES_DIR="${BASE_DIR}/profiles"
 DRIVERS_TSV="${DATA_DIR}/drivers.tsv"
 EVENTS_TSV="${DATA_DIR}/events.tsv"
 RESULTS_TSV="${DATA_DIR}/results.tsv"
@@ -17,6 +18,29 @@ if [[ ! -f "${MAIN_PY}" ]]
 then
   echo "Could not find main program: ${MAIN_PY}"
   exit 1
+fi
+
+current_time=$(date +"%Y%m%dT%H%M%S")
+if [[ -z "${current_time}" ]]
+then
+  echo "Could not get current timestamp."
+  exit 1
+fi
+
+PROFILE_SIMULATION=${PROFILE_SIMULATION:-0}
+PROFILE_OPTS=""
+if [[ ${PROFILE_SIMULATION} -ne 0 ]]
+then
+  if [[ ! -d "${PROFILES_DIR}" ]]
+  then
+    mkdir -p "${PROFILES_DIR}"
+    if [[ ! -d "${PROFILES_DIR}" ]]
+    then
+      echo "Profiling enabled but could not find or make output directory ${PROFILES_DIR}. Exiting."
+      exit 1
+    fi
+  fi
+  PROFILE_OPTS="-m cProfile -o \"${PROFILES_DIR}/simulate.profile.${current_time}.dat\""
 fi
 
 for datafile in "${DRIVERS_TSV}" "${EVENTS_TSV}" "${RESULTS_TSV}" "${TEAM_ADJUST_TSV}" "${TEAM_HISTORY_TSV}"
@@ -70,13 +94,6 @@ then
   exit 1
 fi
 
-current_time=$(date +"%Y%m%dT%H%M%S")
-if [[ -z "${current_time}" ]]
-then
-  echo "Could not get current timestamp."
-  exit 1
-fi
-
 tag="simulate"
 if [[ $# -eq 2 ]]
 then
@@ -102,7 +119,7 @@ fi
 #                         Season to simulate.
 #   --simulate_start_round SIMULATE_START_ROUND
 #                         The first round in the season we will simulate; if "XX" start with the final real event.
-python -m cProfile -o "profiles/simulate.profile.${current_time}.dat" "${MAIN_PY}" "${ratings_dir}/${tag}" \
+python3 ${PROFILE_OPTS} "${MAIN_PY}" "${ratings_dir}/${tag}" \
   "${DRIVERS_TSV}" "${EVENTS_TSV}" "${RESULTS_TSV}" "${TEAM_HISTORY_TSV}" "${FUTURE_EVENTS_TSV}" \
   "${TEAM_ADJUST_TSV}" "${driver_ratings}" "${team_ratings}" "${GRID_PENALTIES_TSV}" "@${args_file}" \
   --logfile_uses_parameters --future_lineup_tsv "${FUTURE_LINEUP_TSV}"

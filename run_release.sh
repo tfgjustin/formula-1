@@ -18,6 +18,16 @@ then
   exit 1
 fi
 
+if [[ ! -d "${MAIN_LOG_DIR}" ]]
+then
+  mkdir -p "${MAIN_LOG_DIR}"
+  if [[ $? -ne 0 ]]
+  then
+    echo "Main log dir ${MAIN_LOG_DIR} did not exist and we could not create. Exiting."
+    exit 1
+  fi
+fi
+
 AGGREGATES_DRIVERS_PY="${SRC_DIR}/aggregates_drivers.py"
 AGGREGATES_TEAMS_PY="${SRC_DIR}/aggregates_teams.py"
 if [[ ! -f "${AGGREGATES_DRIVERS_PY}" || ! -f "${AGGREGATES_TEAMS_PY}" ]]
@@ -69,7 +79,7 @@ else
 fi
 
 mkdir -p "${log_dir}"
-python "${MAIN_PY}" "${log_dir}/${current_git_tag}" "${DRIVERS_TSV}" "${EVENTS_TSV}" "${RESULTS_TSV}" \
+python3 "${MAIN_PY}" "${log_dir}/${current_git_tag}" "${DRIVERS_TSV}" "${EVENTS_TSV}" "${RESULTS_TSV}" \
 	"${TEAM_HISTORY_TSV}" --logfile_uses_parameters --print_args --num_iterations=100000
 # 	--print_predictions --print_simulations
 if [[ $? -ne 0 ]]
@@ -99,14 +109,14 @@ fi
 
 driver_aggregates="${driver_ratings%ratings}aggregates"
 team_aggregates="${team_ratings%ratings}aggregates"
-python "${AGGREGATES_DRIVERS_PY}" "${DRIVERS_TSV}" "${EVENTS_TSV}" "${driver_ratings}" "${driver_aggregates}"
+python3 "${AGGREGATES_DRIVERS_PY}" "${DRIVERS_TSV}" "${EVENTS_TSV}" "${driver_ratings}" "${driver_aggregates}"
 if [[ $? -ne 0 ]]
 then
   echo "Aggregating driver ratings did not complete successfully."
   exit 1
 fi
 
-python "${AGGREGATES_TEAMS_PY}" "${EVENTS_TSV}" "${team_ratings}" "${team_aggregates}"
+python3 "${AGGREGATES_TEAMS_PY}" "${EVENTS_TSV}" "${team_ratings}" "${team_aggregates}"
 if [[ $? -ne 0 ]]
 then
   echo "Aggregating team ratings did not complete successfully."
