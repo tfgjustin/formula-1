@@ -1,8 +1,8 @@
 # Profile output
 profile.*
 
-# All configuration files
-*.cfg
+# Database configuration files
+db.cfg
 
 # Images
 *.png
