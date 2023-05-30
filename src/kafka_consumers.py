@@ -22,13 +22,8 @@ class F1Message(object):
 
 
 class F1TopicConsumer(Consumer):
-    def __init__(self, topic, bootstrap_servers=('localhost:9092'), value_deserializer=pickle.loads, group_id='default',
-                 read_from_beginning=False, max_partition_fetch_bytes=20 * 1024 * 1024, **kwargs):
-        super(F1TopicConsumer, self).__init__(
-            create_configuration_dict(
-                bootstrap_servers=bootstrap_servers, group_id=group_id,
-                max_partition_fetch_bytes=max_partition_fetch_bytes, **kwargs)
-        )
+    def __init__(self, topic, value_deserializer=pickle.loads, group_id='default', read_from_beginning=False, **kwargs):
+        super(F1TopicConsumer, self).__init__(create_configuration_dict(group_id=group_id, **kwargs))
         self.topic = topic
         self.read_from_beginning = read_from_beginning
         self.subscribe([topic], on_assign=self.on_assign, on_revoke=self.on_revoke)

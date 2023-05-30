@@ -1,3 +1,4 @@
+import kafka_config
 import kafka_topic_names
 import logging
 import math
@@ -120,11 +121,17 @@ def process_topics(consumer, producer):
         msg = consumer.consume_message()
 
 
-def main(_):
+def main(argv):
+    if len(argv) != 2:
+        print('Usage: %s <config_txt>' % argv[0])
+        return 1
     init_logging('tagger')
-    consumer = F1TopicConsumer(kafka_topic_names.SANDBOX_SIM_OUTPUT, group_id='tagger')
+    configuration = kafka_config.parse_configuration_file(argv[1])
+    consumer_config = kafka_config.get_configuration_dict(configuration, kafka_config.CLIENTS_CONSUMER)
+    producer_config = kafka_config.get_configuration_dict(configuration, kafka_config.CLIENTS_PRODUCER)
+    consumer = F1TopicConsumer(kafka_topic_names.SANDBOX_SIM_OUTPUT, group_id='tagger', **consumer_config)
     producer = F1TopicProducer(kafka_topic_names.SANDBOX_TAG_OUTPUT, dry_run=False, dry_run_verbose=False,
-                               compression_type='gzip')
+                               compression_type='gzip', **producer_config)
     process_topics(consumer, producer)
     return 0
 

@@ -1,5 +1,6 @@
 import configparser
 import json
+import kafka_config
 import kafka_topic_names
 import logging
 import psycopg2
@@ -263,15 +264,20 @@ class DbWriter(object):
 
 
 def main(argv):
-    if len(argv) != 3:
-        print('Usage: %s <db_cfg> <run_group_id>' % argv[0])
+    if len(argv) != 4:
+        print('Usage: %s <config_txt> <db_cfg> <run_group_id>' % argv[0])
         return 1
-    init_logging(argv[2])
+    db_cfg_file = argv[2]
+    group_id = argv[3]
+    init_logging(group_id)
     tracemalloc.start(3)
-    run_consumer = F1TopicConsumer(kafka_topic_names.SANDBOX_SIM_RUNS, group_id=argv[2], read_from_beginning=True)
-    tag_consumer = F1TopicConsumer(kafka_topic_names.SANDBOX_TAG_OUTPUT, group_id='db-writers')
+    configuration = kafka_config.parse_configuration_file(argv[1])
+    consumer_config = kafka_config.get_configuration_dict(configuration, kafka_config.CLIENTS_CONSUMER)
+    run_consumer = F1TopicConsumer(kafka_topic_names.SANDBOX_SIM_RUNS, group_id=group_id, read_from_beginning=True,
+                                   **consumer_config)
+    tag_consumer = F1TopicConsumer(kafka_topic_names.SANDBOX_TAG_OUTPUT, group_id='db-writers', **consumer_config)
     db_writer = DbWriter(run_consumer, tag_consumer)
-    if not db_writer.open_connection(argv[1]):
+    if not db_writer.open_connection(db_cfg_file):
         return 1
     db_writer.process_messages()
     db_writer.close_connection()

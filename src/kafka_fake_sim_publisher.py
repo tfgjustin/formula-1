@@ -1,3 +1,4 @@
+import kafka_config
 import kafka_topic_names
 import sys
 
@@ -9,7 +10,7 @@ from time import time
 
 
 def usage(program_name):
-    print('Usage: %s <simulation_csv> <block_size>' % program_name)
+    print('Usage: %s <config_txt> <simulation_csv> <block_size>' % program_name)
 
 
 def load_sims(filename):
@@ -71,14 +72,18 @@ def write_sims_to_producer(filename, block_size, sim_run_producer, sim_output_pr
 
 
 def main(argv):
-    if len(argv) < 2 or len(argv) > 3:
+    if len(argv) < 3 or len(argv) > 4:
         usage(argv[0])
         return 1
+    sim_filename = argv[2]
+    block_size = 100 if len(argv) == 3 else int(argv[3])
     init_logging('fake-sim-publisher')
-    sim_filename = argv[1]
-    block_size = 100 if len(argv) == 2 else int(argv[2])
-    sim_run_producer = F1TopicProducer(kafka_topic_names.SANDBOX_SIM_RUNS, dry_run=False, dry_run_verbose=False)
-    sim_output_producer = F1TopicProducer(kafka_topic_names.SANDBOX_SIM_OUTPUT, dry_run=False, dry_run_verbose=False)
+    configuration = kafka_config.parse_configuration_file(argv[1])
+    producer_config = kafka_config.get_configuration_dict(configuration, kafka_config.CLIENTS_PRODUCER)
+    sim_run_producer = F1TopicProducer(kafka_topic_names.SANDBOX_SIM_RUNS, dry_run=False, dry_run_verbose=False,
+                                       **producer_config)
+    sim_output_producer = F1TopicProducer(kafka_topic_names.SANDBOX_SIM_OUTPUT, dry_run=False, dry_run_verbose=False,
+                                          **producer_config)
     write_sims_to_producer(sim_filename, block_size, sim_run_producer, sim_output_producer)
     return 0
 

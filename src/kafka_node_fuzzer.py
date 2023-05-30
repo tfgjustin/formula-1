@@ -1,4 +1,5 @@
 import json
+import kafka_config
 import kafka_topic_names
 import logging
 import fuzz
@@ -104,15 +105,21 @@ class Fuzzer(object):
 
 
 def main(argv):
-    if len(argv) != 2:
-        print('Usage: %s <run_group_id>' % argv[0])
+    if len(argv) != 3:
+        print('Usage: %s <config_txt> <run_group_id>' % argv[0])
         return 1
-    init_logging(argv[1])
+    group_id = argv[2]
+    init_logging(group_id)
+    configuration = kafka_config.parse_configuration_file(argv[1])
+    consumer_config = kafka_config.get_configuration_dict(configuration, kafka_config.CLIENTS_CONSUMER)
+    producer_config = kafka_config.get_configuration_dict(configuration, kafka_config.CLIENTS_PRODUCER)
     ratings_consumer = F1TopicConsumer(
-        kafka_topic_names.SANDBOX_SIM_RATINGS, group_id=argv[1], read_from_beginning=True
+        kafka_topic_names.SANDBOX_SIM_RATINGS, group_id=group_id, read_from_beginning=True, **consumer_config
     )
-    fuzz_request_consumer = F1TopicConsumer(kafka_topic_names.SANDBOX_FUZZ_REQUEST, group_id='fuzzers')
-    fuzz_producer = F1TopicProducer(kafka_topic_names.SANDBOX_SIM_FUZZ, dry_run=False, dry_run_verbose=False)
+    fuzz_request_consumer = F1TopicConsumer(kafka_topic_names.SANDBOX_FUZZ_REQUEST, group_id='fuzzers',
+                                            **consumer_config)
+    fuzz_producer = F1TopicProducer(kafka_topic_names.SANDBOX_SIM_FUZZ, dry_run=False, dry_run_verbose=False,
+                                    **producer_config)
     fuzzer = Fuzzer(ratings_consumer, fuzz_request_consumer, fuzz_producer)
     fuzzer.process_messages()
     return 0

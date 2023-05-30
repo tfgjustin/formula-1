@@ -46,11 +46,8 @@ def main(argv):
         return 1
 
     init_logging('kafka-admin-setup')
-    configuration = kafka_config.parse_configuration(argv[1])
-    admin_config = {
-        k: configuration[kafka_config.CLIENTS_ADMIN][k] for k in configuration[kafka_config.CLIENTS_ADMIN]
-    }
-    admin_client = AdminClient(admin_config)
+    configuration = kafka_config.parse_configuration_file(argv[1])
+    admin_client = AdminClient(kafka_config.get_configuration_dict(configuration, kafka_config.CLIENTS_ADMIN))
     apply_config(configuration, admin_client)
     return 0
 

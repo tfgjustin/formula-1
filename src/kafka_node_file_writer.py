@@ -1,3 +1,4 @@
+import kafka_config
 import kafka_topic_names
 import logging
 import pathlib
@@ -111,14 +112,17 @@ class SimulationFileWriter(object):
 
 
 def main(argv):
-    if len(argv) != 2:
-        print('Usage: %s <output_directory>' % argv[0], file=sys.stderr)
+    if len(argv) != 3:
+        print('Usage: %s <config_txt> <output_directory>' % argv[0], file=sys.stderr)
         return 1
-    if not validate_output_directory(argv[1]):
-        return 1
+    output_directory = argv[2]
     init_logging('sim-logger')
-    consumer = F1TopicConsumer(kafka_topic_names.SANDBOX_SIM_OUTPUT, group_id='sim-logger')
-    file_writer = SimulationFileWriter(consumer, argv[1])
+    configuration = kafka_config.parse_configuration_file(argv[1])
+    consumer_config = kafka_config.get_configuration_dict(configuration, kafka_config.CLIENTS_CONSUMER)
+    if not validate_output_directory(output_directory):
+        return 1
+    consumer = F1TopicConsumer(kafka_topic_names.SANDBOX_SIM_OUTPUT, group_id='sim-logger', **consumer_config)
+    file_writer = SimulationFileWriter(consumer, output_directory)
     file_writer.process_messages()
     return 0
 

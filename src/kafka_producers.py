@@ -10,15 +10,8 @@ def create_configuration_dict(**kwargs):
 
 
 class F1TopicProducer(Producer):
-    def __init__(self, topic, dry_run=False, dry_run_verbose=False, value_serializer=pickle.dumps,
-                 bootstrap_servers=('localhost:9092'), logger=None, message_max_bytes=20 * 1024 * 1024,
-                 **kwargs):
-        super(F1TopicProducer, self).__init__(
-            create_configuration_dict(
-                bootstrap_servers=bootstrap_servers, message_max_bytes=message_max_bytes, **kwargs
-            ),
-            logger=logger
-        )
+    def __init__(self, topic, dry_run=False, dry_run_verbose=False, value_serializer=pickle.dumps, **kwargs):
+        super(F1TopicProducer, self).__init__(create_configuration_dict(**kwargs))
         self.topic = topic
         self.dry_run = dry_run
         self.dry_run_verbose = dry_run_verbose

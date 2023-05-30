@@ -1,4 +1,5 @@
 import json
+import kafka_config
 import kafka_topic_names
 import logging
 import sys
@@ -102,15 +103,20 @@ class Simulator(object):
 
 
 def main(argv):
-    if len(argv) != 2:
-        print('Usage: %s <run_group_id>' % argv[0])
+    if len(argv) != 3:
+        print('Usage: %s <config_txt> <run_group_id>' % argv[0])
         return 1
-    init_logging(argv[1])
+    group_id = argv[2]
+    init_logging(group_id)
+    configuration = kafka_config.parse_configuration_file(argv[1])
+    consumer_config = kafka_config.get_configuration_dict(configuration, kafka_config.CLIENTS_CONSUMER)
+    producer_config = kafka_config.get_configuration_dict(configuration, kafka_config.CLIENTS_PRODUCER)
     ratings_consumer = F1TopicConsumer(
-        kafka_topic_names.SANDBOX_SIM_RATINGS, group_id=argv[1], read_from_beginning=True
+        kafka_topic_names.SANDBOX_SIM_RATINGS, group_id=group_id, read_from_beginning=True, **consumer_config
     )
-    sim_fuzz_consumer = F1TopicConsumer(kafka_topic_names.SANDBOX_SIM_FUZZ, group_id='simulators')
-    sim_output_producer = F1TopicProducer(kafka_topic_names.SANDBOX_SIM_OUTPUT, dry_run=False, dry_run_verbose=True)
+    sim_fuzz_consumer = F1TopicConsumer(kafka_topic_names.SANDBOX_SIM_FUZZ, group_id='simulators', **consumer_config)
+    sim_output_producer = F1TopicProducer(kafka_topic_names.SANDBOX_SIM_OUTPUT, dry_run=False, dry_run_verbose=True,
+                                          **producer_config)
     simulator = Simulator(ratings_consumer, sim_fuzz_consumer, sim_output_producer)
     simulator.process_messages()
     return 0

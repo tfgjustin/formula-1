@@ -1,6 +1,7 @@
 import argparse
 import args
 import data_loader
+import kafka_config
 import kafka_topic_names
 import logging
 import sys
@@ -13,6 +14,9 @@ from time import time_ns
 
 def create_argparser():
     parser = argparse.ArgumentParser(description='Formula 1 simulator parameters', fromfile_prefix_chars='@')
+    parser.add_argument('kafka_config_txt',
+                        help='Configuration file containing Kafka-specific configuration data.',
+                        type=argparse.FileType('r'), default='')
     args.add_common_positional_args(parser)
     parser.add_argument('future_events_tsv',
                         help='TSV file containing list of future events.',
@@ -90,25 +94,28 @@ def publish_one_sim(parsed_args, sim_run_producer, sim_rating_producer, sim_fuzz
         logging.info('Initialized run_id=%d' % run_id)
 
 
-def publish_sim_messages(arg_factory, sim_run_producer, sim_rating_producer, sim_fuzz_producer):
-    current_args = arg_factory.next_config()
+def publish_sim_messages(arg_factory, current_args, sim_run_producer, sim_rating_producer, sim_fuzz_producer):
     while current_args is not None:
         publish_one_sim(current_args, sim_run_producer, sim_rating_producer, sim_fuzz_producer)
         current_args = arg_factory.next_config()
 
 
 def main():
-    # For now set the logger to DEBUG because AWS is doing something wonky/weird we need to sort out.
-    logger = init_logging('simulation-driver', loglevel=logging.DEBUG)
+    init_logging('simulation-driver', loglevel=logging.DEBUG)
     factory = args.ArgFactory(create_argparser())
     factory.parse_args()
     logging.info('Running %d combination(s)' % factory.max_combinations())
+    # We get the first args because it will have the Kafka configuration file.
+    first_args = factory.next_config()
+    configuration = kafka_config.parse_configuration_string(first_args.kafka_config_txt)
+    producer_config = kafka_config.get_configuration_dict(configuration, kafka_config.CLIENTS_PRODUCER)
     sim_run_producer = F1TopicProducer(kafka_topic_names.SANDBOX_SIM_RUNS, dry_run=False, dry_run_verbose=False,
-                                       logger=logger)
+                                       **producer_config)
     sim_rating_producer = F1TopicProducer(kafka_topic_names.SANDBOX_SIM_RATINGS, dry_run=False, dry_run_verbose=False,
-                                          logger=logger, compression_type='gzip')
-    sim_fuzz_producer = F1TopicProducer(kafka_topic_names.SANDBOX_FUZZ_REQUEST, dry_run=False, dry_run_verbose=False)
-    publish_sim_messages(factory, sim_run_producer, sim_rating_producer, sim_fuzz_producer)
+                                          compression_type='gzip', **producer_config)
+    sim_fuzz_producer = F1TopicProducer(kafka_topic_names.SANDBOX_FUZZ_REQUEST, dry_run=False, dry_run_verbose=False,
+                                        **producer_config)
+    publish_sim_messages(factory, first_args, sim_run_producer, sim_rating_producer, sim_fuzz_producer)
     return 0
 
 
