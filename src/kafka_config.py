@@ -55,13 +55,25 @@ def parse_topic_configurations(config, defaults):
             logging.debug('[%s] %s=%s' % (section, option, config[section][option]))
 
 
-def parse_configuration(filename):
+def parse_configuration_file(filename):
+    with open(filename, 'r') as infile:
+        config_string = infile.read()
+    return parse_configuration_string(config_string)
+
+
+def parse_configuration_string(config_string):
     config = configparser.ConfigParser()
-    config.read(filename)
+    config.read_string(config_string)
     defaults = parse_defaults(config)
     parse_client_configurations(config, defaults)
     parse_topic_configurations(config, defaults)
     return config
+
+
+def get_configuration_dict(config, section):
+    if section not in config:
+        return {}
+    return {k: config[section][k] for k in config[section]}
 
 
 if __name__ == '__main__':
@@ -69,5 +81,5 @@ if __name__ == '__main__':
         print('Usage: %s <config_filename>' % sys.argv[0])
         sys.exit(1)
     init_logging('config-test', loglevel=logging.DEBUG)
-    _ = parse_configuration(sys.argv[1])
+    _ = parse_configuration_file(sys.argv[1])
     sys.exit(0)
