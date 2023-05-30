@@ -9,7 +9,7 @@ from kafka_consumers import F1TopicConsumer
 
 def main(argv):
     if len(argv) != 4:
-        print('Usage: %s <config_txt> <topic_id> <run_group_id>' % argv[0])
+        print('Usage: %s <kafka_cfg> <topic_id> <run_group_id>' % argv[0])
         return 1
     topic_id = argv[2]
     group_id = argv[3]

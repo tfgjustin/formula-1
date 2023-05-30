@@ -123,7 +123,7 @@ def process_topics(consumer, producer):
 
 def main(argv):
     if len(argv) != 2:
-        print('Usage: %s <config_txt>' % argv[0])
+        print('Usage: %s <kafka_cfg>' % argv[0])
         return 1
     init_logging('tagger')
     configuration = kafka_config.parse_configuration_file(argv[1])

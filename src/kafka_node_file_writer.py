@@ -113,7 +113,7 @@ class SimulationFileWriter(object):
 
 def main(argv):
     if len(argv) != 3:
-        print('Usage: %s <config_txt> <output_directory>' % argv[0], file=sys.stderr)
+        print('Usage: %s <kafka_cfg> <output_directory>' % argv[0], file=sys.stderr)
         return 1
     output_directory = argv[2]
     init_logging('sim-logger')

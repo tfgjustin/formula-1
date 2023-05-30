@@ -106,7 +106,7 @@ class Fuzzer(object):
 
 def main(argv):
     if len(argv) != 3:
-        print('Usage: %s <config_txt> <run_group_id>' % argv[0])
+        print('Usage: %s <kafka_cfg> <run_group_id>' % argv[0])
         return 1
     group_id = argv[2]
     init_logging(group_id)

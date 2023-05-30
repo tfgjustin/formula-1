@@ -10,7 +10,7 @@ from time import time
 
 
 def usage(program_name):
-    print('Usage: %s <config_txt> <simulation_csv> <block_size>' % program_name)
+    print('Usage: %s <kafka_cfg> <simulation_csv> <block_size>' % program_name)
 
 
 def load_sims(filename):

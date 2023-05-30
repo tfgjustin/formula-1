@@ -265,7 +265,7 @@ class DbWriter(object):
 
 def main(argv):
     if len(argv) != 4:
-        print('Usage: %s <config_txt> <db_cfg> <run_group_id>' % argv[0])
+        print('Usage: %s <kafka_cfg> <db_cfg> <run_group_id>' % argv[0])
         return 1
     db_cfg_file = argv[2]
     group_id = argv[3]
