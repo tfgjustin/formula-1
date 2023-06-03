@@ -1,6 +1,5 @@
 event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance	course_type	weather	weather_probability
-2023-07-QU	2023	7	QU	2023-06-04	Pirelli_Grand_Prix_of_Spain	Circuit de Catalunya	20	10	4.655	road	dry
-2023-07-RA	2023	7	RA	2023-06-04	Pirelli_Grand_Prix_of_Spain	Circuit de Catalunya	20	66	4.655	road	dry
+2023-07-RA	2023	7	RA	2023-06-04	Pirelli_Grand_Prix_of_Spain	Circuit de Catalunya	20	66	4.655	road	wet	0.15
 2023-08-QU	2023	8	QU	2023-06-18	AWS_Grand_Prix_Du_Canada	Circuit Gilles Villeneuve	20	10	4.361	road	dry
 2023-08-RA	2023	8	RA	2023-06-18	AWS_Grand_Prix_Du_Canada	Circuit Gilles Villeneuve	20	70	4.361	road	dry
 2023-09-SS	2023	9	SS	2023-07-02	Rolex_Grand_Prix_of_Austria	Red Bull Ring	20	5	4.318	road	dry
