@@ -49052,11 +49052,11 @@ event_id	driver_id	team_id	start_position	partial_position	end_position	laps	sta
 2023-07-QU	Yuki_Tsunoda	Scuderia_AlphaTauri	0	-	15	20	-	-	20
 2023-07-RA	Alexander_Albon	Williams_Racing	18	-	16	65	-	-	20
 2023-07-RA	Carlos_Sainz_Jr	Scuderia_Ferrari	2	-	5	66	-	-	20
-2023-07-RA	Charles_Leclerc	Scuderia_Ferrari	20	-	12	66	-	-	20
+2023-07-RA	Charles_Leclerc	Scuderia_Ferrari	20	-	11	66	-	-	20
 2023-07-RA	Esteban_Ocon	BWT_Alpine_F1_Team	6	-	8	66	-	-	20
 2023-07-RA	Fernando_Alonso	Aston_Martin_Aramco_Cognizant_F1_Team	8	-	7	66	-	-	20
 2023-07-RA	George_Russell	Mercedes_AMG_Petronas_F1_Team	12	-	3	66	-	-	20
-2023-07-RA	Guanyu_Zhou	Alfa_Romeo_Racing_ORLEN	13	-	10	66	-	-	20
+2023-07-RA	Guanyu_Zhou	Alfa_Romeo_Racing_ORLEN	13	-	9	66	-	-	20
 2023-07-RA	Kevin_Magnussen	Haas_F1_Team	17	-	18	65	-	-	20
 2023-07-RA	Lance_Stroll	Aston_Martin_Aramco_Cognizant_F1_Team	5	-	6	66	-	-	20
 2023-07-RA	Lando_Norris	McLaren_F1_Team	3	-	17	65	-	-	20
@@ -49066,7 +49066,7 @@ event_id	driver_id	team_id	start_position	partial_position	end_position	laps	sta
 2023-07-RA	Nico_Hulkenberg	Haas_F1_Team	7	-	15	65	-	-	20
 2023-07-RA	Nyck_de_Vries	Scuderia_AlphaTauri	14	-	14	65	-	-	20
 2023-07-RA	Oscar_Piastri	McLaren_F1_Team	9	-	13	65	-	-	20
-2023-07-RA	Pierre_Gasly	BWT_Alpine_F1_Team	10	-	11	66	-	-	20
+2023-07-RA	Pierre_Gasly	BWT_Alpine_F1_Team	10	-	10	66	-	-	20
 2023-07-RA	Sergio_Perez	Oracle_Red_Bull_Racing	11	-	4	66	-	-	20
 2023-07-RA	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	16	-	19	65	-	-	20
-2023-07-RA	Yuki_Tsunoda	Scuderia_AlphaTauri	15	-	9	66	-	-	20
+2023-07-RA	Yuki_Tsunoda	Scuderia_AlphaTauri	15	-	12	66	-	-	20
