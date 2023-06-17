@@ -2179,3 +2179,4 @@ event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance	course_t
 2023-06-RA	2023	6	RA	2023-05-28	Grand_Prix_of_Monaco	Circuit de Monaco	20	64	3.337	street	wet
 2023-07-QU	2023	7	QU	2023-06-04	Pirelli_Grand_Prix_of_Spain	Circuit de Catalunya	20	10	4.655	road	dry
 2023-07-RA	2023	7	RA	2023-06-04	Pirelli_Grand_Prix_of_Spain	Circuit de Catalunya	20	66	4.655	road	dry
+2023-08-QU	2023	8	QU	2023-06-18	AWS_Grand_Prix_Du_Canada	Circuit Gilles Villeneuve	20	10	4.361	road	wet
