@@ -309,14 +309,16 @@ class EloRating(object):
             self._reliability.commit_update()
         self._commit_complete = True
 
-    def update_lookback(self):
-        if self._current_event_id is None:
+    def update_lookback(self, event_id=None, delta=None):
+        lookback_event_id = event_id if event_id is not None else self._current_event_id
+        lookback_delta = delta if delta is not None else self._current_delta
+        if lookback_event_id is None:
             return
         # Grab the last two letters of the event since that's the event type.
-        lookback_queue = self._recent_lookback.get(self._current_event_id[-2:])
+        lookback_queue = self._recent_lookback.get(lookback_event_id[-2:])
         if lookback_queue is None:
             return
-        lookback_queue.append(self._current_delta)
+        lookback_queue.append(lookback_delta)
 
     def set_reliability(self, reliability):
         self._reliability = reliability
