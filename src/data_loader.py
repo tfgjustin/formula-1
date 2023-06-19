@@ -145,7 +145,10 @@ class DataLoader(object):
         unseen_drivers = set(self._drivers.keys())
         set_reliability_metrics = False
         base_driver_reliability = DriverReliability()
+        current_year_prefix = None
         for event_id in sorted(all_rows.keys(), key=functools.cmp_to_key(f1event.compare_events), reverse=True):
+            if current_year_prefix is None:
+                current_year_prefix = event_id[:5]
             for row in all_rows[event_id]:
                 event_id = row['RaceID'][1:]
                 if event_id.startswith('#'):
@@ -156,8 +159,8 @@ class DataLoader(object):
                           file=self._outfile)
                     continue
                 if driver_id in seen_drivers:
-                    # TODO: Add lookback data
                     self._drivers[driver_id].add_year_participation(event_id)
+                    # Bail at this point because we only want the most recent rating.
                     continue
                 else:
                     unseen_drivers.remove(driver_id)
@@ -177,6 +180,18 @@ class DataLoader(object):
         if base_driver_reliability.km_success() > 0:
             for driver_id in unseen_drivers:
                 self._drivers[driver_id].rating().set_reliability(deepcopy(base_driver_reliability))
+        # Now go back and insert lookback data.
+        for event_id in sorted(all_rows.keys(), key=functools.cmp_to_key(f1event.compare_events), reverse=False):
+            if event_id[:5] != current_year_prefix:
+                continue
+            for row in all_rows[event_id]:
+                driver_id = row['DriverID']
+                if driver_id not in self._drivers:
+                    print('ERROR: Driver %s is in lookback ratings log but not database of drivers' % driver_id,
+                          file=self._outfile)
+                    continue
+                delta = float(row['EloDiff'])
+                self._drivers[driver_id].rating().update_lookback(event_id=event_id[1:], delta=delta)
         print('Loaded %d drivers from log' % (len(self._drivers)), file=self._outfile)
         return True
 
@@ -186,15 +201,18 @@ class DataLoader(object):
         _HEADERS = ['RaceID', 'TeamUUID', 'TeamID', 'EloPost', 'KFEventsPost', 'KmSuccessPost', 'KmFailurePost',
                     'WearSuccessPost', 'WearFailurePost']
         all_rows = self._load_and_group_by_event(content, _HEADERS, event_id_tag='RaceID')
+        current_year_prefix = None
         seen_teams = set()
         for event_id in sorted(all_rows.keys(), key=functools.cmp_to_key(f1event.compare_events), reverse=True):
+            if current_year_prefix is None:
+                current_year_prefix = event_id[:5]
             for row in all_rows[event_id]:
                 event_id = row['RaceID'][1:]
                 if event_id.startswith('#'):
                     continue
                 uuid = row['TeamUUID']
                 if uuid in seen_teams:
-                    # TODO: Add lookback data
+                    # Bail at this point because we only want the most recent rating.
                     continue
                 seen_teams.add(uuid)
                 canonical_team = self._team_factory.get_team_by_uuid(uuid)
@@ -209,6 +227,20 @@ class DataLoader(object):
                 rating = EloRating(init_rating=float(row['EloPost']), reliability=reliability, k_factor=k_factor,
                                    last_event_id=event_id)
                 canonical_team.set_rating(rating)
+        # Now go back and insert lookback data.
+        for event_id in sorted(all_rows.keys(), key=functools.cmp_to_key(f1event.compare_events), reverse=False):
+            if event_id[:5] != current_year_prefix:
+                continue
+            lookbacks = defaultdict(float)
+            for row in all_rows[event_id]:
+                uuid = row['TeamUUID']
+                lookbacks[uuid] += float(row['EloDiff'])
+            for uuid, delta in lookbacks.items():
+                canonical_team = self._team_factory.get_team_by_uuid(uuid)
+                if canonical_team is None:
+                    print('ERROR: Team %s was loaded but not in lookback data?' % uuid, file=self._outfile)
+                    continue
+                canonical_team.rating().update_lookback(event_id=event_id[1:], delta=delta)
         print('Loaded %d teams from log' % (len(self._team_factory.teams())), file=self._outfile)
         return True
 

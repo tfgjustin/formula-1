@@ -35,6 +35,7 @@ class Fuzzer(object):
     def __init__(self, args, logfile):
         self._args = args
         self._logfile = logfile
+        self._qualifying_kfactor_multiplier = 1.0 / self._args.qualifying_kfactor_multiplier
         # All fuzz for the simulations (if any)
         # [entity_id][event_id][sim_id] = diff_amount
         self._all_fuzz = None
@@ -104,7 +105,8 @@ class Fuzzer(object):
             self._all_fuzz[team_id] = team_fuzz
 
     def generate_fuzz_team_event(self, events, teams):
-        team_qualifying_fuzz = self.generate_fuzz_entity_event_type(teams, f1event.QUALIFYING)
+        team_qualifying_fuzz = self.generate_fuzz_entity_event_type(teams, f1event.QUALIFYING,
+                                                                    multiplier=self._qualifying_kfactor_multiplier)
         team_race_fuzz = self.generate_fuzz_entity_event_type(teams, f1event.RACE)
         # All fuzz for the simulations (if any)
         # [entity_id][event_id][sim_id] = diff_amount
@@ -183,7 +185,8 @@ class Fuzzer(object):
             self._all_fuzz[driver.id()] = driver_fuzz
 
     def generate_fuzz_driver_event(self, events, drivers):
-        driver_qualifying_fuzz = self.generate_fuzz_entity_event_type(drivers, f1event.QUALIFYING)
+        driver_qualifying_fuzz = self.generate_fuzz_entity_event_type(drivers, f1event.QUALIFYING,
+                                                                      multiplier=self._qualifying_kfactor_multiplier)
         driver_race_fuzz = self.generate_fuzz_entity_event_type(drivers, f1event.RACE)
         # All fuzz for the simulations (if any)
         # [entity_id][event_id][sim_id] = diff_amount
@@ -207,14 +210,14 @@ class Fuzzer(object):
                 for idx in range(self._args.num_iterations):
                     self._all_fuzz[driver_id][event.id()][idx] += fuzz_samples[idx]
 
-    def generate_fuzz_entity_event_type(self, entities, event_type):
+    def generate_fuzz_entity_event_type(self, entities, event_type, multiplier=1):
         recent_fuzz = dict()
         for entity in entities.values():
             lookback_deltas = entity.rating().lookback_deltas(event_type)
             if lookback_deltas is None or not lookback_deltas and self._logfile is not None:
                 print('No lookback delta for %s' % entity.id(), file=self._logfile)
                 continue
-            deltas = [delta for delta in lookback_deltas if delta is not None]
+            deltas = [delta * multiplier for delta in lookback_deltas if delta is not None]
             if len(deltas) < 2:
                 if self._logfile is not None:
                     print('Insufficient lookback data for %s: %d' % (entity.id(), len(deltas)), file=self._logfile)
@@ -222,5 +225,5 @@ class Fuzzer(object):
             delta_avg = np.mean(deltas)
             delta_dev = np.std(deltas)
             # print('%s\t%s\t%f\t%f' % (event_type, entity.id(), delta_avg[0], delta_dev[0]))
-            recent_fuzz[entity.id()] = [delta_avg[0], delta_dev[0]]
+            recent_fuzz[entity.id()] = [delta_avg, delta_dev]
         return recent_fuzz
