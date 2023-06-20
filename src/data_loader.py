@@ -238,7 +238,8 @@ class DataLoader(object):
             for uuid, delta in lookbacks.items():
                 canonical_team = self._team_factory.get_team_by_uuid(uuid)
                 if canonical_team is None:
-                    print('ERROR: Team %s was loaded but not in lookback data?' % uuid, file=self._outfile)
+                    if uuid not in ['TeamBase', 'TeamNew']:
+                        print('ERROR: Team %s was loaded but not in lookback data?' % uuid, file=self._outfile)
                     continue
                 canonical_team.rating().update_lookback(event_id=event_id[1:], delta=delta)
         print('Loaded %d teams from log' % (len(self._team_factory.teams())), file=self._outfile)
