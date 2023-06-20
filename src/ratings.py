@@ -232,6 +232,7 @@ class EloRating(object):
         self._regress_rate = regress_rate
         self._reliability = reliability
         self._last_event_id = last_event_id
+        self._current_fuzz = 0
         self._non_alias_callers = list()
         self._alias_callers = list()
         self._deferred_complete = False
@@ -323,8 +324,17 @@ class EloRating(object):
     def set_reliability(self, reliability):
         self._reliability = reliability
 
+    def add_fuzz(self, fuzz):
+        self._current_fuzz += fuzz
+        # Safeguard to prevent fuzz drift from floating point oddities
+        if abs(self._current_fuzz) < 1e-4:
+            self._current_fuzz = 0
+
+    def clear_fuzz(self):
+        self._current_fuzz = 0
+
     def elo(self):
-        return self._elo_rating
+        return self._elo_rating + self._current_fuzz
 
     def k_factor(self):
         return self._k_factor

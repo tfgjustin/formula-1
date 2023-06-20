@@ -591,9 +591,7 @@ class EventPrediction(object):
             total_fuzz = event_fuzz[idx]
             if not total_fuzz:
                 continue
-            driver.start_update(self._event.id(), None)
-            driver.rating().update(total_fuzz * multiplier)
-            driver.commit_update()
+            driver.rating().add_fuzz(total_fuzz * multiplier)
         seen_teams = set()
         for team in self._event.teams():
             if team.id() in seen_teams:
@@ -608,9 +606,7 @@ class EventPrediction(object):
             total_fuzz = event_fuzz[idx]
             if not total_fuzz:
                 continue
-            team.start_update(self._event.id(), None)
-            team.rating().update(total_fuzz * multiplier)
-            team.commit_update()
+            team.rating().add_fuzz(total_fuzz * multiplier)
 
     def apply_weather(self, weather):
         if self._last_weather_condition is not None:
