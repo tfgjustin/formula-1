@@ -46,7 +46,10 @@ class Fuzzer(object):
     def set_fuzz(self, all_fuzz):
         self._all_fuzz = all_fuzz
 
-    def generate_all_fuzz(self, year, events, drivers, teams):
+    def clear(self):
+        self._all_fuzz = None
+
+    def generate_all_fuzz(self, year, events, drivers, teams, current_stage=None, total_stages=None):
         if self._all_fuzz is not None:
             print('Fuzz is already generated', file=self._logfile)
             return
@@ -55,8 +58,8 @@ class Fuzzer(object):
                   file=self._logfile)
         self._all_fuzz = defaultdict(dict)
         event_ids = sorted(events.keys(),  key=functools.cmp_to_key(f1event.compare_events))
-        current_stage_number = events[event_ids[0]].stage()
-        season_total_stages = events[event_ids[-1]].stage()
+        current_stage_number = events[event_ids[0]].stage() if current_stage is None else current_stage
+        season_total_stages = events[event_ids[-1]].stage() if total_stages is None else total_stages
         # Generate the base team fuzz first, then the per-event fuzz.
         self.generate_fuzz_team_estimate(events, current_stage_number, season_total_stages)
         self.generate_fuzz_team_event(events, teams)
