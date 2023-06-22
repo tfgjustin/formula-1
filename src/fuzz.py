@@ -76,20 +76,26 @@ class Fuzzer(object):
         all_teams = set()
         current_fuzz = dict()
         target_fuzz = dict()
-        _HEADERS = ['team_id', 'elo_adjust', 'mode']
-        handle = io.StringIO(self._args.team_adjust_tsv)
-        reader = csv.DictReader(handle, delimiter='\t')
-        for row in reader:
-            if not is_valid_row(row, _HEADERS):
-                continue
-            if row['mode'] != 'current' and row['mode'] != 'target':
-                print('ERROR: Invalid team adjustment fuzz mode: %s' % row['mode'])
-                continue
-            all_teams.add(row['team_id'])
-            if row['mode'] == 'current':
-                current_fuzz[row['team_id']] = float(row['elo_adjust'])
-            elif row['mode'] == 'target':
-                target_fuzz[row['team_id']] = float(row['elo_adjust'])
+        # Only do this part if we have team adjustments
+        if hasattr(self._args, 'team_adjust_tsv'):
+            _HEADERS = ['team_id', 'elo_adjust', 'mode']
+            handle = io.StringIO(self._args.team_adjust_tsv)
+            reader = csv.DictReader(handle, delimiter='\t')
+            for row in reader:
+                if not is_valid_row(row, _HEADERS):
+                    continue
+                if row['mode'] != 'current' and row['mode'] != 'target':
+                    print('ERROR: Invalid team adjustment fuzz mode: %s' % row['mode'])
+                    continue
+                all_teams.add(row['team_id'])
+                if row['mode'] == 'current':
+                    current_fuzz[row['team_id']] = float(row['elo_adjust'])
+                elif row['mode'] == 'target':
+                    target_fuzz[row['team_id']] = float(row['elo_adjust'])
+        # If the file was empty, then just generate fuzz for the union of all teams in the events
+        if not all_teams:
+            for event in events.values():
+                all_teams.update([t.id() for t in event.teams()])
         stages_left = season_total_stages - current_stage_number + 1
         for team_id in all_teams:
             current_elo_diff = current_fuzz.get(team_id, 0)

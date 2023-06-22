@@ -1,6 +1,6 @@
 import multiprocessing
 
-_NUM_THREADS = 12
+_NUM_THREADS = 10
 
 
 class Worker(multiprocessing.Process):

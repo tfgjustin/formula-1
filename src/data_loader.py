@@ -90,7 +90,8 @@ class DataLoader(object):
                 EloRating(
                     self._args.driver_elo_initial,
                     regress_rate=self._args.driver_elo_regress,
-                    k_factor_regress_rate=self._args.driver_kfactor_regress
+                    k_factor_regress_rate=self._args.driver_kfactor_regress,
+                    lookback_length=self._args.driver_elo_lookback
                 ), row['birthday'], row['birth_year'])
         print('Loaded %d drivers' % (len(self._drivers)), file=self._outfile)
 
@@ -174,7 +175,7 @@ class DataLoader(object):
                                           wear_failure=float(row['WearFailurePost']))
                 k_factor = KFactor(num_events=float(row['KFEventsPost']))
                 rating = EloRating(init_rating=float(row['EloPost']), reliability=reliability, k_factor=k_factor,
-                                   last_event_id=event_id)
+                                   last_event_id=event_id, lookback_length=self._args.driver_elo_lookback)
                 self._drivers[driver_id].set_rating(rating)
             set_reliability_metrics = True
         if base_driver_reliability.km_success() > 0:
@@ -225,7 +226,7 @@ class DataLoader(object):
                                           wear_percent=self._args.wear_reliability_percent)
                 k_factor = KFactor(num_events=float(row['KFEventsPost']))
                 rating = EloRating(init_rating=float(row['EloPost']), reliability=reliability, k_factor=k_factor,
-                                   last_event_id=event_id)
+                                   last_event_id=event_id, lookback_length=self._args.team_elo_lookback)
                 canonical_team.set_rating(rating)
         # Now go back and insert lookback data.
         for event_id in sorted(all_rows.keys(), key=functools.cmp_to_key(f1event.compare_events), reverse=False):

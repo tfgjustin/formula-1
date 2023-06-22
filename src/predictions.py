@@ -514,7 +514,7 @@ class EventPrediction(object):
         for entrant in self._sorted_entrants:
             entrant.reset_condition_multiplier_km()
 
-    def predict_winner(self, do_simulate_results):
+    def predict_winner(self, do_simulate_results, fuzz=None):
         """
         Predict the probability of each entrant winning. Use the Odds Ratio.
         https://en.wikipedia.org/wiki/Odds_ratio
@@ -527,11 +527,12 @@ class EventPrediction(object):
         self._naive_probabilities = {
             _ALL: naive_all_probability, _CAR: naive_car_probability, _DRIVER: naive_driver_probability
         }
-        # Predict all head-to-head and then simulate the event
-        self.predict_all_head_to_head()
         simulator = EventSimulator(self)
         if do_simulate_results:
-            simulator.simulate()
+            for idx in range(self._args.num_iterations):
+                self.setup_sim(fuzz, idx)
+                simulator.simulate(idx_offset=idx, num_iterations=1)
+                self.finish_sim(fuzz, idx)
             simulator.log_results()
         for entrant, position_probabilities in simulator.position_probabilities().items():
             driver_id = entrant.driver().id()
@@ -574,6 +575,13 @@ class EventPrediction(object):
                     second.get(driver_id, 0), third.get(driver_id, 0), driver_id),
                       file=self._debug_file)
 
+    def setup_sim(self, fuzz, idx, grid_penalties=None):
+        self.apply_fuzz(fuzz, idx)
+        self.predict_all_head_to_head()
+
+    def finish_sim(self, fuzz, idx):
+        self.remove_fuzz(fuzz, idx)
+
     def apply_fuzz(self, fuzz, idx):
         self._fuzz_internal(fuzz, idx, 1)
 
@@ -581,6 +589,8 @@ class EventPrediction(object):
         self._fuzz_internal(fuzz, idx, -1)
 
     def _fuzz_internal(self, fuzz, idx, multiplier):
+        if fuzz is None:
+            return
         for driver in self._event.drivers():
             driver_fuzz = fuzz.get(driver.id())
             if driver_fuzz is None:

@@ -107,7 +107,8 @@ class TeamFactory(object):
                 elo_rating = EloRating(
                     self._args.team_elo_initial,
                     regress_rate=self._args.team_elo_regress,
-                    k_factor_regress_rate=self._args.team_kfactor_regress
+                    k_factor_regress_rate=self._args.team_kfactor_regress,
+                    lookback_length=self._args.team_elo_lookback
                 )
             team = Team(uuid, team_id, team_name, rating=elo_rating)
             self._all_teams[this_key] = team

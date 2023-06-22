@@ -204,16 +204,18 @@ class Calculator(object):
         events = season.events()
         if self._logfile is not None:
             print('Running %d' % year, file=self._logfile)
+        sorted_event_ids = sorted(events.keys(), key=functools.cmp_to_key(f1event.compare_events))
+        season_num_stages = events[sorted_event_ids[-1]].stage()
         self._base_new_car_reliability.regress()
-        for event_id in sorted(events.keys(), key=functools.cmp_to_key(f1event.compare_events)):
+        for event_id in sorted_event_ids:
             event = events[event_id]
             if self.should_skip_event(event):
                 if self._logfile is not None:
                     print('Skipping %s (%s)' % (event.id(), event.name()), file=self._logfile)
                 continue
-            self.run_one_event(event)
+            self.run_one_event(event, season_num_stages)
 
-    def run_one_event(self, event):
+    def run_one_event(self, event, season_num_stages):
         """
         Run the model for a single event. This could be one qualifying session or one race.
         """
@@ -230,7 +232,15 @@ class Calculator(object):
         predictions.start_updates()
         predictions.maybe_force_regress()
         # Predict the odds of each entrant either winning or finishing on the podium.
-        predictions.predict_winner(getattr(self._args, 'print_predictions', False))
+        if getattr(self._args, 'print_predictions', False):
+            drivers = {driver.id(): driver for driver in event.drivers()}
+            teams = {team.id(): team for team in event.teams()}
+            self._fuzzer.generate_all_fuzz(event.season(), {event.id(): event}, drivers, teams,
+                                           current_stage=event.stage(), total_stages=season_num_stages)
+            predictions.predict_winner(True, fuzz=self._fuzzer.all_fuzz())
+            self._fuzzer.clear()
+        else:
+            predictions.predict_winner(False)
         # Do the full pairwise comparison of each driver. In order to not calculate A vs B and B vs A (or A vs A) only
         # compare when the ID of A<B.
         for result_a in event.results():

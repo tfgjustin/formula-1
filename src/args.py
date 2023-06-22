@@ -31,6 +31,9 @@ def add_common_args(parser):
     """
     parser.add_argument('--driver_elo_initial', help='Initial driver Elo rating.',
                         type=int, default=1400)
+    parser.add_argument('--driver_elo_lookback',
+                        help='Lookback window in races for driver Elo rating.',
+                        type=int, default=8)
     parser.add_argument('--driver_elo_regress',
                         help='Driver new season Elo regression multiplier.',
                         type=float, default=0.15)
@@ -102,6 +105,9 @@ def add_common_args(parser):
                         type=int, default=1996)
     parser.add_argument('--team_elo_initial', help='Initial team Elo rating.',
                         type=int, default=1200)
+    parser.add_argument('--team_elo_lookback',
+                        help='Lookback window in races for team Elo rating.',
+                        type=int, default=8)
     parser.add_argument('--team_elo_regress',
                         help='Team new season Elo regression multiplier.',
                         type=float, default=0.15)
