@@ -224,7 +224,7 @@ class Fuzzer(object):
         for entity in entities.values():
             lookback_deltas = entity.rating().lookback_deltas(event_type)
             if lookback_deltas is None or not lookback_deltas and self._logfile is not None:
-                print('No lookback delta for %s' % entity.id(), file=self._logfile)
+                # print('No lookback delta for %s' % entity.id(), file=self._logfile)
                 continue
             deltas = [delta * multiplier for delta in lookback_deltas if delta is not None]
             if len(deltas) < 2:

@@ -5,6 +5,7 @@ import functools
 import math
 import numpy as np
 
+from collections import defaultdict
 from fuzz import Fuzzer
 from f1_logging import open_file_with_suffix
 from predictions import EventPrediction, SimulatedEventPrediction
@@ -94,6 +95,18 @@ def assign_year_value_dict(spec, divisor, value_dict):
         value_dict[year] = current_value
 
 
+def driver_team_rank(results):
+    seen_by_team = defaultdict(int)
+    driver_ranks = dict()
+    for result in sorted(results, key=lambda r: r.end_position()):
+        driver_id = result.driver().id()
+        team_id = result.team().id()
+        rank = seen_by_team.get(team_id, 0) + 1
+        driver_ranks[driver_id] = rank
+        seen_by_team[team_id] = rank
+    return driver_ranks
+
+
 class Calculator(object):
 
     def __init__(self, args, base_filename):
@@ -125,7 +138,7 @@ class Calculator(object):
         self.create_team_share_dict()
         self._oversample_rates = dict(
             {f1event.QUALIFYING: dict({'195': 3, '196': 2}),
-             f1event.RACE: dict({'195': 7, '196': 6, '197': 3, '198': 3, '199': 3, '200': 2})
+             f1event.RACE: dict({'195': 7, '196': 6, '197': 3, '198': 3, '199': 3, '200': 2, '202': 2})
              })
         self._base_car_reliability = CarReliability(
             default_decay_rate=self._args.team_reliability_decay,
@@ -243,10 +256,11 @@ class Calculator(object):
             predictions.predict_winner(False)
         # Do the full pairwise comparison of each driver. In order to not calculate A vs B and B vs A (or A vs A) only
         # compare when the ID of A<B.
+        driver_team_ranks = driver_team_rank(event.results())
         for result_a in event.results():
             for result_b in event.results():
                 if result_a.driver().id() < result_b.driver().id():
-                    self.compare_results(event, predictions, result_a, result_b)
+                    self.compare_results(event, predictions, driver_team_ranks, result_a, result_b)
         self.update_all_reliability(event)
         # When we commit updates we commit all state to the Driver and Team entities.
         predictions.commit_updates()
@@ -427,7 +441,7 @@ class Calculator(object):
             result.team().rating().update_reliability(km_success, km_car_failure)
             result.driver().rating().update_reliability(km_success, km_driver_failure)
 
-    def compare_results(self, event, predictions, result_a, result_b):
+    def compare_results(self, event, predictions, driver_team_ranks, result_a, result_b):
         entrant_a = result_a.entrant()
         entrant_b = result_b.entrant()
         # First do the overall win probabilities
@@ -441,15 +455,15 @@ class Calculator(object):
             self.add_full_h2h_error(event, win_actual_a, win_prob_a)
             self.add_full_h2h_error(event, 1 - win_actual_a, 1 - win_prob_a)
         # Now do the performance (Elo-based) probabilities
-        self.update_elo_ratings(event, predictions, entrant_a, entrant_b, result_a, result_b, win_actual_a,
-                                mode=_MODE_PARTIAL)
-        self.update_elo_ratings(event, predictions, entrant_a, entrant_b, result_a, result_b, win_actual_a,
-                                mode=_MODE_CLOSING)
-        self.update_elo_ratings(event, predictions, entrant_a, entrant_b, result_a, result_b, win_actual_a,
-                                mode=_MODE_FULL)
+        self.update_elo_ratings(event, predictions, driver_team_ranks, entrant_a, entrant_b, result_a, result_b,
+                                win_actual_a, mode=_MODE_PARTIAL)
+        self.update_elo_ratings(event, predictions, driver_team_ranks, entrant_a, entrant_b, result_a, result_b,
+                                win_actual_a, mode=_MODE_CLOSING)
+        self.update_elo_ratings(event, predictions, driver_team_ranks, entrant_a, entrant_b, result_a, result_b,
+                                win_actual_a, mode=_MODE_FULL)
 
-    def update_elo_ratings(self, event, predictions, entrant_a, entrant_b, result_a, result_b, win_actual_a,
-                           mode=_MODE_FULL):
+    def update_elo_ratings(self, event, predictions, driver_team_ranks, entrant_a, entrant_b, result_a, result_b,
+                           win_actual_a, mode=_MODE_FULL):
         elo_win_prob_a, rating_a, rating_b = predictions.get_elo_win_probability(entrant_a, entrant_b)
         if elo_win_prob_a is None:
             if self._debug_file is not None:
@@ -474,8 +488,10 @@ class Calculator(object):
             if self._debug_file is not None:
                 print('      Skip: SC', file=self._debug_file)
             return
-        self.update_ratings(result_a, car_delta, driver_delta)
-        self.update_ratings(result_b, -car_delta, -driver_delta)
+        team_rank_a = driver_team_ranks.get(entrant_a.driver().id(), 1)
+        team_rank_b = driver_team_ranks.get(entrant_b.driver().id(), 1)
+        self.update_ratings(result_a, team_rank_a, car_delta, driver_delta)
+        self.update_ratings(result_b, team_rank_b, -car_delta, -driver_delta)
 
     def race_distance_multiplier(self, event):
         lap_distance_km = event.lap_distance_km()
@@ -514,7 +530,14 @@ class Calculator(object):
             if self._predict_file is not None:
                 print('EloH2H\t%s\t%.4f\t%.4f\t%d' % (event.id(), 0.5, prob, actual), file=self._predict_file)
 
-    def update_ratings(self, result, car_delta, driver_delta):
+    def update_ratings(self, result, team_rank, car_delta, driver_delta):
+        if team_rank > 1:
+            # Move some points from the car to the driver since the driver who finished second it's more on them
+            # than on the car.
+            total_delta = car_delta + driver_delta
+            driver_responsibility = self._args.second_driver_responsibility * total_delta
+            driver_delta += driver_responsibility
+            car_delta -= driver_responsibility
         result.driver().rating().update(driver_delta)
         result.team().rating().update(car_delta)
         if self._debug_file is not None:

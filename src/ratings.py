@@ -241,7 +241,7 @@ class EloRating(object):
         self._commit_complete = False
         self._lookback_length = lookback_length
         self._current_delta = None
-        self._recent_lookback = {
+        self._recent_lookback = None if lookback_length is None or not lookback_length else {
             f1event.QUALIFYING: deque(list(), self._lookback_length),
             f1event.RACE: deque(list(), self._lookback_length)
         }
@@ -311,6 +311,8 @@ class EloRating(object):
         self._commit_complete = True
 
     def update_lookback(self, event_id=None, delta=None):
+        if self._recent_lookback is None:
+            return
         lookback_event_id = event_id if event_id is not None else self._current_event_id
         lookback_delta = delta if delta is not None else self._current_delta
         if lookback_event_id is None:
@@ -346,6 +348,8 @@ class EloRating(object):
         return self._current_delta
 
     def lookback_deltas(self, event_type):
+        if self._recent_lookback is None:
+            return None
         if event_type is None:
             return None
         return self._recent_lookback.get(event_type)
@@ -376,5 +380,7 @@ class EloRating(object):
         self._elo_rating += ((1 - regress_factor) * self._default_rating)
 
     def reset_lookback(self):
+        if self._recent_lookback is None:
+            return
         for lookback in self._recent_lookback.values():
             lookback.clear()

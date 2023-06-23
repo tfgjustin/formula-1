@@ -101,6 +101,9 @@ def add_common_args(parser):
                         type=int, default=1)
     parser.add_argument('--run_max', help='Maximum number of runs.',
                         type=int, default=1)
+    parser.add_argument('--second_driver_responsibility',
+                        help='Percent of the total Elo delta we shift from the car to the driver for second drivers.',
+                        type=float, default=0.10)
     parser.add_argument('--start_year', help='First year for which we calculate ratings.',
                         type=int, default=1996)
     parser.add_argument('--team_elo_initial', help='Initial team Elo rating.',
