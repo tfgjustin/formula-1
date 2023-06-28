@@ -103,14 +103,16 @@ def add_common_args(parser):
                         type=int, default=1)
     parser.add_argument('--second_driver_responsibility',
                         help='Percent of the total Elo delta we shift from the car to the driver for second drivers.',
-                        type=float, default=0.10)
+                        # NOTE: Do not set this to anything other than 0 until I update it to prevent leakage between
+                        # driver and team ratings.
+                        type=float, default=0.00)
     parser.add_argument('--start_year', help='First year for which we calculate ratings.',
                         type=int, default=1996)
     parser.add_argument('--team_elo_initial', help='Initial team Elo rating.',
                         type=int, default=1200)
     parser.add_argument('--team_elo_lookback',
                         help='Lookback window in races for team Elo rating.',
-                        type=int, default=8)
+                        type=int, default=16)
     parser.add_argument('--team_elo_regress',
                         help='Team new season Elo regression multiplier.',
                         type=float, default=0.15)
@@ -138,7 +140,7 @@ def add_common_args(parser):
 #                        type = calculator.validate_factors, default = '50_4_1')
     parser.add_argument('--teammate_kfactor_multiplier',
                         help='Factor by which we multiply teammate K-Factors to increase/decrease points swapped.',
-                        type=float, default=0.85)
+                        type=float, default=1.05)
     parser.add_argument('--wear_reliability_percent',
                         help='Percent of the wear reliability ratio to use when calculating failure rates.',
                         type=float, default=0.638)
