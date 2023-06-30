@@ -534,6 +534,8 @@ class EventPrediction(object):
                 simulator.simulate(idx_offset=idx, num_iterations=1)
                 self.finish_sim(fuzz, idx)
             simulator.log_results()
+        else:
+            self.predict_all_head_to_head()
         for entrant, position_probabilities in simulator.position_probabilities().items():
             driver_id = entrant.driver().id()
             driver_finish = entrant.driver().rating().probability_finishing(race_distance_km=distance_km)
