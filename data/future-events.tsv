@@ -1,6 +1,4 @@
 event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance	course_type	weather	weather_probability
-2023-09-SS	2023	9	SS	2023-07-02	Rolex_Grand_Prix_of_Austria	Red Bull Ring	20	5	4.318	road	wet	0.85
-2023-09-SR	2023	9	SR	2023-07-02	Rolex_Grand_Prix_of_Austria	Red Bull Ring	20	24	4.318	road	wet	0.30
 2023-09-RA	2023	9	RA	2023-07-02	Rolex_Grand_Prix_of_Austria	Red Bull Ring	20	71	4.318	road	wet	0.25
 2023-10-QU	2023	10	QU	2023-07-09	Lenovo_British_Grand_Prix	Silverstone Circuit	20	10	5.891	road	dry
 2023-10-RA	2023	10	RA	2023-07-09	Lenovo_British_Grand_Prix	Silverstone Circuit	20	52	5.891	road	dry
