@@ -49210,3 +49210,23 @@ event_id	driver_id	team_id	start_position	partial_position	end_position	laps	sta
 2023-10-QU	Sergio_Perez	Oracle_Red_Bull_Racing	0	-	16	20	-	-	20
 2023-10-QU	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	0	-	15	20	-	-	20
 2023-10-QU	Yuki_Tsunoda	Scuderia_AlphaTauri	0	-	17	20	-	-	20
+2023-10-RA	Alexander_Albon	Williams_Racing	8	-	8	52	-	-	20
+2023-10-RA	Carlos_Sainz_Jr	Scuderia_Ferrari	5	-	10	52	-	-	20
+2023-10-RA	Charles_Leclerc	Scuderia_Ferrari	4	-	9	52	-	-	20
+2023-10-RA	Esteban_Ocon	BWT_Alpine_F1_Team	13	-	20	10	hydraulics	car	20
+2023-10-RA	Fernando_Alonso	Aston_Martin_Aramco_Cognizant_F1_Team	9	-	7	52	-	-	20
+2023-10-RA	George_Russell	Mercedes_AMG_Petronas_F1_Team	6	-	5	52	-	-	20
+2023-10-RA	Guanyu_Zhou	Alfa_Romeo_Racing_ORLEN	17	-	15	52	-	-	20
+2023-10-RA	Kevin_Magnussen	Haas_F1_Team	19	-	19	33	engine	car	20
+2023-10-RA	Lance_Stroll	Aston_Martin_Aramco_Cognizant_F1_Team	12	-	14	52	-	-	20
+2023-10-RA	Lando_Norris	McLaren_F1_Team	2	-	2	52	-	-	20
+2023-10-RA	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	7	-	3	52	-	-	20
+2023-10-RA	Logan_Sargeant	Williams_Racing	14	-	11	52	-	-	20
+2023-10-RA	Max_Verstappen	Oracle_Red_Bull_Racing	1	-	1	52	-	-	20
+2023-10-RA	Nico_Hulkenberg	Haas_F1_Team	11	-	13	52	-	-	20
+2023-10-RA	Nyck_de_Vries	Scuderia_AlphaTauri	18	-	17	52	-	-	20
+2023-10-RA	Oscar_Piastri	McLaren_F1_Team	3	-	4	52	-	-	20
+2023-10-RA	Pierre_Gasly	BWT_Alpine_F1_Team	10	-	18	48	crash damage	driver	20
+2023-10-RA	Sergio_Perez	Oracle_Red_Bull_Racing	15	-	6	52	-	-	20
+2023-10-RA	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	20	-	12	52	-	-	20
+2023-10-RA	Yuki_Tsunoda	Scuderia_AlphaTauri	16	-	16	52	-	-	20
