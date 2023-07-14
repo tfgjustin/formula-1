@@ -2,6 +2,7 @@ driver_id	team_id
 Alexander_Albon	Williams_Racing
 Carlos_Sainz_Jr	Scuderia_Ferrari
 Charles_Leclerc	Scuderia_Ferrari
+Daniel_Ricciardo	Scuderia_AlphaTauri
 Esteban_Ocon	BWT_Alpine_F1_Team
 Fernando_Alonso	Aston_Martin_Aramco_Cognizant_F1_Team
 George_Russell	Mercedes_AMG_Petronas_F1_Team
@@ -13,7 +14,6 @@ Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team
 Logan_Sargeant	Williams_Racing
 Max_Verstappen	Oracle_Red_Bull_Racing
 Nico_Hulkenberg	Haas_F1_Team
-Nyck_de_Vries	Scuderia_AlphaTauri
 Oscar_Piastri	McLaren_F1_Team
 Pierre_Gasly	BWT_Alpine_F1_Team
 Sergio_Perez	Oracle_Red_Bull_Racing
