@@ -1,5 +1,4 @@
 event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance	course_type	weather	weather_probability
-2023-11-RA	2023	11	RA	2023-07-23	Rolex_Hungarian_Grand_Prix	Hungaroring	20	70	4.381	road	dry
 2023-12-SS	2023	12	SS	2023-07-30	Rolex_Belgian_Grand_Prix	Circuit de Spa Francorchamps	20	5	7.004	road	dry
 2023-12-SR	2023	12	SR	2023-07-30	Rolex_Belgian_Grand_Prix	Circuit de Spa Francorchamps	20	15	7.004	road	dry
 2023-12-QU	2023	12	QU	2023-07-30	Rolex_Belgian_Grand_Prix	Circuit de Spa Francorchamps	20	10	7.004	road	dry
