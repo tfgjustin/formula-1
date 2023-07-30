@@ -263,6 +263,7 @@ class EventSimulator(object):
         self._is_normalized = False
         self._simulation_outcomes = defaultdict(list)
         self._simulation_ordering_log_cache = dict()
+        self._simulation_start_pos_log_cache = dict()
         self._simulation_num_laps_log_cache = dict()
         self._tmp_one_simulation_ordering = [None] * self._num_entrants
         self._tmp_one_simulation_num_laps = [None] * self._num_entrants
@@ -342,6 +343,7 @@ class EventSimulator(object):
             curr_start += len(distances[lap_num])
         # Cache the simulation results
         self._simulation_outcomes[idx] = '|'.join([e.driver().id() for e in self._tmp_one_simulation_ordering])
+        self._simulation_start_pos_log_cache[idx] = [e.start_position() for e in self._tmp_one_simulation_ordering]
         self._simulation_ordering_log_cache[idx] = copy.copy(self._tmp_one_simulation_ordering)
         self._simulation_num_laps_log_cache[idx] = copy.copy(self._tmp_one_simulation_num_laps)
         pos = 1
@@ -413,7 +415,8 @@ class EventSimulator(object):
 
     def simulation_log_entrant_string(self, sim_idx, entrant_idx):
         entrant = self._simulation_ordering_log_cache[sim_idx][entrant_idx]
-        return 'P%02d:%s:%d:%d' % (entrant_idx + 1, entrant.id(), entrant.start_position(),
+        return 'P%02d:%s:%d:%d' % (entrant_idx + 1, entrant.id(),
+                                   self._simulation_start_pos_log_cache[sim_idx][entrant_idx],
                                    self._simulation_num_laps_log_cache[sim_idx][entrant_idx])
 
 
