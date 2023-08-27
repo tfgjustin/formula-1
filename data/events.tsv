@@ -2193,3 +2193,4 @@ event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance	course_t
 2023-12-SR	2023	12	SR	2023-07-30	Rolex_Belgian_Grand_Prix	Circuit de Spa Francorchamps	20	11	7.004	road	wet
 2023-12-QU	2023	12	QU	2023-07-30	Rolex_Belgian_Grand_Prix	Circuit de Spa Francorchamps	20	10	7.004	road	wet
 2023-12-RA	2023	12	RA	2023-07-30	Rolex_Belgian_Grand_Prix	Circuit de Spa Francorchamps	20	44	7.004	road	dry
+2023-13-QU	2023	13	QU	2023-08-27	Heineken_Dutch_Grand_Prix	Circuit Zandvoort	20	10	4.259	road	wet
