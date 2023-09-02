@@ -67,7 +67,7 @@ class Fuzzer(object):
         self.generate_fuzz_driver_age(year, events, current_stage_number, season_total_stages, drivers)
         self.generate_fuzz_driver_event(events, drivers)
         if self._logfile is not None:
-            print('Generating fuzz: finish', file=self._logfile)
+            print('Generating fuzz: finish', file=self._logfile, flush=True)
 
     def generate_fuzz_team_estimate(self, events, current_stage_number, season_total_stages):
         # team_id: name-ish identifier of the team
@@ -172,6 +172,10 @@ class Fuzzer(object):
             # Now we need to figure out how much is left of the target. E.g., if we expect the overall target to be +48
             # Elo but we've already finished 4 out of 24 rounds, then we'd expect there to only be +40 Elo delta left.
             target_elo_diff = target_elo_delta_left(target_elo_diff, current_stage_number, season_total_stages)
+            if not current_exp:
+                # First, though, we see if this is one of their first events. We'll bump them down a bit for their first
+                # three weekends (six events).
+                current_elo_diff -= 15 * max([0, 6 - driver.rating().k_factor().num_events()])
             if self._logfile is not None:
                 print('DriverFuzz %d %d %d %s %6.2f %6.2f' % (year, birth_year, year - birth_year, driver.id(),
                                                               current_elo_diff, target_elo_diff),
@@ -211,7 +215,7 @@ class Fuzzer(object):
                     print('ERROR: Mismatched amount of base fuzz for %s in %s' % (driver_id, event.id()))
                     continue
                 fuzz_dict = driver_race_fuzz
-                default_dist = [0, 10]
+                default_dist = [0, 15]
                 if event.type() in [f1event.QUALIFYING, f1event.SPRINT_SHOOTOUT]:
                     fuzz_dict = driver_qualifying_fuzz
                 dist = fuzz_dict.get(driver_id, default_dist)
