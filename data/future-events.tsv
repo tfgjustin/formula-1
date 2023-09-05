@@ -1,5 +1,4 @@
 event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance	course_type	weather	weather_probability
-2023-14-RA	2023	14	RA	2023-09-03	Heineken_Grand_Prix_of_Italy	Autodromo Nazionale di Monza	20	53	5.793	road	dry
 2023-15-QU	2023	15	QU	2023-09-17	Singapore_Airlines_Singapore_Grand_Prix	Marina Bay Street Circuit	20	10	5.065	street	dry
 2023-15-RA	2023	15	RA	2023-09-17	Singapore_Airlines_Singapore_Grand_Prix	Marina Bay Street Circuit	20	59	5.065	street	dry
 2023-16-QU	2023	16	QU	2023-09-24	Japanese_Grand_Prix	Suzuka Circuitland	20	10	5.807	road	dry
