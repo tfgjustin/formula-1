@@ -9,6 +9,7 @@ import unicodedata
 from collections import defaultdict
 from datetime import datetime
 
+_OPENING_HEADER = 'opening_position'
 _PARTIAL_HEADER = 'partial_position'
 
 
@@ -80,7 +81,7 @@ def parse_laps(filename, races, drivers, ordered_laps, max_laps):
             lap_num = row.get('lap')
             try:
                 lap_num = int(lap_num)
-            except:
+            except ValueError:
                 continue
             if lap_num > max_laps.get(race_id, 0):
                 max_laps[race_id] = lap_num
@@ -98,7 +99,7 @@ def parse_laps(filename, races, drivers, ordered_laps, max_laps):
             for _, lap_data in sorted(lap_rows.items()):
                 try:
                     lap_msec = int(lap_data.get('milliseconds'))
-                except:
+                except ValueError:
                     print(lap_data)
                     continue
                 total_msec += lap_msec
@@ -114,12 +115,14 @@ def last_time_by_driver(race_laps, driver_to_last_time):
                 driver_to_last_time[driver_id] = time_msec
 
 
-def get_order_at_distance(races, drivers, lap_counts, ordered_laps, percent_distance, order_at_distance):
+def get_order_at_distance(races, drivers, lap_counts, ordered_laps, distance_metric, order_at_distance):
     for race_id, num_laps in lap_counts.items():
         tfg_race_id = races.get(race_id)
         if tfg_race_id is None:
             continue
-        min_race_laps = math.floor(percent_distance * num_laps)
+        min_race_laps = distance_metric
+        if min_race_laps < 1:
+            min_race_laps = math.floor(distance_metric * num_laps)
         race_laps = ordered_laps.get(race_id)
         driver_to_last_time = dict()
         last_time_by_driver(race_laps, driver_to_last_time)
@@ -159,39 +162,43 @@ def get_order_at_distance(races, drivers, lap_counts, ordered_laps, percent_dist
                 pos += 1
 
 
-def insert_partial_fieldname(fieldnames):
+def insert_partial_field_name(tag, fieldnames):
     # If the column is already in the file, don't add it.
-    if _PARTIAL_HEADER in fieldnames:
+    if tag in fieldnames:
         return fieldnames
     f = copy.copy(fieldnames)
-    end_idx = f.index('end_position')
-    f.insert(end_idx, _PARTIAL_HEADER)
+    end_idx = f.index('start_position')
+    f.insert(end_idx + 1, tag)
     return f
 
 
-def insert_partial_order(results_filename, order_at_distance, outfilename):
+def insert_partial_order(results_filename, order_at_distances, outfilename):
     with open(results_filename, 'r') as infile:
         reader = csv.DictReader(infile, delimiter='\t')
-        fieldnames = insert_partial_fieldname(reader.fieldnames)
+        fieldnames = reader.fieldnames
+        for tag in sorted(order_at_distances, reverse=True):
+            fieldnames = insert_partial_field_name(tag, fieldnames)
         with open(outfilename, 'w') as outfile:
             writer = csv.DictWriter(outfile, delimiter='\t', fieldnames=fieldnames)
             writer.writeheader()
             for row in reader:
-                row[_PARTIAL_HEADER] = '-'
-                event_id = row.get('event_id')
-                if event_id not in order_at_distance:
-                    writer.writerow(row)
-                    continue
-                driver_id = row.get('driver_id')
-                if driver_id not in order_at_distance[event_id]:
-                    writer.writerow(row)
-                    continue
-                row[_PARTIAL_HEADER] = order_at_distance[event_id][driver_id]
+                for tag, distances in sorted(order_at_distances.items()):
+                    row[tag] = '-'
+                    event_id = row.get('event_id')
+                    if event_id in distances:
+                        driver_id = row.get('driver_id')
+                        if driver_id in distances[event_id]:
+                            row[tag] = distances[event_id][driver_id]
                 writer.writerow(row)
+
 
 def main(argv):
     if len(argv) != 7:
-        print('Usage: %s <drivers_csv> <normalized_drivers_tsv> <races_csv> <laptimes_csv> <results_tsv> <outfile>' % argv[0])
+        print(
+            (
+                'Usage: %s <drivers_csv> <normalized_drivers_tsv> <races_csv> <laptimes_csv> <results_tsv> <outfile>'
+            ) % argv[0]
+        )
         return 1
     # [driver_id] = [lastName, birthday]
     drivers = dict()
@@ -202,9 +209,12 @@ def main(argv):
     max_laps = dict()
     parse_laps(argv[4], races, drivers, ordered_laps, max_laps)
     # [race_id][driver_id] = position
-    order_at_distance = defaultdict(dict)
-    get_order_at_distance(races, drivers, max_laps, ordered_laps, 0.9, order_at_distance)
-    insert_partial_order(argv[5], order_at_distance, argv[6])
+    distances = {_PARTIAL_HEADER: 0.9, _OPENING_HEADER: 2}
+    for tag, distance_metric in sorted(distances.items()):
+        order_at_distance = defaultdict(dict)
+        get_order_at_distance(races, drivers, max_laps, ordered_laps, distance_metric, order_at_distance)
+        distances[tag] = order_at_distance
+    insert_partial_order(argv[5], distances, argv[6])
     return 0
 
 
