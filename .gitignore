@@ -17,6 +17,7 @@ logs
 
 # Scraped files
 html/
+ergast/
 
 # Sentiment files
 sentiment/
