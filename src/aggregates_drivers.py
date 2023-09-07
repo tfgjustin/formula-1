@@ -33,7 +33,6 @@ def ImportRaces(intsv, races):
             races[row['season']][row['stage']] = row['event_id']
 
 
-
 def LoadFlatData(filename, metrics, dnfs, data):
     """Loads flattened data.
 
@@ -50,6 +49,8 @@ def LoadFlatData(filename, metrics, dnfs, data):
             driver_id = row['DriverID']
             year = row['RaceID'][1:5]
             race_id = row['RaceID']
+            if race_id[-2:] != 'RA':
+                continue
             if row['DnfReason'] != '-':
                 dnfs[driver_id][race_id] = 1
             for metric in metrics:
@@ -71,8 +72,8 @@ def MinPctRaces(year):
 def PrintOneYearPeak(data, metrics, races, drivers, tsvwriter):
     """Print the peak value a driver had in a year.
     """
-    for driver,year_dict in data.items():
-        for year,race_dict in year_dict.items():
+    for driver, year_dict in data.items():
+        for year, race_dict in year_dict.items():
             if len(race_dict) < (len(races[year]) * MinPctRaces(year)):
                 continue
             if len(race_dict) <= 2:
@@ -85,8 +86,8 @@ def PrintOneYearPeak(data, metrics, races, drivers, tsvwriter):
 def PrintOneYearOverall(data, metrics, races, drivers, tsvwriter):
     """Calculates the harmonic mean of the season peak, average, and end rating.
     """
-    for driver,year_dict in data.items():
-        for year,race_dict in year_dict.items():
+    for driver, year_dict in data.items():
+        for year, race_dict in year_dict.items():
             if len(race_dict) < (len(races[year]) * MinPctRaces(year)):
                 continue
             sorted_races = sorted(race_dict.keys())
@@ -102,11 +103,10 @@ def PrintOneYearOverall(data, metrics, races, drivers, tsvwriter):
                 tsvwriter.writerow(['Overall', metric, driver, drivers[driver], year, year, '%.4f' % overall])
 
 
-def PrintNYearsAverage(data, metrics, dnfs, races, drivers, tag, num_years,
-                                             tsvwriter):
+def PrintNYearsAverage(data, metrics, dnfs, races, drivers, tag, num_years, tsvwriter):
     """Calculates the average rating over an N-year window.
     """
-    for driver,year_dict in data.items():
+    for driver, year_dict in data.items():
         driver_dnf = set()
         if driver in dnfs:
             driver_dnf = dnfs[driver]
@@ -123,14 +123,16 @@ def PrintNYearsAverage(data, metrics, dnfs, races, drivers, tag, num_years,
                 if year not in year_dict:
                     skip = True
                     break
-                # Championship races are initially all the races in the year where the
+                # Championship races are initially all the races in the year in which the
                 # driver received a rating.
-                champ_races = {race_id:rating for race_id,rating in year_dict[year].items()}
+                champ_races = {race_id: rating for race_id, rating in year_dict[year].items()}
                 # Now filter down to the ones where the driver finished.
-                champ_races = {race_id:rating for race_id,rating in champ_races.items() if race_id not in driver_dnf}
+                champ_races = {race_id: rating for race_id, rating in champ_races.items() if race_id not in driver_dnf}
                 num_completed += len(champ_races)
-                num_required += (len(races[year]) * MinPctRaces(year))
-                # print('%s\t%s\t%d\t%d\t%.1f' % (driver, year, len(champ_races), num_completed, num_required))
+                num_required += (len(races[year]) * (MinPctRaces(year)))
+                # print('NY:%d\tD:%s\tY:%s\tCR:%d\tNC:%d\tNR:%.1f' % (
+                #     num_years, driver, year, len(champ_races), num_completed, num_required
+                # ))
                 if len(champ_races) <= 3:
                     skip = True
                     break
@@ -145,8 +147,7 @@ def PrintNYearsAverage(data, metrics, dnfs, races, drivers, tag, num_years,
 
 
 def PrintHeaders(tsvwriter):
-    tsvwriter.writerow(['Aggregate', 'Metric', 'DriverID', 'DriverName',
-                                            'StartYear', 'EndYear', 'Value'])
+    tsvwriter.writerow(['Aggregate', 'Metric', 'DriverID', 'DriverName', 'StartYear', 'EndYear', 'Value'])
 
 
 def main(argv):
