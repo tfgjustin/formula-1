@@ -113,8 +113,8 @@ class DataLoader(object):
             return True
 
     def load_results(self, content):
-        _HEADERS = ['event_id', 'driver_id', 'team_id', 'start_position', 'partial_position', 'end_position',
-                    'laps', 'status', 'dnf_category', 'num_racers']
+        _HEADERS = ['event_id', 'driver_id', 'team_id', 'start_position', 'opening_position', 'partial_position',
+                    'end_position', 'laps', 'status', 'dnf_category', 'num_racers']
         all_rows = self._load_and_group_by_event(content, _HEADERS)
         self._team_factory.reset_current_teams()
         last_event_id = None
@@ -312,6 +312,7 @@ class DataLoader(object):
         if row['event_id'] not in self._events:
             print('ERROR: Invalid event ID: %s' % row['event_id'], file=self._outfile)
             return
+        # TODO: Make this work for opening laps. We'll need to insert into multiple events.
         event = self._events[row['event_id']]
         if row['driver_id'] not in self._drivers:
             print('ERROR: Invalid driver ID %s in event %s' % (row['driver_id'], row['event_id']),
@@ -319,7 +320,7 @@ class DataLoader(object):
             return
         driver = self._drivers[row['driver_id']]
         entrant = Entrant(event, driver, team, start_position=start_position)
-        result = Result(event, entrant, row['partial_position'], row['end_position'],
+        result = Result(event, entrant, row['opening_position'], row['partial_position'], row['end_position'],
                         dnf_category=row['dnf_category'], laps_completed=row['laps'])
         entrant.set_result(result)
         self._results.append(result)
@@ -341,35 +342,17 @@ class DataLoader(object):
                 weather_probability = 1.0
             else:
                 weather_probability = float(weather_probability)
-            if row['type'] == f1event.QUALIFYING:
-                event = f1event.Qualifying(
-                    row['event_id'], row['name'], row['season'], row['stage'], row['date'], row['laps'],
-                    row['lap_distance'], is_street_course, row['weather'], weather_probability=weather_probability)
-            elif row['type'] == f1event.SPRINT_SHOOTOUT:
-                event = f1event.SprintShootout(
-                    row['event_id'], row['name'], row['season'], row['stage'], row['date'], row['laps'],
-                    row['lap_distance'], is_street_course, row['weather'], weather_probability=weather_probability)
-            elif row['type'] == f1event.SPRINT_QUALIFYING:
-                event = f1event.SprintQualifying(
-                    row['event_id'], row['name'], row['season'], row['stage'], row['date'], row['laps'],
-                    row['lap_distance'], is_street_course, row['weather'], weather_probability=weather_probability)
-            elif row['type'] == f1event.SPRINT_RACE:
-                event = f1event.SprintRace(
-                    row['event_id'], row['name'], row['season'], row['stage'], row['date'], row['laps'],
-                    row['lap_distance'], is_street_course, row['weather'], weather_probability=weather_probability)
-            elif row['type'] == f1event.RACE:
-                event = f1event.Race(
-                    row['event_id'], row['name'], row['season'], row['stage'], row['date'], row['laps'],
-                    row['lap_distance'], is_street_course, row['weather'], weather_probability=weather_probability)
-            else:
-                continue
-            event_log[event.id()] = event
-            if event.season() in season_log:
-                season_log[event.season()].add_event(event)
-            else:
-                season = Season(event.season())
-                season.add_event(event)
-                season_log[event.season()] = season
+            events = f1event.EventFactory.create_events(
+                row['event_id'], row['name'], row['season'], row['stage'], row['date'], row['laps'],
+                row['lap_distance'], is_street_course, row['weather'], weather_probability=weather_probability)
+            for event in events.values():
+                event_log[event.id()] = event
+                if event.season() in season_log:
+                    season_log[event.season()].add_event(event)
+                else:
+                    season = Season(event.season())
+                    season.add_event(event)
+                    season_log[event.season()] = season
         print('Loaded %d %s events' % (len(event_log), tag.lower()), file=self._outfile)
         print('Loaded %d %s seasons' % (len(season_log), tag.lower()), file=self._outfile)
         for year in sorted(season_log.keys()):

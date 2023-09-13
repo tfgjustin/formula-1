@@ -1,10 +1,12 @@
 RACE = 'RA'
+RACE_OPENING = 'RO'
 SPRINT_QUALIFYING = 'SQ'
 QUALIFYING = 'QU'
 SPRINT_RACE = 'SR'
 SPRINT_SHOOTOUT = 'SS'
 _EVENT_TYPE_TO_VALUE = {
     'RA': 90,   # Race: Always the last event of the weekend
+    'RO': 89,   # Opening lap of a race: a pseudo-event which is part of a race but never surfaced externally.
     'SQ': 70,   # Sprint qualifying: A sprint (100km event) which sets the grid for a race
     'QU': 50,   # Qualifying: A pre-race/sprint event which sets the grid for either a race or sprint qualifying
     'SR': 30,   # Sprint race: A sprint which is itself a race
@@ -155,3 +157,36 @@ class Race(Event):
                  weather_probability=1.0):
         super().__init__(event_id, name, season, stage, date, RACE, num_laps, lap_distance_km, is_street_course,
                          weather, weather_probability=weather_probability)
+
+
+class EventFactory(object):
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def create_events(event_id, name, season, stage, date, num_laps, lap_distance_km, is_street_course, weather,
+                      weather_probability=1.0):
+        events = {}
+        event_type = event_id[-2:]
+        # breakpoint()
+        if event_type == QUALIFYING:
+            event = Qualifying(event_id, name, season, stage, date, num_laps, lap_distance_km, is_street_course,
+                               weather, weather_probability=weather_probability)
+            events[event_id] = event
+        elif event_type == SPRINT_SHOOTOUT:
+            event = SprintShootout(event_id, name, season, stage, date, num_laps, lap_distance_km, is_street_course,
+                                   weather, weather_probability=weather_probability)
+            events[event_id] = event
+        elif event_type == SPRINT_QUALIFYING:
+            event = SprintQualifying(event_id, name, season, stage, date, num_laps, lap_distance_km, is_street_course,
+                                     weather, weather_probability=weather_probability)
+            events[event_id] = event
+        elif event_type == SPRINT_RACE:
+            event = SprintRace(event_id, name, season, stage, date, num_laps,  lap_distance_km, is_street_course,
+                               weather, weather_probability=weather_probability)
+            events[event_id] = event
+        elif event_type == RACE:
+            event = Race(event_id, name, season, stage, date, num_laps, lap_distance_km, is_street_course, weather,
+                         weather_probability=weather_probability)
+            events[event_id] = event
+        return events
