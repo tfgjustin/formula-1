@@ -324,6 +324,7 @@ class DataLoader(object):
                         dnf_category=row['dnf_category'], laps_completed=row['laps'])
         entrant.set_result(result)
         self._results.append(result)
+        # TODO: Make this work for opening laps. We'll need to insert into multiple events.
         self._events[event.id()].add_entrant(entrant)
 
     def _load_events_internal(self, contents, tag, event_log, season_log):
@@ -372,6 +373,7 @@ class DataLoader(object):
                 team = self._add_team_to_future_lineup_by_id(row['team_id'])
                 if driver is None or team is None:
                     continue
+                # TODO: Make this work for opening laps. We'll need to insert into multiple events.
                 for event in self._future_events.values():
                     entrant = Entrant(event, driver, team)
                     event.add_entrant(entrant)
@@ -387,6 +389,7 @@ class DataLoader(object):
             team = self._add_team_to_future_lineup_by_id(entrant.team().id())
             if driver is None or team is None:
                 continue
+            # TODO: Make this work for opening laps. We'll need to insert into multiple events.
             for event in self._future_events.values():
                 entrant = Entrant(event, driver, team)
                 event.add_entrant(entrant)
