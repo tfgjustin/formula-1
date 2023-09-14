@@ -1,17 +1,32 @@
 RACE = 'RA'
 RACE_OPENING = 'RO'
 SPRINT_QUALIFYING = 'SQ'
+SPRINT_Q_OPENING = 'QO'
 QUALIFYING = 'QU'
 SPRINT_RACE = 'SR'
+SPRINT_OPENING = 'SO'
 SPRINT_SHOOTOUT = 'SS'
 _EVENT_TYPE_TO_VALUE = {
-    'RA': 90,   # Race: Always the last event of the weekend
-    'RO': 89,   # Opening lap of a race: a pseudo-event which is part of a race but never surfaced externally.
-    'SQ': 70,   # Sprint qualifying: A sprint (100km event) which sets the grid for a race
-    'QU': 50,   # Qualifying: A pre-race/sprint event which sets the grid for either a race or sprint qualifying
-    'SR': 30,   # Sprint race: A sprint which is itself a race
-    'SS': 10    # Sprint shootout: A shortened qualifying event which sets the grid for a sprint race
+    RACE:              90,   # Race: Always the last event of the weekend
+    RACE_OPENING:      89,   # Opening lap of a race: a pseudo-event which is part of a race.
+    SPRINT_QUALIFYING: 70,   # Sprint qualifying: A sprint (100km event) which sets the grid for a race
+    SPRINT_Q_OPENING:  69,   # Sprint qualifying opening lap
+    QUALIFYING:        50,   # Qualifying: A pre-race/sprint event which sets the grid for a race or sprint qualifying
+    SPRINT_RACE:       30,   # Sprint race: A sprint which is itself a race
+    SPRINT_OPENING:    29,   # Sprint race opening lap
+    SPRINT_SHOOTOUT:   10    # Sprint shootout: A shortened qualifying event which sets the grid for a sprint race
 }
+# Mapping of an event type to the type for the opening lap of that event type
+_EVENT_TYPE_TO_OPENING_EVENT_TYPE = {
+    RACE: RACE_OPENING,
+    SPRINT_QUALIFYING: SPRINT_Q_OPENING,
+    SPRINT_RACE: SPRINT_OPENING,
+}
+
+
+def opening_event_id_for_event_id(event_id):
+    event_type = event_id[-2:]
+    return _EVENT_TYPE_TO_OPENING_EVENT_TYPE.get(event_type)
 
 
 def event_tag_to_value(event_tag):
@@ -159,6 +174,18 @@ class Race(Event):
                          weather, weather_probability=weather_probability)
 
 
+class OpeningLap(Event):
+    def __init__(self, parent_event_id, name, season, stage, date, lap_distance_km, is_street_course, weather,
+                 weather_probability=1.0):
+        parent_event_type = parent_event_id[-2:]
+        event_type = _EVENT_TYPE_TO_OPENING_EVENT_TYPE.get(parent_event_type)
+        assert event_type is not None,\
+            f'Trying to create opening lap for invalid event type {parent_event_type} ({parent_event_id})'
+        event_id = parent_event_id.replace(parent_event_type, event_type)
+        super().__init__(event_id, name + ' opening lap', season, stage, date, event_type, 1, lap_distance_km,
+                         is_street_course, weather, weather_probability=weather_probability)
+
+
 class EventFactory(object):
     def __init__(self):
         pass
@@ -168,25 +195,23 @@ class EventFactory(object):
                       weather_probability=1.0):
         events = {}
         event_type = event_id[-2:]
-        # breakpoint()
         if event_type == QUALIFYING:
-            event = Qualifying(event_id, name, season, stage, date, num_laps, lap_distance_km, is_street_course,
-                               weather, weather_probability=weather_probability)
-            events[event_id] = event
+            events[event_id] = Qualifying(event_id, name, season, stage, date, num_laps, lap_distance_km,
+                                          is_street_course, weather, weather_probability=weather_probability)
         elif event_type == SPRINT_SHOOTOUT:
-            event = SprintShootout(event_id, name, season, stage, date, num_laps, lap_distance_km, is_street_course,
-                                   weather, weather_probability=weather_probability)
-            events[event_id] = event
+            events[event_id] = SprintShootout(event_id, name, season, stage, date, num_laps, lap_distance_km,
+                                              is_street_course, weather, weather_probability=weather_probability)
         elif event_type == SPRINT_QUALIFYING:
-            event = SprintQualifying(event_id, name, season, stage, date, num_laps, lap_distance_km, is_street_course,
-                                     weather, weather_probability=weather_probability)
-            events[event_id] = event
+            events[event_id] = SprintQualifying(event_id, name, season, stage, date, num_laps, lap_distance_km,
+                                                is_street_course, weather, weather_probability=weather_probability)
         elif event_type == SPRINT_RACE:
-            event = SprintRace(event_id, name, season, stage, date, num_laps,  lap_distance_km, is_street_course,
-                               weather, weather_probability=weather_probability)
-            events[event_id] = event
+            events[event_id] = SprintRace(event_id, name, season, stage, date, num_laps,  lap_distance_km,
+                                          is_street_course, weather, weather_probability=weather_probability)
         elif event_type == RACE:
-            event = Race(event_id, name, season, stage, date, num_laps, lap_distance_km, is_street_course, weather,
-                         weather_probability=weather_probability)
-            events[event_id] = event
+            events[event_id] = Race(event_id, name, season, stage, date, num_laps, lap_distance_km, is_street_course,
+                                    weather, weather_probability=weather_probability)
+        # if event_type in _EVENT_TYPE_TO_OPENING_EVENT_TYPE:
+        #     event = OpeningLap(event_id, name, season, stage, date, lap_distance_km, is_street_course, weather,
+        #                        weather_probability=weather_probability)
+        #     events[event.id()] = event
         return events
