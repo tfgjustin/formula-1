@@ -306,6 +306,7 @@ class EventSimulator(object):
     def _calculate_num_laps(self, entrant):
         failure_probability = random.random()
         # Did we make it to the end?
+        # TODO: Use the include_opening=False option here for anything that's not an opening lap.
         if failure_probability < entrant.probability_complete_n_laps(self._event.num_laps()):
             return self._event.num_laps()
         # Binary search the rest
@@ -522,6 +523,7 @@ class EventPrediction(object):
         Predict the probability of each entrant winning. Use the Odds Ratio.
         https://en.wikipedia.org/wiki/Odds_ratio
         """
+        # TODO: Make reliability different for opening lap and the rest of the race.
         # Calculate the naive probabilities to finish this event.
         distance_km = self._event.total_distance_km()
         naive_car_probability = self._base_car_reliability.probability_finishing(race_distance_km=distance_km)
@@ -539,6 +541,7 @@ class EventPrediction(object):
             simulator.log_results()
         else:
             self.predict_all_head_to_head()
+        # TODO: Don't bother with this for opening laps.
         for entrant, position_probabilities in simulator.position_probabilities().items():
             driver_id = entrant.driver().id()
             driver_finish = entrant.driver().rating().probability_finishing(race_distance_km=distance_km)
@@ -695,6 +698,7 @@ class EventPrediction(object):
         starting_positions.update(updated_starting_positions)
 
     def set_starting_positions(self, idx, grid_penalties=None):
+        # TODO: Make this work for opening laps.
         driver_to_start_position = dict()
         if self._starting_positions is not None and self._starting_positions and idx is not None:
             starting_order = self._starting_positions[idx]
@@ -813,6 +817,7 @@ class SimulatedEventPrediction(EventPrediction):
         assert len(self._all_k_factor_adjust) == self._args.num_iterations
 
     def only_simulate_outcomes(self, fuzz, grid_penalties=None, sim_log_idx_offset=0, output_buffer=None):
+        # TODO: Fix this up for opening laps.
         if self._starting_positions is None:
             # This is a function call signature mismatch
             print('ERROR: Starting positions is None in simulation-only mode.', file=self._debug_file)
