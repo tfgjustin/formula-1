@@ -19,6 +19,7 @@ _CAR = 'Car'
 _DRIVER = 'Driver'
 
 _MODE_FULL = 'full'
+_MODE_OPENING = 'opening'
 _MODE_PARTIAL = 'partial'
 _MODE_CLOSING = 'closing'
 
@@ -69,11 +70,11 @@ def validate_factors(argument):
 
 
 def was_performance_win(result_this, result_other, mode=_MODE_FULL):
-    if mode != _MODE_PARTIAL:
-        return result_this.dnf_category() == '-' and result_other.dnf_category() == '-'
-    else:
+    if mode == _MODE_PARTIAL:
         # Partial results
         return result_this.partial_position() is not None and result_other.partial_position() is not None
+    else:
+        return result_this.dnf_category() == '-' and result_other.dnf_category() == '-'
 
 
 def assign_year_value_dict(spec, divisor, value_dict):
@@ -395,6 +396,7 @@ class Calculator(object):
     def update_all_reliability(self, event):
         if event.type() in [f1event.QUALIFYING, f1event.SPRINT_SHOOTOUT]:
             return
+        # For races and sprint qualifying, keep going.
         driver_condition_multiplier_km = 1
         car_condition_multiplier_km = 1
         # TODO: Fix up these hard-coded values
@@ -406,7 +408,6 @@ class Calculator(object):
             driver_condition_multiplier_km *= self._args.reliability_km_multiplier_wet
         if event.is_street_course():
             driver_condition_multiplier_km *= self._args.reliability_km_multiplier_street
-        # For races and sprint qualifying, keep going.
         driver_crash_laps = [
             result.laps() for result in event.results() if result.dnf_category() == 'driver' and result.laps() >= 1
         ]
