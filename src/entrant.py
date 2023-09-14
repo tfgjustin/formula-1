@@ -70,14 +70,15 @@ class Entrant(object):
         self._condition_multiplier_km = 1
         self._probability_fail_at_n = None
 
-    def calculate_lap_reliability(self, num_laps, lap_distance_km):
+    def calculate_lap_reliability(self, num_laps, lap_distance_km, include_opening=True):
         if self._probability_fail_at_n is not None:
             return
         self._probability_fail_at_n = [0] * (num_laps + 1)
         self._probability_fail_after_n = [0] * (num_laps + 1)
         self._probability_succeed_through_n = [1] * (num_laps + 1)
         self._probability_fail_at_n[0] = 1 - self.probability_survive_opening()
-        self._probability_succeed_through_n[0] = self.probability_survive_opening()
+        if include_opening:
+            self._probability_succeed_through_n[0] = self.probability_survive_opening()
         current_success_probability = self._probability_succeed_through_n[0]
         for n in range(1, num_laps + 1):
             this_lap_success = self._driver.rating().probability_finishing(start_km=(lap_distance_km * (n - 1)),
@@ -117,19 +118,22 @@ class Entrant(object):
             else:
                 return 0.919
 
-    def probability_complete_n_laps(self, num_laps):
+    def probability_complete_n_laps(self, num_laps, include_opening=True):
         if self._probability_fail_at_n is None:
-            self.calculate_lap_reliability(self._event.num_laps(), self._event.lap_distance_km())
+            self.calculate_lap_reliability(self._event.num_laps(), self._event.lap_distance_km(),
+                                           include_opening=include_opening)
         return self._probability_succeed_through_n[num_laps]
 
-    def probability_fail_at_n(self, num_laps):
+    def probability_fail_at_n(self, num_laps, include_opening=True):
         if self._probability_fail_at_n is None:
-            self.calculate_lap_reliability(self._event.num_laps(), self._event.lap_distance_km())
+            self.calculate_lap_reliability(self._event.num_laps(), self._event.lap_distance_km(),
+                                           include_opening=include_opening)
         return self._probability_fail_at_n[num_laps]
 
-    def probability_fail_after_n(self, num_laps):
+    def probability_fail_after_n(self, num_laps, include_opening=True):
         if self._probability_fail_at_n is None:
-            self.calculate_lap_reliability(self._event.num_laps(), self._event.lap_distance_km())
+            self.calculate_lap_reliability(self._event.num_laps(), self._event.lap_distance_km(),
+                                           include_opening=include_opening)
         return self._probability_fail_after_n[num_laps]
 
     def _create_id(self):
