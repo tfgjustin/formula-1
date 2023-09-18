@@ -49450,3 +49450,23 @@ event_id	driver_id	team_id	start_position	partial_position	end_position	laps	sta
 2023-15-QU	Sergio_Perez	Oracle_Red_Bull_Racing	0	-	13	20	-	-	20
 2023-15-QU	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	0	-	16	20	-	-	20
 2023-15-QU	Yuki_Tsunoda	Scuderia_AlphaTauri	0	-	15	20	-	-	20
+2023-15-RA	Alexander_Albon	Williams_Racing	14	10	11	62	-	-	19
+2023-15-RA	Carlos_Sainz_Jr	Scuderia_Ferrari	1	1	1	62	-	-	19
+2023-15-RA	Charles_Leclerc	Scuderia_Ferrari	3	5	4	62	-	-	19
+2023-15-RA	Liam_Lawson	Scuderia_AlphaTauri	10	9	9	62	-	-	19
+2023-15-RA	Esteban_Ocon	BWT_Alpine_F1_Team	8	-	18	43	gearbox	car	19
+2023-15-RA	Fernando_Alonso	Aston_Martin_Aramco_Cognizant_F1_Team	7	16	15	62	-	-	19
+2023-15-RA	George_Russell	Mercedes_AMG_Petronas_F1_Team	2	3	16	61	crash	driver	19
+2023-15-RA	Guanyu_Zhou	Alfa_Romeo_Racing_ORLEN	19	13	12	62	-	-	19
+2023-15-RA	Kevin_Magnussen	Haas_F1_Team	6	14	10	62	-	-	19
+2023-15-RA	Lance_Stroll	Aston_Martin_Aramco_Cognizant_F1_Team	20	-	20	0	dns	car	19
+2023-15-RA	Lando_Norris	McLaren_F1_Team	4	2	2	62	-	-	19
+2023-15-RA	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	5	4	3	62	-	-	19
+2023-15-RA	Logan_Sargeant	Williams_Racing	18	15	14	62	-	-	19
+2023-15-RA	Max_Verstappen	Oracle_Red_Bull_Racing	11	7	5	62	-	-	19
+2023-15-RA	Nico_Hulkenberg	Haas_F1_Team	9	12	13	62	-	-	19
+2023-15-RA	Oscar_Piastri	McLaren_F1_Team	17	8	7	62	-	-	19
+2023-15-RA	Pierre_Gasly	BWT_Alpine_F1_Team	12	6	6	62	-	-	19
+2023-15-RA	Sergio_Perez	Oracle_Red_Bull_Racing	13	11	8	62	-	-	19
+2023-15-RA	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	16	-	17	51	engine	car	19
+2023-15-RA	Yuki_Tsunoda	Scuderia_AlphaTauri	15	-	19	0	crash damage	driver	19
