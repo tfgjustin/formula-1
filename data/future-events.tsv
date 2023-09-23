@@ -1,5 +1,4 @@
 event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance	course_type	weather	weather_probability
-2023-16-QU	2023	16	QU	2023-09-24	Japanese_Grand_Prix	Suzuka Circuitland	20	10	5.807	road	dry
 2023-16-RA	2023	16	RA	2023-09-24	Japanese_Grand_Prix	Suzuka Circuitland	20	52	5.807	road	dry
 2023-17-SS	2023	17	SS	2023-10-08	Ooredoo_Qatar_Grand_Prix	Losail International Circuit	20	5	5.38	road	dry
 2023-17-SR	2023	17	SR	2023-10-08	Ooredoo_Qatar_Grand_Prix	Losail International Circuit	20	19	5.38	road	dry
