@@ -1,32 +1,15 @@
 RACE = 'RA'
-RACE_OPENING = 'RO'
 SPRINT_QUALIFYING = 'SQ'
-SPRINT_Q_OPENING = 'QO'
 QUALIFYING = 'QU'
 SPRINT_RACE = 'SR'
-SPRINT_OPENING = 'SO'
 SPRINT_SHOOTOUT = 'SS'
 _EVENT_TYPE_TO_VALUE = {
     RACE:              90,   # Race: Always the last event of the weekend
-    RACE_OPENING:      89,   # Opening lap of a race: a pseudo-event which is part of a race.
     SPRINT_QUALIFYING: 70,   # Sprint qualifying: A sprint (100km event) which sets the grid for a race
-    SPRINT_Q_OPENING:  69,   # Sprint qualifying opening lap
     QUALIFYING:        50,   # Qualifying: A pre-race/sprint event which sets the grid for a race or sprint qualifying
     SPRINT_RACE:       30,   # Sprint race: A sprint which is itself a race
-    SPRINT_OPENING:    29,   # Sprint race opening lap
     SPRINT_SHOOTOUT:   10    # Sprint shootout: A shortened qualifying event which sets the grid for a sprint race
 }
-# Mapping of an event type to the type for the opening lap of that event type
-_EVENT_TYPE_TO_OPENING_EVENT_TYPE = {
-    RACE: RACE_OPENING,
-    SPRINT_QUALIFYING: SPRINT_Q_OPENING,
-    SPRINT_RACE: SPRINT_OPENING,
-}
-
-
-def opening_event_id_for_event_id(event_id):
-    event_type = event_id[-2:]
-    return _EVENT_TYPE_TO_OPENING_EVENT_TYPE.get(event_type)
 
 
 def event_tag_to_value(event_tag):
@@ -55,6 +38,59 @@ def compare_events(e1, e2):
         return 0
 
 
+class Phase(object):
+    def __init__(self, event, phase_id, sequence_number, num_laps, lap_distance_km):
+        self._event = event
+        self._phase_id = phase_id
+        self._sequence_number = sequence_number
+        self._num_laps = int(num_laps)
+        self._lap_distance_km = float(lap_distance_km)
+        self._entrants = list()
+        self._results = list()
+        self._results = list()
+        self._drivers = set()
+        self._teams = set()
+
+    def add_entrant(self, entrant):
+        if entrant.event().id() == self._event.id():
+            self._entrants.append(entrant)
+            self._drivers.add(entrant.driver())
+            if entrant.team() is not None:
+                self._teams.add(entrant.team())
+            if entrant.has_result():
+                self._results.append(entrant.result())
+
+    def num_entrants(self):
+        return len(self._results)
+
+    def entrants(self):
+        return self._entrants
+
+    def has_results(self):
+        return len(self._results) > 0
+
+    def results(self):
+        return self._results
+
+    def drivers(self):
+        return self._drivers
+
+    def teams(self):
+        return self._teams
+
+    def id(self):
+        return f'{self._event.id()}-{self._phase_id}'
+
+    def num_laps(self):
+        return self._num_laps
+
+    def lap_distance_km(self):
+        return self._lap_distance_km
+
+    def total_distance_km(self):
+        return self._num_laps * self._lap_distance_km
+
+
 class Event(object):
 
     def __init__(self, event_id, name, season, stage, date, event_type, num_laps, lap_distance_km, is_street_course,
@@ -74,6 +110,7 @@ class Event(object):
         self._is_street_course = is_street_course
         self._weather = weather
         self._weather_probability = weather_probability
+        self._phases = list()
 
     def add_entrant(self, entrant):
         if entrant.event().id() == self._id:
@@ -83,6 +120,9 @@ class Event(object):
                 self._teams.add(entrant.team())
             if entrant.has_result():
                 self._results.append(entrant.result())
+
+    def add_phase(self, phase):
+        self._phases.append(phase)
 
     def num_entrants(self):
         return len(self._results)
@@ -138,12 +178,25 @@ class Event(object):
     def total_distance_km(self):
         return self._num_laps * self._lap_distance_km
 
+    def phases(self):
+        return self._phases
+
 
 class Qualifying(Event):
     def __init__(self, event_id, name, season, stage, date, num_laps, lap_distance_km, is_street_course, weather,
                  weather_probability=1.0):
         super().__init__(event_id, name, season, stage, date, QUALIFYING, num_laps, lap_distance_km, is_street_course,
                          weather, weather_probability=weather_probability)
+        # TODO: Add phases for qualifying
+        # https://racingnews365.com/every-formula-1-qualifying-format-ever
+        # 1950-1995: Two-day format; fastest time from across two days
+        # 1996-2002: One hour shootout; 12 laps to set the fastest time
+        # 2003-2004: One lap on each of two days; Friday set order for Saturday, and Saturday for the race
+        # 2005 (first 6 rounds): Low fuel Saturday, race fuel Sunday, add the two times
+        # 2005 (remaining rounds): Back to 2003-2004 format
+        # 2006-2015: Current Q1/Q2/Q3 format
+        # 2016 (first 2 rounds): Weird knockout qualifying
+        # 2016 (round 3) to present: Current Q1/Q2/Q3 format
 
 
 class SprintShootout(Event):
@@ -151,6 +204,7 @@ class SprintShootout(Event):
                  weather_probability=1.0):
         super().__init__(event_id, name, season, stage, date, SPRINT_SHOOTOUT, num_laps, lap_distance_km,
                          is_street_course, weather, weather_probability=weather_probability)
+        # TODO: Add phases for Q1/Q2/Q3 qualifying
 
 
 class SprintQualifying(Event):
@@ -158,6 +212,7 @@ class SprintQualifying(Event):
                  weather_probability=1.0):
         super().__init__(event_id, name, season, stage, date, SPRINT_QUALIFYING, num_laps, lap_distance_km,
                          is_street_course, weather, weather_probability=weather_probability)
+        # TODO: Add phases for opening lap, and full race distance
 
 
 class SprintRace(Event):
@@ -165,6 +220,7 @@ class SprintRace(Event):
                  weather_probability=1.0):
         super().__init__(event_id, name, season, stage, date, SPRINT_RACE, num_laps, lap_distance_km, is_street_course,
                          weather, weather_probability=weather_probability)
+        # TODO: Add phases for opening lap, and full race distance
 
 
 class Race(Event):
@@ -172,18 +228,7 @@ class Race(Event):
                  weather_probability=1.0):
         super().__init__(event_id, name, season, stage, date, RACE, num_laps, lap_distance_km, is_street_course,
                          weather, weather_probability=weather_probability)
-
-
-class OpeningLap(Event):
-    def __init__(self, parent_event_id, name, season, stage, date, lap_distance_km, is_street_course, weather,
-                 weather_probability=1.0):
-        parent_event_type = parent_event_id[-2:]
-        event_type = _EVENT_TYPE_TO_OPENING_EVENT_TYPE.get(parent_event_type)
-        assert event_type is not None,\
-            f'Trying to create opening lap for invalid event type {parent_event_type} ({parent_event_id})'
-        event_id = parent_event_id.replace(parent_event_type, event_type)
-        super().__init__(event_id, name + ' opening lap', season, stage, date, event_type, 1, lap_distance_km,
-                         is_street_course, weather, weather_probability=weather_probability)
+        # TODO: Add phases for opening lap, partial distance, and full race distance
 
 
 class EventFactory(object):
@@ -210,8 +255,4 @@ class EventFactory(object):
         elif event_type == RACE:
             events[event_id] = Race(event_id, name, season, stage, date, num_laps, lap_distance_km, is_street_course,
                                     weather, weather_probability=weather_probability)
-        # if event_type in _EVENT_TYPE_TO_OPENING_EVENT_TYPE:
-        #     event = OpeningLap(event_id, name, season, stage, date, lap_distance_km, is_street_course, weather,
-        #                        weather_probability=weather_probability)
-        #     events[event.id()] = event
         return events
