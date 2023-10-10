@@ -1,5 +1,4 @@
 event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance	course_type	weather	weather_probability
-2023-17-RA	2023	17	RA	2023-10-08	Ooredoo_Qatar_Grand_Prix	Losail International Circuit	20	57	5.419	road	dry
 2023-18-SS	2023	18	SS	2023-10-22	Aramco_United_States_Grand_Prix	Circuit of the Americas	20	5	5.513	road	dry
 2023-18-SR	2023	18	SR	2023-10-22	Aramco_United_States_Grand_Prix	Circuit of the Americas	20	19	5.513	road	dry
 2023-18-QU	2023	18	QU	2023-10-22	Aramco_United_States_Grand_Prix	Circuit of the Americas	20	10	5.513	road	dry
