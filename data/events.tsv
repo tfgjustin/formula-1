@@ -2211,3 +2211,6 @@ event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance	course_t
 2023-18-RA	2023	18	RA	2023-10-22	Aramco_United_States_Grand_Prix	Circuit of the Americas	20	56	5.513	road	dry
 2023-19-QU	2023	19	QU	2023-10-29	Grand_Prix_of_Mexico_+City	Autodromo Hermanos Rodriguez	20	10	4.304	road	dry
 2023-19-RA	2023	19	RA	2023-10-29	Grand_Prix_of_Mexico_+City	Autodromo Hermanos Rodriguez	20	71	4.304	road	dry
+2023-20-SS	2023	20	SS	2023-11-05	Heineken_Grand_Prix_of_Sao_Paulo	Autodromo Jose Carlos Pace	20	5	4.309	road	dry
+2023-20-SR	2023	20	SR	2023-11-05	Heineken_Grand_Prix_of_Sao_Paulo	Autodromo Jose Carlos Pace	20	24	4.309	road	dry
+2023-20-QU	2023	20	QU	2023-11-05	Heineken_Grand_Prix_of_Sao_Paulo	Autodromo Jose Carlos Pace	20	10	4.309	road	dry
