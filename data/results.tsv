@@ -49770,22 +49770,22 @@ event_id	driver_id	team_id	start_position	partial_position	end_position	laps	sta
 2023-20-QU	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	0	-	18	20	-	-	20
 2023-20-QU	Yuki_Tsunoda	Scuderia_AlphaTauri	0	-	16	20	-	-	20
 2023-20-RA	Alexander_Albon	Williams_Racing	13	-	19	0	crash	driver	20
-2023-20-RA	Carlos_Sainz_Jr	Scuderia_Ferrari	7	-	6	71	did not start	car	20
+2023-20-RA	Carlos_Sainz_Jr	Scuderia_Ferrari	7	6	6	71	did not start	car	20
 2023-20-RA	Charles_Leclerc	Scuderia_Ferrari	2	-	20	0	did not start	car	20
-2023-20-RA	Daniel_Ricciardo	Scuderia_AlphaTauri	17	-	13	70	-	-	20
-2023-20-RA	Esteban_Ocon	BWT_Alpine_F1_Team	14	-	10	70	-	-	20
-2023-20-RA	Fernando_Alonso	Aston_Martin_Aramco_Cognizant_F1_Team	4	-	3	71	-	-	20
+2023-20-RA	Daniel_Ricciardo	Scuderia_AlphaTauri	17	13	13	70	-	-	20
+2023-20-RA	Esteban_Ocon	BWT_Alpine_F1_Team	14	10	10	70	-	-	20
+2023-20-RA	Fernando_Alonso	Aston_Martin_Aramco_Cognizant_F1_Team	4	3	3	71	-	-	20
 2023-20-RA	George_Russell	Mercedes_AMG_Petronas_F1_Team	8	-	15	57	overheating	car	20
 2023-20-RA	Guanyu_Zhou	Alfa_Romeo_Racing_ORLEN	20	-	17	22	engine	car	20
 2023-20-RA	Kevin_Magnussen	Haas_F1_Team	12	-	18	0	crash	driver	20
-2023-20-RA	Lance_Stroll	Aston_Martin_Aramco_Cognizant_F1_Team	3	-	5	71	-	-	20
-2023-20-RA	Lando_Norris	McLaren_F1_Team	6	-	2	71	-	-	20
-2023-20-RA	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	5	-	8	71	-	-	20
-2023-20-RA	Logan_Sargeant	Williams_Racing	19	-	11	70	-	-	20
-2023-20-RA	Max_Verstappen	Oracle_Red_Bull_Racing	1	-	1	71	-	-	20
-2023-20-RA	Nico_Hulkenberg	Haas_F1_Team	11	-	12	70	-	-	20
-2023-20-RA	Oscar_Piastri	McLaren_F1_Team	10	-	14	69	-	-	20
-2023-20-RA	Pierre_Gasly	BWT_Alpine_F1_Team	15	-	7	71	-	-	20
-2023-20-RA	Sergio_Perez	Oracle_Red_Bull_Racing	9	-	4	71	-	-	20
+2023-20-RA	Lance_Stroll	Aston_Martin_Aramco_Cognizant_F1_Team	3	5	5	71	-	-	20
+2023-20-RA	Lando_Norris	McLaren_F1_Team	6	2	2	71	-	-	20
+2023-20-RA	Lewis_Hamilton	Mercedes_AMG_Petronas_F1_Team	5	8	8	71	-	-	20
+2023-20-RA	Logan_Sargeant	Williams_Racing	19	11	11	70	-	-	20
+2023-20-RA	Max_Verstappen	Oracle_Red_Bull_Racing	1	1	1	71	-	-	20
+2023-20-RA	Nico_Hulkenberg	Haas_F1_Team	11	12	12	70	-	-	20
+2023-20-RA	Oscar_Piastri	McLaren_F1_Team	10	14	14	69	-	-	20
+2023-20-RA	Pierre_Gasly	BWT_Alpine_F1_Team	15	7	7	71	-	-	20
+2023-20-RA	Sergio_Perez	Oracle_Red_Bull_Racing	9	4	4	71	-	-	20
 2023-20-RA	Valtteri_Bottas	Alfa_Romeo_Racing_ORLEN	18	-	16	39	engine	car	20
-2023-20-RA	Yuki_Tsunoda	Scuderia_AlphaTauri	16	-	9	71	-	-	20
+2023-20-RA	Yuki_Tsunoda	Scuderia_AlphaTauri	16	9	9	71	-	-	20
