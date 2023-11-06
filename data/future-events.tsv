@@ -1,5 +1,4 @@
 event_id	season	stage	type	date	name	site	num_drivers	laps	lap_distance	course_type	weather	weather_probability
-2023-20-RA	2023	20	RA	2023-11-05	Heineken_Grand_Prix_of_Sao_Paulo	Autodromo Jose Carlos Pace	20	71	4.309	road	dry
 2023-21-QU	2023	21	QU	2023-11-19	Las_Vegas_Grand_Prix	Las Vegas Street Circuit	20	10	6.120	street	dry
 2023-21-RA	2023	21	RA	2023-11-19	Las_Vegas_Grand_Prix	Las Vegas Street Circuit	20	50	6.120	street	dry
 2023-22-QU	2023	22	QU	2023-11-26	Etihad_Airways_Abu_Dhabi_Grand_Prix	Yas Marina Circuit	20	10	5.281	road	dry
